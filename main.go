@@ -9,18 +9,23 @@ import (
 )
 
 var (
-	config   = Config{}
-	handlers = []ACARSHandler{}
+	config            = Config{}
+	enabledAnnotators = []ACARSAnnotator{}
+	enabledReceivers  = []Receiver{}
 )
 
 type Config struct {
-	ACARSHost                        string `env:"ACARS_HOST"`
-	ACARSPort                        string `env:"ACARS_PORT"`
-	ACARSTransport                   string `env:"ACARS_TRANSPORT"`
+	ACARSHost                        string `env:"ACARSHUB_HOST"`
+	ACARSPort                        string `env:"ACARSHUB_PORT"`
+	ACARSTransport                   string `env:"ACARSHUB_TRANSPORT"`
 	ADSBExchangeEnabled              bool   `env:"ADSBEXCHANGE_ENABLED"`
 	ADSBExchangeAPIKey               string `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
 	LogLevel                         string `env:"LOGLEVEL"`
+	NewRelicLicenseKey               string `env:"NEW_RELIC_LICENSE_KEY"`
+	NewRelicLicenseCustomEventType   string `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
+	WebhookURL                       string `env:"WEBHOOK_URL"`
+	WebhookHeaders                   string `env:"WEBHOOK_HEADERS"`
 }
 
 // Set up Config, logging
@@ -53,11 +58,23 @@ func init() {
 func main() {
 	// Add handlers based on what's enabled
 	if config.ADSBExchangeEnabled {
-		log.Info("ADSB enabled")
+		log.Info("ADSB handler enabled")
 		if config.ADSBExchangeAPIKey == "" {
 			log.Error("ADSB API key not set")
 		}
-		handlers = append(handlers, ADSBHandler{})
+		enabledAnnotators = append(enabledAnnotators, ADSBHandlerAnnotator{})
 	}
+
+	// Add receivers based on what's enabled
+	if config.WebhookURL != "" {
+		log.Info("Webhook receiver enabled")
+		enabledReceivers = append(enabledReceivers, WebhookHandlerReciever{})
+	}
+	if config.NewRelicLicenseKey != "" {
+		log.Info("New Relic reciever enabled")
+		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
+	}
+
+	// Subscribe to ACARS
 	SubscribeToACARSHub()
 }
