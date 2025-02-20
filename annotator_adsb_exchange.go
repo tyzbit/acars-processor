@@ -138,18 +138,18 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 		"adsbAppVersion":                 m.App.Version,
 		"adsbRouterUUID":                 m.App.ACARSRouterUUID,
 		"adsbStationID":                  m.StationID,
+		"adsbOriginGeolocation":          config.ADSBExchangeReferenceGeolocation,
+		"adsbOriginGeolocationLatitude":  flat,
+		"adsbOriginGeolocationLongitude": flon,
 		"adsbAircraftTailCode":           m.AircraftTailCode,
 		"adsbAircraftGeolocation":        airgeo,
 		"adsbAircraftLatitude":           position.Aircraft[0].Latitude,
 		"adsbAircraftLongitude":          position.Aircraft[0].Longitude,
+		"adsbAircraftDistanceKm":         float64(air.DistanceTo(o, geopoint.Haversine)),
+		"adsbAircraftDistanceMi":         float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
 		"adsbMessageText":                m.MessageText,
 		"adsbMessageNumber":              m.MessageNumber,
 		"adsbFlightNumber":               m.FlightNumber,
-		"adsbOriginGeolocation":          config.ADSBExchangeReferenceGeolocation,
-		"adsbOriginGeolocationLatitude":  flat,
-		"adsbOriginGeolocationLongitude": flon,
-		"adsbAircraftDistanceKm":         float64(air.DistanceTo(o, geopoint.Haversine)),
-		"adsbAircraftDistanceMi":         float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
 	}
 
 	return ACARSAnnotation{
