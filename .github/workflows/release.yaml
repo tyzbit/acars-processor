@@ -1,0 +1,43 @@
+# .github/workflows/release.yaml
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  releases-matrix:
+    name: Release Go Binary
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: ["386", amd64, arm64]
+        ext: ["", ".exe"]
+        # If more than one flag specified, rewrite build script and
+        # build_command below
+        ldflags: ["-w"]
+        exclude:
+          - goarch: "386"
+            goos: darwin
+          - goarch: arm64
+            goos: windows
+          - goos: darwin
+            ext: ".exe"
+          - goos: linux
+            ext: ".exe"
+          - ldflags: "-w"
+            goos: windows
+    steps:
+      - uses: actions/checkout@v4
+      - uses: wangyoucao577/go-release-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sha256sum: TRUE
+          md5sum: FALSE
+          goos: ${{ matrix.goos }}
+          goarch: ${{ matrix.goarch }}
+          goversion: 1.19.5
+          ldflags: ${{ matrix.ldflags }}
+          compress_assets: OFF
+          asset_name: ${{ github.event.repository.name }}-${{ github.ref_name }}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.ext }}
+          extra_files: LICENSE README.md

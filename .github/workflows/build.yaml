@@ -1,0 +1,33 @@
+name: Build and Push Docker Images with Version Tag
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Extract tag name
+        id: extract-tag
+        run: echo "TAG_NAME=$(echo $GITHUB_REF | sed 's/refs\/tags\///')" >> $GITHUB_ENV
+
+      - name: Login to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
+
+      - name: Build and push 'latest' tag on main branch
+        run: |
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            docker build -t ghcr.io/${{ github.repository }}:latest .
+            docker push ghcr.io/${{ github.repository }}:latest
+          else
+            docker build -t ghcr.io/${{ github.repository }}:${{ env.TAG_NAME }} .
+            docker push ghcr.io/${{ github.repository }}:${{ env.TAG_NAME }}
+          fi
