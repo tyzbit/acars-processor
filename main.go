@@ -17,7 +17,6 @@ var (
 type Config struct {
 	ACARSHubHost                     string `env:"ACARSHUB_HOST"`
 	ACARSHubPort                     int    `env:"ACARSHUB_PORT"`
-	ADSBExchangeEnabled              bool   `env:"ADSBEXCHANGE_ENABLED"`
 	ADSBExchangeAPIKey               string `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
 	LogLevel                         string `env:"LOGLEVEL"`
@@ -56,7 +55,7 @@ func init() {
 
 func main() {
 	// Add handlers based on what's enabled
-	if config.ADSBExchangeEnabled {
+	if config.ADSBExchangeAPIKey != "" {
 		log.Info("ADSB handler enabled")
 		if config.ADSBExchangeAPIKey == "" {
 			log.Error("ADSB API key not set")
