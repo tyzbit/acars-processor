@@ -10,9 +10,9 @@ import (
 )
 
 func SubscribeToACARSHub() {
-	address := fmt.Sprintf("%s:%s", config.ACARSHost, config.ACARSPort)
-	log.Debugf("connecting to %s via %s", address, config.ACARSTransport)
-	s, err := net.Dial(config.ACARSTransport, address)
+	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
+	log.Debugf("connecting to %s", address)
+	s, err := net.Dial("tcp", address)
 	if err != nil {
 		log.Fatalf("error connecting: %v", err)
 	}

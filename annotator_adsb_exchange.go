@@ -31,7 +31,7 @@ type SingleAircraftPosition struct {
 		FlightNumber                                  string        `json:"flight"`
 		AircraftTailCode                              string        `json:"r"`
 		AircraftModel                                 string        `json:"t"`
-		AltimeterBarometer                            int64         `json:"alt_baro"`
+		AltimeterBarometer                            interface{}   `json:"alt_baro"`
 		AltimeterGeometricFeet                        int64         `json:"alt_geom"`
 		GroundSpeedKnots                              float64       `json:"gs"`
 		TrueGroundTrack                               float64       `json:"track"`

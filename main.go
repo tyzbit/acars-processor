@@ -15,9 +15,8 @@ var (
 )
 
 type Config struct {
-	ACARSHost                        string `env:"ACARSHUB_HOST"`
-	ACARSPort                        string `env:"ACARSHUB_PORT"`
-	ACARSTransport                   string `env:"ACARSHUB_TRANSPORT"`
+	ACARSHubHost                     string `env:"ACARSHUB_HOST"`
+	ACARSHubPort                     int    `env:"ACARSHUB_PORT"`
 	ADSBExchangeEnabled              bool   `env:"ADSBEXCHANGE_ENABLED"`
 	ADSBExchangeAPIKey               string `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
@@ -64,6 +63,9 @@ func main() {
 		}
 		enabledAnnotators = append(enabledAnnotators, ADSBHandlerAnnotator{})
 	}
+	if len(enabledAnnotators) == 0 {
+		log.Warn("no annotators are enabled")
+	}
 
 	// Add receivers based on what's enabled
 	if config.WebhookURL != "" {
@@ -74,7 +76,9 @@ func main() {
 		log.Info("New Relic reciever enabled")
 		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
 	}
+	if len(enabledReceivers) == 0 {
+		log.Warn("no receivers are enabled")
+	}
 
-	// Subscribe to ACARS
 	SubscribeToACARSHub()
 }
