@@ -72,6 +72,9 @@ type SingleAircraftPosition struct {
 // Wrapper around the SingleAircraftPositionByRegistration API
 func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (ac SingleAircraftPosition, err error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf(adsbapiv2, fmt.Sprintf("registration/%s/", reg)), nil)
+	if err != nil {
+		return ac, err
+	}
 	req.Header.Add(adsbapikeyheader, config.ADSBExchangeAPIKey)
 	// Create a new HTTP client
 	client := &http.Client{}
@@ -95,28 +98,6 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 	}
 }
 
-// Helper function to calculate distance using registration and geopoint
-func (a ADSBHandlerAnnotator) SingleAircraftDistanceFromPoint(reg string, g geopoint.GeoPoint) (geopoint.Kilometres, error) {
-	ac, err := a.SingleAircraftPositionByRegistration(reg)
-	if err != nil {
-		return geopoint.Kilometres(0), err
-	}
-
-	lat := geopoint.Degrees(ac.Aircraft[0].Latitude)
-	lon := geopoint.Degrees(ac.Aircraft[0].Longitude)
-	km := g.DistanceTo(geopoint.NewGeoPoint(lat, lon), geopoint.Haversine)
-	return km, nil
-}
-
-// Helper function to calculate distance using registration and geopoint, but in miles
-func (a ADSBHandlerAnnotator) SingleAircraftDistanceFromPointMiles(reg string, g geopoint.GeoPoint) (geopoint.Miles, error) {
-	km, err := a.SingleAircraftDistanceFromPoint(reg, g)
-	if err != nil {
-		return geopoint.Miles(0), err
-	}
-	return km.Miles(), nil
-}
-
 // Interface function to satisfy ACARSHandler
 func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation ACARSAnnotation) {
 	if config.ADSBExchangeReferenceGeolocation == "" {
@@ -132,19 +113,21 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 	flon, _ := strconv.ParseFloat(coords[1], 64)
 	lat := geopoint.Degrees(flat)
 	lon := geopoint.Degrees(flon)
-	g := geopoint.NewGeoPoint(lat, lon)
+	o := geopoint.NewGeoPoint(lat, lon)
 
-	km, err := a.SingleAircraftDistanceFromPoint(m.AircraftTailCode, *g)
+	position, err := a.SingleAircraftPositionByRegistration(m.AircraftTailCode)
 	if err != nil {
-		log.Errorf("error determining distance between aircraft and point: %v", err)
+		log.Warnf("error getting aircraft position: %v", err)
+	}
+	if len(position.Aircraft) == 0 {
+		log.Warn("no aircraft were returned from ADS-B API")
 		return annotation
 	}
 
-	mi, err := a.SingleAircraftDistanceFromPointMiles(m.AircraftTailCode, *g)
-	if err != nil {
-		log.Errorf("error determining distance between aircraft and point: %v", err)
-		return annotation
-	}
+	airlat := geopoint.Degrees(position.Aircraft[0].Latitude)
+	airlon := geopoint.Degrees(position.Aircraft[0].Longitude)
+	airgeo := fmt.Sprintf("%f:%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
+	air := geopoint.NewGeoPoint(airlat, airlon)
 
 	event := map[string]interface{}{
 		"adsbFrequencyMHz":               m.FrequencyMHz,
@@ -156,14 +139,17 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 		"adsbRouterUUID":                 m.App.ACARSRouterUUID,
 		"adsbStationID":                  m.StationID,
 		"adsbAircraftTailCode":           m.AircraftTailCode,
+		"adsbAircraftGeolocation":        airgeo,
+		"adsbAircraftLatitude":           position.Aircraft[0].Latitude,
+		"adsbAircraftLongitude":          position.Aircraft[0].Longitude,
 		"adsbMessageText":                m.MessageText,
 		"adsbMessageNumber":              m.MessageNumber,
 		"adsbFlightNumber":               m.FlightNumber,
 		"adsbOriginGeolocation":          config.ADSBExchangeReferenceGeolocation,
 		"adsbOriginGeolocationLatitude":  flat,
 		"adsbOriginGeolocationLongitude": flon,
-		"adsbDistanceKm":                 int64(km),
-		"adsbDistanceMi":                 int64(mi),
+		"adsbAircraftDistanceKm":         float64(air.DistanceTo(o, geopoint.Haversine)),
+		"adsbAircraftDistanceMi":         float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
 	}
 
 	return ACARSAnnotation{
