@@ -1,6 +1,6 @@
 module github.com/tyzbit/acars-annotator
 
-go 1.24
+go 1.21
 
 require (
 	github.com/golobby/config/v3 v3.4.2

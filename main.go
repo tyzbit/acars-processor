@@ -23,6 +23,7 @@ type Config struct {
 	NewRelicLicenseKey               string `env:"NEW_RELIC_LICENSE_KEY"`
 	NewRelicLicenseCustomEventType   string `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
 	WebhookURL                       string `env:"WEBHOOK_URL"`
+	WebhookMethod                    string `env:"WEBHOOK_METHOD"`
 	WebhookHeaders                   string `env:"WEBHOOK_HEADERS"`
 }
 

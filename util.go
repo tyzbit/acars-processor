@@ -6,7 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func readFile(filePath string) []byte {
+func ReadFile(filePath string) []byte {
 	filePath = os.Getenv("HOME") + "/" + filePath
 	// Read the content of the file
 	content, err := os.ReadFile(filePath)
@@ -19,7 +19,7 @@ func readFile(filePath string) []byte {
 	return content
 }
 
-func writeFile(filePath string, contents []byte) {
+func WriteFile(filePath string, contents []byte) {
 	filePath = os.Getenv("HOME") + "/" + filePath
 	err := os.WriteFile(filePath, contents, 0644)
 	if err != nil {

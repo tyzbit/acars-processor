@@ -43,7 +43,10 @@ func (n NewRelicHandlerReciever) SubmitACARSMessage(a AnnotatedACARSMessage) (er
 		}
 
 		// Record the custom event.
-		harvester.RecordEvent(event)
+		err = harvester.RecordEvent(event)
+		if err != nil {
+			return err
+		}
 
 		// Flush events to New Relic. HarvestNow sends any recorded events immediately.
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

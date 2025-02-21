@@ -120,7 +120,7 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 		log.Warnf("error getting aircraft position: %v", err)
 	}
 	if len(position.Aircraft) == 0 {
-		log.Warn("no aircraft were returned from ADS-B API")
+		log.Warnf("no aircraft were returned from ADS-B API, response message was: %s", position.Message)
 		return annotation
 	}
 
