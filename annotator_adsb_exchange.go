@@ -126,7 +126,7 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 
 	airlat := geopoint.Degrees(position.Aircraft[0].Latitude)
 	airlon := geopoint.Degrees(position.Aircraft[0].Longitude)
-	airgeo := fmt.Sprintf("%f:%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
+	airgeo := fmt.Sprintf("%f,%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
 	air := geopoint.NewGeoPoint(airlat, airlon)
 
 	event := map[string]interface{}{
