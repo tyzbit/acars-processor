@@ -30,7 +30,8 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 	for {
 		err := j.Decode(&next)
 		if err != nil {
-			log.Fatalf("error decoding acars message: %v", err)
+			log.Errorf("error decoding acars message: %v", err)
+			return
 		}
 		if (next == ACARSMessage{}) {
 			log.Errorf("json message did not match expected structure, we got: %+v", next)

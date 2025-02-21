@@ -67,7 +67,7 @@ func (w WebhookHandlerReciever) SubmitACARSMessage(m AnnotatedACARSMessage) erro
 
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		log.Error(err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)

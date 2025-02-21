@@ -28,7 +28,7 @@ func (n NewRelicHandlerReciever) SubmitACARSMessage(a AnnotatedACARSMessage) (er
 			telemetry.ConfigAPIKey(config.NewRelicLicenseKey), // Replace with your New Relic Insert API key.
 		)
 		if err != nil {
-			log.Fatal("Error creating harvester:", err)
+			log.Error("Error creating harvester:", err)
 		}
 
 		// Allow overriding the custom event type
