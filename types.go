@@ -24,7 +24,7 @@ type ACARSMessage struct {
 	FrequencyMHz float64 `json:"freq"`
 	Channel      int     `json:"channel"`
 	ErrorCode    int     `json:"error"`
-	SignaldBm    float64 `json:"signal"`
+	SignaldBm    float64 `json:"level"`
 	Timestamp    float64 `json:"timestamp"`
 	App          struct {
 		Name               string `json:"name"`
