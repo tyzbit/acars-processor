@@ -12,7 +12,7 @@ type Receiver interface {
 
 type ACARSAnnotation struct {
 	Annotator  string
-	Annotation map[string]interface{}
+	Annotation map[string]any
 }
 
 type AnnotatedACARSMessage struct {
@@ -34,14 +34,14 @@ type ACARSMessage struct {
 		ACARSRouterVersion string `json:"acars_router_version"`
 		ACARSRouterUUID    string `json:"acars_router_UUID"`
 	}
-	StationID        string      `json:"station_id"`
-	ASSStatus        string      `json:"assstat"`
-	Mode             string      `json:"mode"`
-	Label            string      `json:"label"`
-	BlockID          string      `json:"block_id"`
-	Acknowledge      interface{} `json:"ack"` // Can be bool or string
-	AircraftTailCode string      `json:"tail"`
-	MessageText      string      `json:"text"`
-	MessageNumber    string      `json:"msgno"`
-	FlightNumber     string      `json:"flight"`
+	StationID        string `json:"station_id"`
+	ASSStatus        string `json:"assstat"`
+	Mode             string `json:"mode"`
+	Label            string `json:"label"`
+	BlockID          string `json:"block_id"`
+	Acknowledge      any    `json:"ack"` // Can be bool or string
+	AircraftTailCode string `json:"tail"`
+	MessageText      string `json:"text"`
+	MessageNumber    string `json:"msgno"`
+	FlightNumber     string `json:"flight"`
 }

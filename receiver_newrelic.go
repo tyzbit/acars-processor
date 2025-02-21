@@ -11,7 +11,7 @@ import (
 const ACARSCustomEventType = "CustomACARS"
 
 type NewRelicHandlerReciever struct {
-	Payload interface{}
+	Payload any
 }
 
 // Must satisfy Receiver interface

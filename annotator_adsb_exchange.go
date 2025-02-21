@@ -26,41 +26,41 @@ type ADSBHandlerAnnotator struct {
 
 type SingleAircraftPosition struct {
 	Aircraft []struct {
-		HexCode                                       string        `json:"hex"`
-		Type                                          string        `json:"type"`
-		FlightNumber                                  string        `json:"flight"`
-		AircraftTailCode                              string        `json:"r"`
-		AircraftModel                                 string        `json:"t"`
-		AltimeterBarometer                            interface{}   `json:"alt_baro"`
-		AltimeterGeometricFeet                        int64         `json:"alt_geom"`
-		GroundSpeedKnots                              float64       `json:"gs"`
-		TrueGroundTrack                               float64       `json:"track"`
-		AltimeterBarometerRateOfChangeFeet            int64         `json:"baro_rate"`
-		Squawk                                        string        `json:"squawk"`
-		Emergency                                     string        `json:"emergency"`
-		EmitterCategory                               string        `json:"category"`
-		NavAltimeterSettinghPa                        float64       `json:"nav_qnh"`
-		NacAltitudeMCP                                float64       `json:"nav_altitude_mcp"`
-		Latitude                                      float64       `json:"lat"`
-		Longitude                                     float64       `json:"lon"`
-		NavigationIntegrityCategory                   float64       `json:"nic"`
-		RadiusOfContainment                           float64       `json:"rc"`
-		SecondsSincePositionUpdated                   float64       `json:"seen_pos"`
-		Version                                       float64       `json:"version"`
-		NavigationIntegrityCategoryBarometricAltitude float64       `json:"nic_baro"`
-		NavigationalPositionAccuracy                  float64       `json:"nac_p"`
-		NavigationalVelocityAccuracy                  float64       `json:"nac_v"`
-		SourceIntegrityLevel                          float64       `json:"sil"`
-		SourceIntegrityLevelType                      string        `json:"sil_type"`
-		GeometricVerticalAccuracy                     float64       `json:"gva"`
-		SystemDesignAssurance                         float64       `json:"sda"`
-		FlightStatusAlert                             float64       `json:"alert"`
-		SpecialPositionIdentification                 float64       `json:"spi"`
-		MLAT                                          []interface{} `json:"mlat"`
-		TISB                                          []interface{} `json:"tisb"`
-		AircraftTotalModeSMessages                    int64         `json:"messages"`
-		SecondsSinceLastMessage                       float64       `json:"seen"`
-		RSSISignalPowerdBm                            float64       `json:"rssi"`
+		HexCode                                       string  `json:"hex"`
+		Type                                          string  `json:"type"`
+		FlightNumber                                  string  `json:"flight"`
+		AircraftTailCode                              string  `json:"r"`
+		AircraftModel                                 string  `json:"t"`
+		AltimeterBarometer                            any     `json:"alt_baro"`
+		AltimeterGeometricFeet                        int64   `json:"alt_geom"`
+		GroundSpeedKnots                              float64 `json:"gs"`
+		TrueGroundTrack                               float64 `json:"track"`
+		AltimeterBarometerRateOfChangeFeet            int64   `json:"baro_rate"`
+		Squawk                                        string  `json:"squawk"`
+		Emergency                                     string  `json:"emergency"`
+		EmitterCategory                               string  `json:"category"`
+		NavAltimeterSettinghPa                        float64 `json:"nav_qnh"`
+		NacAltitudeMCP                                float64 `json:"nav_altitude_mcp"`
+		Latitude                                      float64 `json:"lat"`
+		Longitude                                     float64 `json:"lon"`
+		NavigationIntegrityCategory                   float64 `json:"nic"`
+		RadiusOfContainment                           float64 `json:"rc"`
+		SecondsSincePositionUpdated                   float64 `json:"seen_pos"`
+		Version                                       float64 `json:"version"`
+		NavigationIntegrityCategoryBarometricAltitude float64 `json:"nic_baro"`
+		NavigationalPositionAccuracy                  float64 `json:"nac_p"`
+		NavigationalVelocityAccuracy                  float64 `json:"nac_v"`
+		SourceIntegrityLevel                          float64 `json:"sil"`
+		SourceIntegrityLevelType                      string  `json:"sil_type"`
+		GeometricVerticalAccuracy                     float64 `json:"gva"`
+		SystemDesignAssurance                         float64 `json:"sda"`
+		FlightStatusAlert                             float64 `json:"alert"`
+		SpecialPositionIdentification                 float64 `json:"spi"`
+		MLAT                                          []any   `json:"mlat"`
+		TISB                                          []any   `json:"tisb"`
+		AircraftTotalModeSMessages                    int64   `json:"messages"`
+		SecondsSinceLastMessage                       float64 `json:"seen"`
+		RSSISignalPowerdBm                            float64 `json:"rssi"`
 	} `json:"ac"`
 	Message              string `json:"msg"`
 	APITimestamp         int64  `json:"now"`
@@ -129,7 +129,7 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 	airgeo := fmt.Sprintf("%f,%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
 	air := geopoint.NewGeoPoint(airlat, airlon)
 
-	event := map[string]interface{}{
+	event := map[string]any{
 		"adsbFrequencyMHz":               m.FrequencyMHz,
 		"adsbChannel":                    m.Channel,
 		"adsbErrorCode":                  m.ErrorCode,

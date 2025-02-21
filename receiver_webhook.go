@@ -16,7 +16,7 @@ const (
 )
 
 type WebhookHandlerReciever struct {
-	Payload interface{}
+	Payload any
 }
 
 func (w WebhookHandlerReciever) Name() string {
