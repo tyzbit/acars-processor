@@ -26,7 +26,7 @@ func (w WebhookHandlerReciever) Name() string {
 // Submits an ACARS Message to a webhook after transforming via template
 func (w WebhookHandlerReciever) SubmitACARSMessage(m AnnotatedACARSMessage) error {
 	// Hardcoded to be a simple payload compatible with Discord
-	msgTemplate := `{"content": "**Aircraft**: {{ .ACARSMessage.AircraftTailCode }}\nDistance: {{ (index .Annotations 0).Annotation.adsbAircraftDistanceMi }}"}`
+	msgTemplate := `{"content": "{{ .ACARSMessage.AircraftTailCode }}|{{ .ACARSMessage.FlightNumber }} - {{ (index .Annotations 0).Annotation.adsbAircraftDistanceMi }} miles"}`
 	t, err := template.New("webhook").Parse(msgTemplate)
 	if err != nil {
 		return err
