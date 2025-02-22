@@ -9,7 +9,6 @@ import (
 )
 
 const ACARSCustomEventType = "CustomACARS"
-const ACARSTestingEventType = "TestingACARS"
 
 type NewRelicHandlerReciever struct {
 	Payload any
@@ -31,7 +30,7 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 	}
 
 	// Allow overriding the custom event type if set
-	eventType := ACARSTestingEventType
+	eventType := ACARSCustomEventType
 	if config.NewRelicLicenseCustomEventType != "" {
 		eventType = config.NewRelicLicenseCustomEventType
 	}

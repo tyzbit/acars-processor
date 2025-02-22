@@ -39,42 +39,11 @@ type DiscordThumbnail struct {
 	URL string `json:"url,omitempty"`
 }
 
-const MessageDescription = `# [%s](<%s>)
-**Photo**: %s
-**Flight Number**: %s
-**Signal**: %s dBm
-**Message Text**:` +
-	"```%s```" +
-	`**Further annotations**:
-%s
-`
-
 func (d DiscordHandlerReciever) Name() string {
 	return "Discord Handler"
 }
 
 func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
-	// var fields []DiscordField
-	// for key, value := range m {
-	// 	fields = append(fields, DiscordField{
-	// 		Name:   key,
-	// 		Value:  fmt.Sprintf("%s", value),
-	// 		Inline: false,
-	// 	})
-	// }
-
-	// if len(fields) > 25 {
-	// 	log.Warn("too many fields for Discord, truncating")
-	// 	fields = fields[:25]
-	// }
-
-	// embed := DiscordWebhookMessage{
-	// 	Embeds: []DiscordEmbed{{
-	// 		Title:  "ACARS",
-	// 		Fields: fields,
-	// 	}},
-	// }
-
 	// Create a slice to hold the keys
 	keys := make([]string, 0, len(a))
 	for k := range a {
@@ -90,7 +59,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	}
 
 	message := DiscordWebhookMessage{
-		Content: content,
+		Content: "# ACARS Message\n" + content,
 	}
 
 	buff := new(bytes.Buffer)
