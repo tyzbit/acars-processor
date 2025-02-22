@@ -40,7 +40,7 @@ type DiscordThumbnail struct {
 }
 
 func (d DiscordHandlerReciever) Name() string {
-	return "Discord Handler"
+	return "Discord"
 }
 
 func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
@@ -80,7 +80,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		return err
 	}
 
-	log.Debugf("webhook returned: %s", string(body))
+	log.Debugf("discord api returned: %s", string(body))
 
 	// embed := discord.NewEmbed("ACARS Message", "Description", FlightAwareRoot+m.AircraftTailCode)
 	// embed.Content = m.MessageText

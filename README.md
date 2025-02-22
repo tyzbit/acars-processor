@@ -9,13 +9,15 @@ variables for them.
 
 ## Available annotators
 
+- ACARS: This will add key/value fields for all data in the original ACARS
+  message
 - ADS-B Exchange (Only SingleAircraftPositionByRegistration at the moment)
-  Set
 
 ## Available receivers
 
 - New Relic
-- Custom Webhook (WIP)
+- Discord
+- Custom Webhook - See below for usage
 
 | Environment Variable               | Value                                                       |
 | ---------------------------------- | ----------------------------------------------------------- |
@@ -34,3 +36,10 @@ variables for them.
 \* Required at this time for ADB-S, feel free to set it to "0,0"
 
 \*\* The headers should be in the format `key=value,otherkey=value`
+
+#### Webhooks
+
+In order to define the content for your webhook, edit `receiver_webhook.tpl`
+and add the fields and values that you need. An example is provided which
+shows a very simple webhook payload that uses annotations
+from the ACARS annotator.

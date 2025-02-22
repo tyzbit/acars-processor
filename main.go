@@ -74,10 +74,10 @@ func main() {
 	}
 
 	// Add receivers based on what's enabled
-	// if config.WebhookURL != "" {
-	// 	log.Info("Webhook receiver enabled")
-	// 	enabledReceivers = append(enabledReceivers, WebhookHandlerReciever{})
-	// }
+	if config.WebhookURL != "" {
+		log.Info("Webhook receiver enabled")
+		enabledReceivers = append(enabledReceivers, WebhookHandlerReciever{})
+	}
 	if config.NewRelicLicenseKey != "" {
 		log.Info("New Relic reciever enabled")
 		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
