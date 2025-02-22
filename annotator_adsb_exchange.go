@@ -98,7 +98,7 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 }
 
 // Interface function to satisfy ACARSHandler
-func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation ACARSAnnotation) {
+func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	if config.ADSBExchangeReferenceGeolocation == "" {
 		log.Warn("ADSB enabled but geolocation not set")
 		return
@@ -129,30 +129,15 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 	air := geopoint.NewGeoPoint(airlat, airlon)
 
 	event := Annotation{
-		"adsbFrequencyMHz":               m.FrequencyMHz,
-		"adsbChannel":                    m.Channel,
-		"adsbErrorCode":                  m.ErrorCode,
-		"adsbSignaldBm":                  m.SignaldBm,
-		"adsbAppName":                    m.App.Name,
-		"adsbAppVersion":                 m.App.Version,
-		"adsbRouterUUID":                 m.App.ACARSRouterUUID,
-		"adsbStationID":                  m.StationID,
 		"adsbOriginGeolocation":          config.ADSBExchangeReferenceGeolocation,
 		"adsbOriginGeolocationLatitude":  flat,
 		"adsbOriginGeolocationLongitude": flon,
-		"adsbAircraftTailCode":           m.AircraftTailCode,
 		"adsbAircraftGeolocation":        airgeo,
 		"adsbAircraftLatitude":           position.Aircraft[0].Latitude,
 		"adsbAircraftLongitude":          position.Aircraft[0].Longitude,
 		"adsbAircraftDistanceKm":         float64(air.DistanceTo(o, geopoint.Haversine)),
 		"adsbAircraftDistanceMi":         float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
-		"adsbMessageText":                m.MessageText,
-		"adsbMessageNumber":              m.MessageNumber,
-		"adsbFlightNumber":               m.FlightNumber,
 	}
 
-	return ACARSAnnotation{
-		Annotator:  "ADS-B Exchange",
-		Annotation: event,
-	}
+	return event
 }

@@ -1,80 +1,138 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"sort"
 
-	"github.com/aiomonitors/godiscord"
+	log "github.com/sirupsen/logrus"
 )
 
 type DiscordHandlerReciever struct {
 	Payload any
 }
 
+type DiscordWebhookMessage struct {
+	Content string         `json:"content,omitempty"`
+	Embeds  []DiscordEmbed `json:"embeds,omitempty"`
+}
+
+type DiscordEmbed struct {
+	Title       string           `json:"title,omitempty"`
+	Description string           `json:"description,omitempty"`
+	URL         string           `json:"url,omitempty"`
+	Color       string           `json:"color,omitempty"`
+	Thumbnail   DiscordThumbnail `json:"thumbnail,omitempty"`
+	Fields      []DiscordField   `json:"fields"`
+}
+
+type DiscordField struct {
+	Name   string `json:"name"`
+	Value  string `json:"value"`
+	Inline bool   `json:"inline,omitempty"`
+}
+
+type DiscordThumbnail struct {
+	URL string `json:"url,omitempty"`
+}
+
+const MessageDescription = `# [%s](<%s>)
+**Photo**: %s
+**Flight Number**: %s
+**Signal**: %s dBm
+**Message Text**:` +
+	"```%s```" +
+	`**Further annotations**:
+%s
+`
+
 func (d DiscordHandlerReciever) Name() string {
 	return "Discord Handler"
 }
 
-func (d DiscordHandlerReciever) SubmitACARSMessage(m AnnotatedACARSMessage) error {
-	//Create a new embed object
-	embed := godiscord.NewEmbed("ACARS Message", m.MessageText, fmt.Sprintf("%s/%s", FlightAwareRoot, m.AircraftTailCode))
-
-	//Creates a new field and adds it to the embed
-	//boolean represents whether the field is inline or not
-	embed.AddField("Flight Number", m.FlightNumber, true)
-	embed.AddField("Signal Strength", fmt.Sprintf("%f", m.SignaldBm), true)
-	embed.AddField("Distance", fmt.Sprintf("%d", m.Annotations[0].Annotation["adsbAircraftDistanceMi"]), true)
-	embed.AddField("Flight Number", m.FlightNumber, true)
-	embed.AddField("Flight Number", m.FlightNumber, true)
-
-	// picture := d.GetURLToAircraftThumbnail(m.AircraftTailCode)
-	// if picture != "" {
-	// 	//Sets the thumbail of the embed
-	// 	embed.SetThumbnail(picture)
+func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
+	// var fields []DiscordField
+	// for key, value := range m {
+	// 	fields = append(fields, DiscordField{
+	// 		Name:   key,
+	// 		Value:  fmt.Sprintf("%s", value),
+	// 		Inline: false,
+	// 	})
 	// }
 
+	// if len(fields) > 25 {
+	// 	log.Warn("too many fields for Discord, truncating")
+	// 	fields = fields[:25]
+	// }
+
+	// embed := DiscordWebhookMessage{
+	// 	Embeds: []DiscordEmbed{{
+	// 		Title:  "ACARS",
+	// 		Fields: fields,
+	// 	}},
+	// }
+
+	// Create a slice to hold the keys
+	keys := make([]string, 0, len(a))
+	for k := range a {
+		keys = append(keys, k)
+	}
+
+	// Sort the keys
+	sort.Strings(keys)
+
+	var content string
+	for _, key := range keys {
+		content = fmt.Sprintf("%s\n**%s**: %v", content, key, a[key])
+	}
+
+	message := DiscordWebhookMessage{
+		Content: content,
+	}
+
+	buff := new(bytes.Buffer)
+	json.NewEncoder(buff).Encode(message)
+	req, err := http.NewRequest("POST", config.DiscordWebhookURL, buff)
+	req.Header.Add("User-Agent", WebhookUserAgent)
+	// Hardcoded for now because most webhooks will be JSON
+	req.Header.Add("Content-Type", "application/json")
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		log.Error(err)
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	log.Debugf("webhook returned: %s", string(body))
+
+	// embed := discord.NewEmbed("ACARS Message", "Description", FlightAwareRoot+m.AircraftTailCode)
+	// embed.Content = m.MessageText
+
+	// distance := strconv.FormatFloat(m.Annotations[0].Annotation["adsbAircraftDistanceMi"].(float64), 'f', 2, 64) +
+	// 	" mi"
+	// embed.SetAuthor("ACARS Message", "", "")
+	// //Creates a new field and adds it to the embed
+	// //boolean represents whether the field is inline or not
+	// embed.AddField("Flight Number", m.FlightNumber, false)
+	// embed.AddField("Signal Strength", fmt.Sprintf("%f", m.SignaldBm), true)
+	// embed.AddField("Distance", distance, true)
+
 	// //Sets image of embed
-	// embed.SetImage(picture)
+	// embed.AddField("Aircraft photo", JetPhotosRoot+m.AircraftTailCode, true)
 
-	//Sets color of embed given hexcode
-	embed.SetColor("#F1B379")
+	// //Sets color of embed given hexcode
+	// // embed.SetColor("#F1B379")
 
-	//Send embed to given webhook
-	err := embed.SendToWebhook(config.DiscordWebhookURL)
+	// log.Debugf("payload to Discord webhook: %+v", embed)
+	// //Send embed to given webhook
+	// err := embed.SendToWebhook(config.DiscordWebhookURL)
 	return err
 }
-
-// // <meta property="og:image" content="https://t.plnspttrs.net/16865/1692533_c484a0d563_280.jpg" >
-// func (d DiscordHandlerReciever) GetURLToAircraftThumbnail(t string) (url string) {
-// 	c := http.Client{}
-// 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s", PlaneSpottersPhotoRoot, t), nil)
-// 	if err != nil {
-// 		log.Errorf("unable to create new http request: %v", err)
-// 		return url
-// 	}
-
-// 	resp, err := c.Do(req)
-// 	if err != nil {
-// 		return url
-// 	}
-// 	defer resp.Body.Close()
-
-// 	// Parse the HTML document using goquery
-// 	doc, err := goquery.NewDocumentFromReader(resp.Body)
-// 	if err != nil {
-// 		log.Errorf("could not parse html doc: %v", err)
-// 		return url
-// 	}
-
-// 	// Find the meta tag with property "og:image" and extract its content attribute
-// 	metaTag := doc.Find(`meta[property="og:image"]`)
-// 	if metaTag.Length() == 0 {
-// 		log.Error("og:image meta tag not found")
-// 	}
-
-// 	url, exists := metaTag.Attr("content")
-// 	if !exists {
-// 		log.Error("content attribute not found in og:image meta tag")
-// 	}
-
-// 	return url
-// }

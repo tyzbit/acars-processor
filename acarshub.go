@@ -39,23 +39,18 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 			log.Errorf("json message did not match expected structure, we got: %+v", next)
 		} else {
 			log.Debugf("new acars message: %+v", next)
-			annotations := []ACARSAnnotation{}
+			annotations := map[string]any{}
 			// Annotate the message via all enabled annotators
 			for _, h := range enabledAnnotators {
 				result := h.AnnotateACARSMessage(next)
-				if result.Annotation != nil {
-					annotations = append(annotations, result)
-					log.Info(result)
+				if result != nil {
+					annotations = MergeMaps(result, annotations)
+					log.Info(annotations)
 				}
-			}
-			// Submit to all enabled receivers
-			annotatedMessage := AnnotatedACARSMessage{
-				ACARSMessage: next,
-				Annotations:  annotations,
 			}
 			for _, r := range enabledReceivers {
 				log.Debugf("submitting to %s", r.Name())
-				err := r.SubmitACARSMessage(annotatedMessage)
+				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
 					log.Errorf("error submitting to %s, err: %v", r.Name(), err)
 				}

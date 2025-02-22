@@ -1,17 +1,18 @@
 package main
 
 const (
-	FlightAwareRoot        = "https://flightaware.com/live/flight/"
-	PlaneSpottersPhotoRoot = "https://www.planespotters.net/photos/reg/"
+	FlightAwareRoot   = "https://flightaware.com/live/flight/"
+	FlightAwarePhotos = "https://www.flightaware.com/photos/aircraft/"
+	WebhookUserAgent  = "github.com/tyzbit/acars-annotator"
 )
 
 type ACARSAnnotator interface {
-	AnnotateACARSMessage(ACARSMessage) ACARSAnnotation
+	AnnotateACARSMessage(ACARSMessage) Annotation
 	Name() string
 }
 
 type Receiver interface {
-	SubmitACARSMessage(AnnotatedACARSMessage) error
+	SubmitACARSAnnotations(Annotation) error
 	Name() string
 }
 
@@ -20,11 +21,12 @@ type ACARSAnnotation struct {
 	Annotation
 }
 
-type Annotation map[string]any
+// ALL KEYS MUST BE UNIQUE AMONG ALL ANNOTATORS
+type Annotation map[string]interface{}
 
 type AnnotatedACARSMessage struct {
 	ACARSMessage
-	Annotations []ACARSAnnotation
+	Annotations map[string]any
 }
 
 // This is the format ACARSHub sends
