@@ -26,3 +26,20 @@ func WriteFile(filePath string, contents []byte) {
 		log.Error("Error writing file: %w", err)
 	}
 }
+
+func MergeMaps(m1, m2 map[string]any) map[string]any {
+	// Create a new map to avoid modifying the original maps.
+	merged := make(map[string]any)
+
+	// Copy m1 into merged.
+	for k, v := range m1 {
+		merged[k] = v
+	}
+
+	// Copy m2 into merged. If keys overlap, m2's values will overwrite m1's.
+	for k, v := range m2 {
+		merged[k] = v
+	}
+
+	return merged
+}

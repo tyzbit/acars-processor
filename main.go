@@ -18,6 +18,7 @@ var (
 type Config struct {
 	ACARSHubHost                     string `env:"ACARSHUB_HOST"`
 	ACARSHubPort                     int    `env:"ACARSHUB_PORT"`
+	AnnotateACARS                    bool   `env:"ANNOTATE_ACARS"`
 	ADSBExchangeAPIKey               string `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
 	LogLevel                         string `env:"LOGLEVEL"`
@@ -26,6 +27,7 @@ type Config struct {
 	WebhookURL                       string `env:"WEBHOOK_URL"`
 	WebhookMethod                    string `env:"WEBHOOK_METHOD"`
 	WebhookHeaders                   string `env:"WEBHOOK_HEADERS"`
+	DiscordWebhookURL                string `env:"DISCORD_WEBHOOK_URL"`
 }
 
 // Set up Config, logging
@@ -57,6 +59,9 @@ func init() {
 
 func main() {
 	// Add annotators based on what's enabled
+	if config.AnnotateACARS {
+		enabledAnnotators = append(enabledAnnotators, ACARSHandlerAnnotator{})
+	}
 	if config.ADSBExchangeAPIKey != "" {
 		log.Info("ADSB handler enabled")
 		if config.ADSBExchangeAPIKey == "" {
@@ -69,13 +74,17 @@ func main() {
 	}
 
 	// Add receivers based on what's enabled
-	if config.WebhookURL != "" {
-		log.Info("Webhook receiver enabled")
-		enabledReceivers = append(enabledReceivers, WebhookHandlerReciever{})
-	}
+	// if config.WebhookURL != "" {
+	// 	log.Info("Webhook receiver enabled")
+	// 	enabledReceivers = append(enabledReceivers, WebhookHandlerReciever{})
+	// }
 	if config.NewRelicLicenseKey != "" {
 		log.Info("New Relic reciever enabled")
 		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
+	}
+	if config.DiscordWebhookURL != "" {
+		log.Info("New Relic reciever enabled")
+		enabledReceivers = append(enabledReceivers, DiscordHandlerReciever{})
 	}
 	if len(enabledReceivers) == 0 {
 		log.Warn("no receivers are enabled")

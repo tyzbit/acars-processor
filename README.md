@@ -21,6 +21,7 @@ variables for them.
 | ---------------------------------- | ----------------------------------------------------------- |
 | ACARSHUB_HOST                      | The hostname or IP to your acarshub instance                |
 | ACARSHUB_PORT                      | The port to connect to your acarshub instance on            |
+| ANNOTATE_ACARS                     | Include the original ACARS message, "true" or "false"       |
 | ADBSEXCHANGE_APIKEY                | Your API Key to adb-s exchange (lite tier is fine)          |
 | ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
 | LOGLEVEL                           | debug, info, warn, error (default "info")                   |
