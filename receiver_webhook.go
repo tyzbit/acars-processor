@@ -12,7 +12,6 @@ import (
 
 const (
 	WebhookUserAgent = "github.com/tyzbit/acars-annotator"
-	FlightAwareRoot  = "https://flightaware.com/live/flight/"
 )
 
 type WebhookHandlerReciever struct {

@@ -1,5 +1,10 @@
 package main
 
+const (
+	FlightAwareRoot        = "https://flightaware.com/live/flight/"
+	PlaneSpottersPhotoRoot = "https://www.planespotters.net/photos/reg/"
+)
+
 type ACARSAnnotator interface {
 	AnnotateACARSMessage(ACARSMessage) ACARSAnnotation
 	Name() string

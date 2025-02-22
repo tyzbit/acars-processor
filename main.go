@@ -26,6 +26,7 @@ type Config struct {
 	WebhookURL                       string `env:"WEBHOOK_URL"`
 	WebhookMethod                    string `env:"WEBHOOK_METHOD"`
 	WebhookHeaders                   string `env:"WEBHOOK_HEADERS"`
+	DiscordWebhookURL                string `env:"DISCORD_WEBHOOK_URL"`
 }
 
 // Set up Config, logging
@@ -76,6 +77,10 @@ func main() {
 	if config.NewRelicLicenseKey != "" {
 		log.Info("New Relic reciever enabled")
 		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
+	}
+	if config.DiscordWebhookURL != "" {
+		log.Info("New Relic reciever enabled")
+		enabledReceivers = append(enabledReceivers, DiscordHandlerReciever{})
 	}
 	if len(enabledReceivers) == 0 {
 		log.Warn("no receivers are enabled")
