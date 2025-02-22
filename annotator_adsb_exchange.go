@@ -24,6 +24,7 @@ type ADSBHandlerAnnotator struct {
 	SingleAircraftPosition SingleAircraftPosition
 }
 
+// https://www.adsbexchange.com/api/aircraft/v2/docs along with some guesswork
 type SingleAircraftPosition struct {
 	Aircraft []struct {
 		HexCode                                       string  `json:"hex"`
@@ -76,10 +77,8 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 		return ac, err
 	}
 	req.Header.Add(adsbapikeyheader, config.ADSBExchangeAPIKey)
-	// Create a new HTTP client
 	client := &http.Client{}
 
-	// Send the request
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -129,7 +128,7 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 	airgeo := fmt.Sprintf("%f,%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
 	air := geopoint.NewGeoPoint(airlat, airlon)
 
-	event := map[string]any{
+	event := Annotation{
 		"adsbFrequencyMHz":               m.FrequencyMHz,
 		"adsbChannel":                    m.Channel,
 		"adsbErrorCode":                  m.ErrorCode,

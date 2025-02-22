@@ -21,17 +21,18 @@ func (n NewRelicHandlerReciever) Name() string {
 
 // Must satisfy Receiver interface
 func (n NewRelicHandlerReciever) SubmitACARSMessage(a AnnotatedACARSMessage) (err error) {
+	// Sends every annotation to New Relic
 	for _, ann := range a.Annotations {
 		log.Debugf("sending new relic event: %+v", ann)
 		// Create a new harvester for sending telemetry data.
 		harvester, err := telemetry.NewHarvester(
-			telemetry.ConfigAPIKey(config.NewRelicLicenseKey), // Replace with your New Relic Insert API key.
+			telemetry.ConfigAPIKey(config.NewRelicLicenseKey),
 		)
 		if err != nil {
 			log.Error("Error creating harvester:", err)
 		}
 
-		// Allow overriding the custom event type
+		// Allow overriding the custom event type if set
 		eventType := ACARSCustomEventType
 		if config.NewRelicLicenseCustomEventType != "" {
 			eventType = config.NewRelicLicenseCustomEventType

@@ -9,6 +9,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Connects to ACARS and starts listening to messages
 func SubscribeToACARSHub() {
 	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
 	log.Debugf("connecting to %s", address)
@@ -24,6 +25,7 @@ func SubscribeToACARSHub() {
 	HandleACARSJSONMessages(j)
 }
 
+// Reads messages from the ACARSHub connection and annotates, then sends
 func HandleACARSJSONMessages(j *json.Decoder) {
 	log.Debug("handling acars json messages")
 	var next ACARSMessage
@@ -38,6 +40,7 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 		} else {
 			log.Debugf("new acars message: %+v", next)
 			annotations := []ACARSAnnotation{}
+			// Annotate the message via all enabled annotators
 			for _, h := range enabledAnnotators {
 				result := h.AnnotateACARSMessage(next)
 				if result.Annotation != nil {
@@ -45,7 +48,7 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 					log.Info(result)
 				}
 			}
-			// Submit to all receivers
+			// Submit to all enabled receivers
 			annotatedMessage := AnnotatedACARSMessage{
 				ACARSMessage: next,
 				Annotations:  annotations,

@@ -11,15 +11,18 @@ type Receiver interface {
 }
 
 type ACARSAnnotation struct {
-	Annotator  string
-	Annotation map[string]any
+	Annotator string
+	Annotation
 }
+
+type Annotation map[string]any
 
 type AnnotatedACARSMessage struct {
 	ACARSMessage
 	Annotations []ACARSAnnotation
 }
 
+// This is the format ACARSHub sends
 type ACARSMessage struct {
 	FrequencyMHz float64 `json:"freq"`
 	Channel      int     `json:"channel"`

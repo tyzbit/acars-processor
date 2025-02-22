@@ -25,18 +25,21 @@ func (w WebhookHandlerReciever) Name() string {
 
 // Submits an ACARS Message to a webhook after transforming via template
 func (w WebhookHandlerReciever) SubmitACARSMessage(m AnnotatedACARSMessage) error {
-	// Hardcoded to be a simple payload compatible with Discord
+	// Hardcoded to be a simple payload compatible with Discord at this time
 	msgTemplate := `{"content": "# [{{ .ACARSMessage.AircraftTailCode }}](` + FlightAwareRoot + m.AircraftTailCode + `)\n` +
 		`**Flight Number**: {{ .ACARSMessage.FlightNumber }}\n` +
 		`**Signal**: {{ .ACARSMessage.SignaldBm }} dBm\n` +
 		`**Distance**: {{ (index .Annotations 0).Annotation.adsbAircraftDistanceMi }} miles\n` +
 		`"}`
+	// Initialize the template
 	t, err := template.New("webhook").Parse(msgTemplate)
 	if err != nil {
 		return err
 	}
 
+	// Create a destination for the result
 	var b bytes.Buffer
+	// Evaluate the template
 	err = t.Execute(&b, m)
 	if err != nil {
 		return err
@@ -51,6 +54,7 @@ func (w WebhookHandlerReciever) SubmitACARSMessage(m AnnotatedACARSMessage) erro
 
 	req, err := http.NewRequest(method, config.WebhookURL, &b)
 	req.Header.Add("User-Agent", WebhookUserAgent)
+	// Hardcoded for now because most webhooks will be JSON
 	req.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return err
@@ -64,7 +68,6 @@ func (w WebhookHandlerReciever) SubmitACARSMessage(m AnnotatedACARSMessage) erro
 		req.Header.Add(strings.Split(h, "=")[0], strings.Split(h, "=")[1])
 	}
 	client := &http.Client{}
-
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Error(err)

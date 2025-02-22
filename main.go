@@ -14,6 +14,7 @@ var (
 	enabledReceivers  = []Receiver{}
 )
 
+// Set via ENV variables or a .env file
 type Config struct {
 	ACARSHubHost                     string `env:"ACARSHUB_HOST"`
 	ACARSHubPort                     int    `env:"ACARSHUB_PORT"`
@@ -55,7 +56,7 @@ func init() {
 }
 
 func main() {
-	// Add handlers based on what's enabled
+	// Add annotators based on what's enabled
 	if config.ADSBExchangeAPIKey != "" {
 		log.Info("ADSB handler enabled")
 		if config.ADSBExchangeAPIKey == "" {
