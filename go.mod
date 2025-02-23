@@ -19,6 +19,7 @@ require (
 	github.com/andybalholm/cascadia v1.3.3 // indirect
 	github.com/bwmarrin/discordgo v0.28.1 // indirect
 	github.com/dumim/tagconv v1.6.0 // indirect
+	github.com/flopp/go-coordsparser v0.0.0-20240403152942-4891dc40d0a7 // indirect
 	github.com/golobby/cast v1.3.3 // indirect
 	github.com/golobby/dotenv v1.3.2 // indirect
 	github.com/golobby/env/v2 v2.2.4 // indirect

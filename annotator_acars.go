@@ -1,6 +1,7 @@
 package main
 
 type ACARSHandlerAnnotator struct {
+	Enabled bool `env:"ANNOTATE_ACARS"`
 }
 
 func (a ACARSHandlerAnnotator) Name() string {

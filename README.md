@@ -11,6 +11,8 @@ variables for them.
 
 - ACARS: This will add key/value fields for all data in the original ACARS
   message
+- ACARS Geolocation: This will read the text of messages and parse out
+  any geolocation information (which is self-reported)
 - ADS-B Exchange (Only SingleAircraftPositionByRegistration at the moment)
 
 ## Available receivers
