@@ -12,6 +12,7 @@ var (
 	config            = Config{}
 	enabledAnnotators = []ACARSAnnotator{}
 	enabledReceivers  = []Receiver{}
+	enabledFilters    = []string{}
 )
 
 // Set via ENV variables or a .env file
@@ -21,6 +22,8 @@ type Config struct {
 	AnnotateACARS                    bool   `env:"ANNOTATE_ACARS"`
 	ADSBExchangeAPIKey               string `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
+	FilterCriteriaMatchTailCode      string `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
+	FilterCriteriaHasText            bool   `env:"FILTER_CRITERIA_HAS_TEXT"`
 	LogLevel                         string `env:"LOGLEVEL"`
 	NewRelicLicenseKey               string `env:"NEW_RELIC_LICENSE_KEY"`
 	NewRelicLicenseCustomEventType   string `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
@@ -88,6 +91,15 @@ func main() {
 	}
 	if len(enabledReceivers) == 0 {
 		log.Warn("no receivers are enabled")
+	}
+
+	// Add filters based on what's enabled
+	if config.FilterCriteriaMatchTailCode != "" {
+		enabledFilters = append(enabledFilters, "MatchesTailCode")
+	}
+
+	if config.FilterCriteriaHasText {
+		enabledFilters = append(enabledFilters, "HasText")
 	}
 
 	SubscribeToACARSHub()
