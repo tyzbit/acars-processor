@@ -40,6 +40,7 @@ variables for them.
 #### Webhooks
 
 In order to define the content for your webhook, edit `receiver_webhook.tpl`
-and add the fields and values that you need. An example is provided which
-shows a very simple webhook payload that uses annotations
-from the ACARS annotator.
+and add the fields and values that you need with
+[valid Go template syntax](https://pkg.go.dev/text/template).
+An example is provided which shows a very simple webhook payload
+that uses annotations from the ACARS annotator.
