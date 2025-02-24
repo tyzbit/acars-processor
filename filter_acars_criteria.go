@@ -33,6 +33,9 @@ var (
 		"AboveMinimumSignal": func(m ACARSMessage) bool {
 			return config.FilterCriteriaAboveSignaldBm < m.SignaldBm
 		},
+		"BelowMaximumSignal": func(m ACARSMessage) bool {
+			return config.FilterCriteriaAboveSignaldBm > m.SignaldBm
+		},
 	}
 )
 

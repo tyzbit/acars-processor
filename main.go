@@ -28,6 +28,7 @@ type Config struct {
 	FilterCriteriaMatchFlightNumber  string  `env:"FILTER_CRITERIA_MATCH_FLIGHT_NUMBER"`
 	FilterCriteriaMatchFrequency     float64 `env:"FILTER_CRITERIA_MATCH_FREQUENCY"`
 	FilterCriteriaAboveSignaldBm     float64 `env:"FILTER_CRITERIA_ABOVE_SIGNAL_DBM"`
+	FilterCriteriaBelowSignaldBm     float64 `env:"FILTER_CRITERIA_BELOW_SIGNAL_DBM"`
 	FilterCriteriaMatchStationID     string  `env:"FILTER_CRITERIA_MATCH_STATION_ID"`
 	LogLevel                         string  `env:"LOGLEVEL"`
 	NewRelicLicenseKey               string  `env:"NEW_RELIC_LICENSE_KEY"`
@@ -110,16 +111,19 @@ func main() {
 		enabledFilters = append(enabledFilters, "HasText")
 	}
 	if config.FilterCriteriaMatchFlightNumber != "" {
-		enabledFilters = append(enabledFilters, "HasText")
+		enabledFilters = append(enabledFilters, "MatchesFlightNumber")
 	}
 	if config.FilterCriteriaMatchFrequency != 0.0 {
-		enabledFilters = append(enabledFilters, "HasText")
+		enabledFilters = append(enabledFilters, "MatchesFrequency")
 	}
 	if config.FilterCriteriaMatchStationID != "" {
-		enabledFilters = append(enabledFilters, "HasText")
+		enabledFilters = append(enabledFilters, "MatchesStationID")
 	}
 	if config.FilterCriteriaAboveSignaldBm != 0.0 {
-		enabledFilters = append(enabledFilters, "HasText")
+		enabledFilters = append(enabledFilters, "AboveMinimumSignal")
+	}
+	if config.FilterCriteriaBelowSignaldBm != 0.0 {
+		enabledFilters = append(enabledFilters, "BelowMaximumSignal")
 	}
 
 	SubscribeToACARSHub()
