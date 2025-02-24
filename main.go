@@ -24,7 +24,6 @@ type Config struct {
 	ADSBExchangeAPIKey               string  `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
 	ADSBAnnotatorSelectedFields      string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
-	FilterCriteriaInclusive          bool    `env:"FILTER_CRITERIA_INCLUSIVE"`
 	FilterCriteriaHasText            bool    `env:"FILTER_CRITERIA_HAS_TEXT"`
 	FilterCriteriaMatchTailCode      string  `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
 	FilterCriteriaMatchFlightNumber  string  `env:"FILTER_CRITERIA_MATCH_FLIGHT_NUMBER"`

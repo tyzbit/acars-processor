@@ -41,7 +41,6 @@ variables for them.
 | ----------------------------------- | -------------------------------------------------------------------------------- |
 | ACARS_ANNOTATOR_SELECTED_FIELDS     | If this is set, receivers will only receive fields present in this variable \*\* |
 | ADSB_ANNOTATOR_SELECTED_FIELDS      | If this is set, receivers will only receive fields present in this variable \*\* |
-| FILTER_CRITERIA_INCLUSIVE           | All filters must pass                                                            |
 | FILTER_CRITERIA_HAS_TEXT            | Message must have text                                                           |
 | FILTER_CRITERIA_MATCH_TAIL_CODE     | Message must match tail code                                                     |
 | FILTER_CRITERIA_MATCH_FLIGHT_NUMBER | Message must match flight number                                                 |
