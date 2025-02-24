@@ -61,8 +61,8 @@ variables for them.
 
 \* Required at this time for ADB-S, feel free to set it to "0,0"
 
-\*\* You can do a kind of globbing by including only parts of field names, ex:
-`ACARS_ANNOTATOR_SELECTED_FELDS=acarsApp` would select all "App" fields
+\*\* Use whatever separator you want, the field just has to be present somewhere
+in the variable.
 
 \*\*\* The headers should be in the format `key=value,otherkey=value`
 
