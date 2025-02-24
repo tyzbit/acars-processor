@@ -27,6 +27,7 @@ type Config struct {
 	FilterCriteriaMatchTailCode      string  `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
 	FilterCriteriaMatchFlightNumber  string  `env:"FILTER_CRITERIA_MATCH_FLIGHT_NUMBER"`
 	FilterCriteriaMatchFrequency     float64 `env:"FILTER_CRITERIA_MATCH_FREQUENCY"`
+	FilterCriteriaMatchASSStatus     string  `env:"FILTER_CRITERIA_MATCH_ASSSTATUS"`
 	FilterCriteriaAboveSignaldBm     float64 `env:"FILTER_CRITERIA_ABOVE_SIGNAL_DBM"`
 	FilterCriteriaBelowSignaldBm     float64 `env:"FILTER_CRITERIA_BELOW_SIGNAL_DBM"`
 	FilterCriteriaMatchStationID     string  `env:"FILTER_CRITERIA_MATCH_STATION_ID"`
@@ -124,6 +125,9 @@ func main() {
 	}
 	if config.FilterCriteriaBelowSignaldBm != 0.0 {
 		enabledFilters = append(enabledFilters, "BelowMaximumSignal")
+	}
+	if config.FilterCriteriaMatchASSStatus != "" {
+		enabledFilters = append(enabledFilters, "MatchesASSStatus")
 	}
 
 	SubscribeToACARSHub()
