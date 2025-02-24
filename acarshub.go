@@ -50,10 +50,11 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 			for _, h := range enabledAnnotators {
 				result := h.AnnotateACARSMessage(next)
 				if result != nil {
+					result = h.SelectFields(result)
 					annotations = MergeMaps(result, annotations)
-					log.Info(annotations)
 				}
 			}
+			log.Debugf("message being sent to receivers: %+v", annotations)
 			for _, r := range enabledReceivers {
 				log.Debugf("submitting to %s", r.Name())
 				err := r.SubmitACARSAnnotations(annotations)

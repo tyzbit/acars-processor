@@ -19,34 +19,56 @@ variables for them.
 - Discord
 - Custom Webhook - See below for usage
 
-  | Environment Variable                | Value                                                       |
-  | ----------------------------------- | ----------------------------------------------------------- |
-  | ACARSHUB_HOST                       | The hostname or IP to your acarshub instance                |
-  | ACARSHUB_PORT                       | The port to connect to your acarshub instance on            |
-  | ANNOTATE_ACARS                      | Include the original ACARS message, "true" or "false"       |
-  | FILTER_CRITERIA_INCLUSIVE           | All filters must pass                                       |
-  | FILTER_CRITERIA_HAS_TEXT            | Message must have text                                      |
-  | FILTER_CRITERIA_MATCH_TAIL_CODE     | Message must match tail code                                |
-  | FILTER_CRITERIA_MATCH_FLIGHT_NUMBER | Message must match flight number                            |
-  | FILTER_CRITERIA_MATCH_FREQUENCY     | Message must have been received on this frequency           |
-  | FILTER_CRITERIA_ABOVE_SIGNAL_DBM    | Message must have signal above this                         |
-  | FILTER_CRITERIA_MATCH_STATION_ID    | Message must have come from this station                    |
-  | DISCORD_WEBHOOK_URL                 | URL to a Discord webhook to post messages in a channel      |
-  | ADBSEXCHANGE_APIKEY                 | Your API Key to adb-s exchange (lite tier is fine)          |
-  | ADBSEXCHANGE_REFERENCE_GEOLOCATION  | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
-  | LOGLEVEL                            | debug, info, warn, error (default "info")                   |
-  | NEW_RELIC_LICENSE_KEY               | Your New Relic Infra license key (ex: 123456NRAL)           |
-  | WEBHOOK_URL                         | URL to your custom webhook                                  |
-  | WEBHOOK_METHOD                      | GET, POST, etc                                              |
-  | WEBHOOK_HEADERS                     | Headers to send along with the webhook request\*\*          |
+### General Configuration
+
+| Environment Variable | Value                                            |
+| -------------------- | ------------------------------------------------ |
+| ACARSHUB_HOST        | The hostname or IP to your acarshub instance     |
+| ACARSHUB_PORT        | The port to connect to your acarshub instance on |
+| LOGLEVEL             | debug, info, warn, error (default "info")        |
+
+### Annotators
+
+| Environment Variable               | Value                                                       |
+| ---------------------------------- | ----------------------------------------------------------- |
+| ANNOTATE_ACARS                     | Include the original ACARS message, "true" or "false"       |
+| ADBSEXCHANGE_APIKEY                | Your API Key to adb-s exchange (lite tier is fine)          |
+| ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
+
+### Filters
+
+| Environment Variable                | Value                                                                            |
+| ----------------------------------- | -------------------------------------------------------------------------------- |
+| ACARS_ANNOTATOR_SELECTED_FIELDS     | If this is set, receivers will only receive fields present in this variable \*\* |
+| ADSB_ANNOTATOR_SELECTED_FIELDS      | If this is set, receivers will only receive fields present in this variable \*\* |
+| FILTER_CRITERIA_INCLUSIVE           | All filters must pass                                                            |
+| FILTER_CRITERIA_HAS_TEXT            | Message must have text                                                           |
+| FILTER_CRITERIA_MATCH_TAIL_CODE     | Message must match tail code                                                     |
+| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER | Message must match flight number                                                 |
+| FILTER_CRITERIA_MATCH_FREQUENCY     | Message must have been received on this frequency                                |
+| FILTER_CRITERIA_ABOVE_SIGNAL_DBM    | Message must have signal above this                                              |
+| FILTER_CRITERIA_MATCH_STATION_ID    | Message must have come from this station                                         |
+
+### Receivers
+
+| Environment Variable  | Value                                                  |
+| --------------------- | ------------------------------------------------------ |
+| DISCORD_WEBHOOK_URL   | URL to a Discord webhook to post messages in a channel |
+| NEW_RELIC_LICENSE_KEY | Your New Relic Infra license key (ex: 123456NRAL)      |
+| WEBHOOK_URL           | URL to your custom webhook                             |
+| WEBHOOK_METHOD        | GET, POST, etc                                         |
+| WEBHOOK_HEADERS       | Headers to send along with the webhook request\*\*\*   |
 
 \* Required at this time for ADB-S, feel free to set it to "0,0"
 
-\*\* The headers should be in the format `key=value,otherkey=value`
+\*\* You can do a kind of globbing by including only parts of field names, ex:
+`ACARS_ANNOTATOR_SELECTED_FELDS=acarsApp` would select all "App" fields
+
+\*\*\* The headers should be in the format `key=value,otherkey=value`
 
 #### Webhooks
 
-In order to define the content for your webhook, edit `receiver_webhook.tpl`
+In order to define the payload for your webhook, edit `receiver_webhook.tpl`
 and add the fields and values that you need with
 [valid Go template syntax](https://pkg.go.dev/text/template).
 An example is provided which shows a very simple webhook payload

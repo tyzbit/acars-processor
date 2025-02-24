@@ -20,6 +20,16 @@ func (a ADSBHandlerAnnotator) Name() string {
 	return "ADS-B Exchange"
 }
 
+func (a ADSBHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+	selectedFields := Annotation{}
+	for field, value := range annotation {
+		if strings.Contains(config.ADSBAnnotatorSelectedFields, field) {
+			selectedFields[field] = value
+		}
+	}
+	return selectedFields
+}
+
 type ADSBHandlerAnnotator struct {
 	SingleAircraftPosition SingleAircraftPosition
 }

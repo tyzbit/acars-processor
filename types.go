@@ -7,8 +7,9 @@ const (
 )
 
 type ACARSAnnotator interface {
-	AnnotateACARSMessage(ACARSMessage) Annotation
 	Name() string
+	AnnotateACARSMessage(ACARSMessage) Annotation
+	SelectFields(Annotation) Annotation
 }
 
 // ALL KEYS MUST BE UNIQUE AMONG ALL ANNOTATORS

@@ -1,10 +1,22 @@
 package main
 
+import "strings"
+
 type ACARSHandlerAnnotator struct {
 }
 
 func (a ACARSHandlerAnnotator) Name() string {
 	return "ACARS"
+}
+
+func (a ACARSHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+	selectedFields := Annotation{}
+	for field, value := range annotation {
+		if strings.Contains(config.ACARSAnnotatorSelectedFields, field) {
+			selectedFields[field] = value
+		}
+	}
+	return selectedFields
 }
 
 // Interface function to satisfy ACARSHandler

@@ -20,8 +20,10 @@ type Config struct {
 	ACARSHubHost                     string  `env:"ACARSHUB_HOST"`
 	ACARSHubPort                     int     `env:"ACARSHUB_PORT"`
 	AnnotateACARS                    bool    `env:"ANNOTATE_ACARS"`
+	ACARSAnnotatorSelectedFields     string  `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
 	ADSBExchangeAPIKey               string  `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
+	ADSBAnnotatorSelectedFields      string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
 	FilterCriteriaInclusive          bool    `env:"FILTER_CRITERIA_INCLUSIVE"`
 	FilterCriteriaHasText            bool    `env:"FILTER_CRITERIA_HAS_TEXT"`
 	FilterCriteriaMatchTailCode      string  `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`

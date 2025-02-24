@@ -1,3 +1,3 @@
 {
-  "content": "{{ .acarsAircraftTailCode }}"
+  "content": "{{ .acarsFrequencyMHz }}"
 }
