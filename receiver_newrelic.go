@@ -40,7 +40,6 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 		Attributes: a,
 	}
 
-	log.Debugf("sending event to new relic: %s", event)
 	// Record the custom event.
 	err = harvester.RecordEvent(event)
 	if err != nil {
