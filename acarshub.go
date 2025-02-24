@@ -48,23 +48,30 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 			}
 			annotations := map[string]any{}
 			// Annotate the message via all enabled annotators
-			log.Infof("annotating message with enabled annotators %+v", enabledAnnotators)
 			for _, h := range enabledAnnotators {
-				log.Debugf("annotating with %s", h.Name())
+				log.Debugf("sending event to annotator %s: %+v", h.Name(), next)
 				result := h.AnnotateACARSMessage(next)
 				if result != nil {
 					result = h.SelectFields(result)
 					annotations = MergeMaps(result, annotations)
 				}
 			}
-			log.Infof("annotating message with enabled recievers %+v", enabledReceivers)
 			for _, r := range enabledReceivers {
-				log.Debugf("sending event to %s: %+v", r.Name(), annotations)
+				log.Debugf("sending event to reciever %s: %+v", r.Name(), annotations)
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
 					log.Errorf("error submitting to %s, err: %v", r.Name(), err)
 				}
 			}
+			var annotators, receivers string
+			for _, ann := range enabledAnnotators {
+				annotators = annotators + ann.Name()
+			}
+			for _, rec := range enabledReceivers {
+				receivers = receivers + rec.Name()
+			}
+			log.Infof("sent to annotators: %s", annotators)
+			log.Infof("sent to recievers: %s", receivers)
 		}
 	}
 }
