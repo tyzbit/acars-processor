@@ -71,11 +71,11 @@ func init() {
 func main() {
 	// Add annotators based on what's enabled
 	if config.AnnotateACARS {
-		log.Info("ACARS handler enabled")
+		log.Info("ACARS annotator enabled")
 		enabledAnnotators = append(enabledAnnotators, ACARSHandlerAnnotator{})
 	}
 	if config.ADSBExchangeAPIKey != "" {
-		log.Info("ADSB handler enabled")
+		log.Info("ADSB annotator enabled")
 		if config.ADSBExchangeAPIKey == "" {
 			log.Error("ADSB API key not set")
 		}
