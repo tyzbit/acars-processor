@@ -21,6 +21,9 @@ func (a ADSBHandlerAnnotator) Name() string {
 }
 
 func (a ADSBHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+	if config.ADSBAnnotatorSelectedFields == "" {
+		return annotation
+	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
 		if strings.Contains(config.ADSBAnnotatorSelectedFields, field) {
