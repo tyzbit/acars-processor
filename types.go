@@ -11,22 +11,16 @@ type ACARSAnnotator interface {
 	Name() string
 }
 
+// ALL KEYS MUST BE UNIQUE AMONG ALL ANNOTATORS
+type Annotation map[string]interface{}
+
 type Receiver interface {
 	SubmitACARSAnnotations(Annotation) error
 	Name() string
 }
 
-type ACARSAnnotation struct {
-	Annotator string
-	Annotation
-}
-
-// ALL KEYS MUST BE UNIQUE AMONG ALL ANNOTATORS
-type Annotation map[string]interface{}
-
-type AnnotatedACARSMessage struct {
-	ACARSMessage
-	Annotations map[string]any
+type ACARSFilter interface {
+	Filter(ACARSMessage) bool
 }
 
 // This is the format ACARSHub sends

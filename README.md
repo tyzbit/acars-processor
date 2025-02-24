@@ -19,19 +19,26 @@ variables for them.
 - Discord
 - Custom Webhook - See below for usage
 
-| Environment Variable               | Value                                                       |
-| ---------------------------------- | ----------------------------------------------------------- |
-| ACARSHUB_HOST                      | The hostname or IP to your acarshub instance                |
-| ACARSHUB_PORT                      | The port to connect to your acarshub instance on            |
-| ANNOTATE_ACARS                     | Include the original ACARS message, "true" or "false"       |
-| DISCORD_WEBHOOK_URL                | URL to a Discord webhook to post messages in a channel      |
-| ADBSEXCHANGE_APIKEY                | Your API Key to adb-s exchange (lite tier is fine)          |
-| ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
-| LOGLEVEL                           | debug, info, warn, error (default "info")                   |
-| NEW_RELIC_LICENSE_KEY              | Your New Relic Infra license key (ex: 123456NRAL)           |
-| WEBHOOK_URL                        | URL to your custom webhook                                  |
-| WEBHOOK_METHOD                     | GET, POST, etc                                              |
-| WEBHOOK_HEADERS                    | Headers to send along with the webhook request\*\*          |
+| Environment Variable                | Value                                                       |
+| ----------------------------------- | ----------------------------------------------------------- |
+| ACARSHUB_HOST                       | The hostname or IP to your acarshub instance                |
+| ACARSHUB_PORT                       | The port to connect to your acarshub instance on            |
+| ANNOTATE_ACARS                      | Include the original ACARS message, "true" or "false"       |
+| FILTER_CRITERIA_INCLUSIVE           | All filters must pass                                       |
+| FILTER_CRITERIA_HAS_TEXT            | Include the original ACARS message, "true" or "false"       |
+| FILTER_CRITERIA_MATCH_TAIL_CODE     | Include the original ACARS message, "true" or "false"       |
+| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER | Include the original ACARS message, "true" or "false"       |
+| FILTER_CRITERIA_MATCH_FREQUENCY     | Include the original ACARS message, "true" or "false"       |
+| FILTER_CRITERIA_ABOVE_SIGNAL_DBM    | Include the original ACARS message, "true" or "false"       |
+| FILTER_CRITERIA_MATCH_STATION_ID    | Include the original ACARS message, "true" or "false"       |
+| DISCORD_WEBHOOK_URL                 | URL to a Discord webhook to post messages in a channel      |
+| ADBSEXCHANGE_APIKEY                 | Your API Key to adb-s exchange (lite tier is fine)          |
+| ADBSEXCHANGE_REFERENCE_GEOLOCATION  | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
+| LOGLEVEL                            | debug, info, warn, error (default "info")                   |
+| NEW_RELIC_LICENSE_KEY               | Your New Relic Infra license key (ex: 123456NRAL)           |
+| WEBHOOK_URL                         | URL to your custom webhook                                  |
+| WEBHOOK_METHOD                      | GET, POST, etc                                              |
+| WEBHOOK_HEADERS                     | Headers to send along with the webhook request\*\*          |
 
 \* Required at this time for ADB-S, feel free to set it to "0,0"
 
