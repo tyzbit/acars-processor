@@ -64,11 +64,19 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 				}
 			}
 			var annotators, receivers string
-			for _, ann := range enabledAnnotators {
-				annotators = annotators + ", " + ann.Name()
+			for i, ann := range enabledAnnotators {
+				if i == 0 {
+					annotators = ann.Name()
+				} else {
+					annotators = annotators + ", " + ann.Name()
+				}
 			}
-			for _, rec := range enabledReceivers {
-				receivers = receivers + ", " + rec.Name()
+			for i, rec := range enabledReceivers {
+				if i == 0 {
+					receivers = rec.Name()
+				} else {
+					receivers = receivers + ", " + rec.Name()
+				}
 			}
 			log.Infof("used annotators: %s", annotators)
 			log.Infof("sent to recievers: %s", receivers)
