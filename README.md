@@ -73,3 +73,14 @@ and add the fields and values that you need with
 [valid Go template syntax](https://pkg.go.dev/text/template).
 An example is provided which shows a very simple webhook payload
 that uses annotations from the ACARS annotator.
+
+#### Example .env
+```
+ACARSHUB_HOST=192.168.0.100
+ACARSHUB_PORT=15550
+ANNOTATE_ACARS=true
+LOGLEVEL=debug
+WEBHOOK_URL=http://webhook
+WEBHOOK_METHOD=POST
+ACARS_ANNOTATOR_SELECTED_FIELDS=acarsAircraftTailCode,acarsExtraURL,acarsFlightNumber,acarsFrequencyMHz,acarsMessageText
+```
