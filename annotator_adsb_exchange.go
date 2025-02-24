@@ -17,7 +17,7 @@ const adsbapiv2 = "https://adsbexchange-com1.p.rapidapi.com/v2/%s"
 const adsbapikeyheader = "x-rapidapi-key"
 
 func (a ADSBHandlerAnnotator) Name() string {
-	return "ADS-B Exchange"
+	return "ads-b exchange"
 }
 
 func (a ADSBHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
@@ -92,6 +92,7 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 	req.Header.Add(adsbapikeyheader, config.ADSBExchangeAPIKey)
 	client := &http.Client{}
 
+	log.Debug("making call to ads-b exchange")
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -104,6 +105,7 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 	}
 
 	if (&ac != &SingleAircraftPosition{}) {
+		log.Debug("returning data from ads-b")
 		return ac, nil
 	} else {
 		return ac, errors.New("unable to parse returned aircraft position")
@@ -113,8 +115,8 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 // Interface function to satisfy ACARSHandler
 func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	if config.ADSBExchangeReferenceGeolocation == "" {
-		log.Warn("ADSB enabled but geolocation not set")
-		return
+		log.Info("ADSB enabled but geolocation not set, using '0,0'")
+		config.ADSBExchangeReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.ADSBExchangeReferenceGeolocation, ",")
 	if len(coords) != 2 {

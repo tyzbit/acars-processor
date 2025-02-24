@@ -40,17 +40,15 @@ type DiscordThumbnail struct {
 }
 
 func (d DiscordHandlerReciever) Name() string {
-	return "Discord"
+	return "discord"
 }
 
 func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
-	// Create a slice to hold the keys
 	keys := make([]string, 0, len(a))
 	for k := range a {
 		keys = append(keys, k)
 	}
 
-	// Sort the keys
 	sort.Strings(keys)
 
 	var content string
@@ -65,14 +63,18 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	buff := new(bytes.Buffer)
 	json.NewEncoder(buff).Encode(message)
 	req, err := http.NewRequest("POST", config.DiscordWebhookURL, buff)
+	if err != nil {
+		return err
+	}
 	req.Header.Add("User-Agent", WebhookUserAgent)
 	// Hardcoded for now because most webhooks will be JSON
 	req.Header.Add("Content-Type", "application/json")
 
+	log.Debug("making discord webhook call")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error(err)
+		return err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
@@ -80,7 +82,9 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		return err
 	}
 
-	log.Debugf("discord api returned: %s", string(body))
+	if response := string(body); response != "" {
+		log.Debugf("discord api returned: %s", response)
+	}
 
 	// embed := discord.NewEmbed("ACARS Message", "Description", FlightAwareRoot+m.AircraftTailCode)
 	// embed.Content = m.MessageText

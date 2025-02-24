@@ -6,7 +6,7 @@ type ACARSHandlerAnnotator struct {
 }
 
 func (a ACARSHandlerAnnotator) Name() string {
-	return "ACARS"
+	return "acars"
 }
 
 func (a ACARSHandlerAnnotator) SelectFields(annotation Annotation) Annotation {

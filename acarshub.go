@@ -39,7 +39,8 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 		if (next == ACARSMessage{}) {
 			log.Errorf("json message did not match expected structure, we got: %+v", next)
 		} else {
-			log.Debugf("new acars message: %+v", next)
+			log.Info("new acars message received")
+			log.Debugf("new acars message content: %+v", next)
 			ok, filters := ACARSCriteriaFilter{}.Filter(next)
 			if !ok {
 				log.Infof("message was filtered out by %s", strings.Join(filters, ","))
@@ -47,16 +48,18 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 			}
 			annotations := map[string]any{}
 			// Annotate the message via all enabled annotators
+			log.Infof("annotating message with enabled annotators %+v", enabledAnnotators)
 			for _, h := range enabledAnnotators {
+				log.Debugf("annotating with %s", h.Name())
 				result := h.AnnotateACARSMessage(next)
 				if result != nil {
 					result = h.SelectFields(result)
 					annotations = MergeMaps(result, annotations)
 				}
 			}
-			log.Debugf("message being sent to receivers: %+v", annotations)
+			log.Infof("annotating message with enabled recievers %+v", enabledReceivers)
 			for _, r := range enabledReceivers {
-				log.Debugf("submitting to %s", r.Name())
+				log.Debugf("sending event to %s: %+v", r.Name(), annotations)
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
 					log.Errorf("error submitting to %s, err: %v", r.Name(), err)
