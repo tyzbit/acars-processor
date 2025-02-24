@@ -41,15 +41,6 @@ func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []st
 	ok = true
 	for _, filter := range enabledFilters {
 		match := filterFunctions[filter](m)
-		// Every filter must pass
-		if config.FilterCriteriaInclusive && !match {
-			failedFilters = append(failedFilters, filter)
-			return false, failedFilters
-		}
-		// Any filter can pass
-		if !config.FilterCriteriaInclusive && match {
-			return true, failedFilters
-		}
 		if match == false {
 			ok = false
 			failedFilters = append(failedFilters, filter)
