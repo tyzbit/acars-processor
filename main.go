@@ -17,20 +17,25 @@ var (
 
 // Set via ENV variables or a .env file
 type Config struct {
-	ACARSHubHost                     string `env:"ACARSHUB_HOST"`
-	ACARSHubPort                     int    `env:"ACARSHUB_PORT"`
-	AnnotateACARS                    bool   `env:"ANNOTATE_ACARS"`
-	ADSBExchangeAPIKey               string `env:"ADBSEXCHANGE_APIKEY"`
-	ADSBExchangeReferenceGeolocation string `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
-	FilterCriteriaMatchTailCode      string `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
-	FilterCriteriaHasText            bool   `env:"FILTER_CRITERIA_HAS_TEXT"`
-	LogLevel                         string `env:"LOGLEVEL"`
-	NewRelicLicenseKey               string `env:"NEW_RELIC_LICENSE_KEY"`
-	NewRelicLicenseCustomEventType   string `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
-	WebhookURL                       string `env:"WEBHOOK_URL"`
-	WebhookMethod                    string `env:"WEBHOOK_METHOD"`
-	WebhookHeaders                   string `env:"WEBHOOK_HEADERS"`
-	DiscordWebhookURL                string `env:"DISCORD_WEBHOOK_URL"`
+	ACARSHubHost                     string  `env:"ACARSHUB_HOST"`
+	ACARSHubPort                     int     `env:"ACARSHUB_PORT"`
+	AnnotateACARS                    bool    `env:"ANNOTATE_ACARS"`
+	ADSBExchangeAPIKey               string  `env:"ADBSEXCHANGE_APIKEY"`
+	ADSBExchangeReferenceGeolocation string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
+	FilterCriteriaInclusive          bool    `env:"FILTER_CRITERIA_INCLUSIVE"`
+	FilterCriteriaHasText            bool    `env:"FILTER_CRITERIA_HAS_TEXT"`
+	FilterCriteriaMatchTailCode      string  `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
+	FilterCriteriaMatchFlightNumber  string  `env:"FILTER_CRITERIA_MATCH_FLIGHT_NUMBER"`
+	FilterCriteriaMatchFrequency     float64 `env:"FILTER_CRITERIA_MATCH_FREQUENCY"`
+	FilterCriteriaAboveSignaldBm     float64 `env:"FILTER_CRITERIA_ABOVE_SIGNAL_DBM"`
+	FilterCriteriaMatchStationID     string  `env:"FILTER_CRITERIA_MATCH_STATION_ID"`
+	LogLevel                         string  `env:"LOGLEVEL"`
+	NewRelicLicenseKey               string  `env:"NEW_RELIC_LICENSE_KEY"`
+	NewRelicLicenseCustomEventType   string  `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
+	WebhookURL                       string  `env:"WEBHOOK_URL"`
+	WebhookMethod                    string  `env:"WEBHOOK_METHOD"`
+	WebhookHeaders                   string  `env:"WEBHOOK_HEADERS"`
+	DiscordWebhookURL                string  `env:"DISCORD_WEBHOOK_URL"`
 }
 
 // Set up Config, logging
@@ -76,6 +81,8 @@ func main() {
 		log.Warn("no annotators are enabled")
 	}
 
+	// -------------------------------------------------------------------------
+
 	// Add receivers based on what's enabled
 	if config.WebhookURL != "" {
 		log.Info("Webhook receiver enabled")
@@ -93,12 +100,25 @@ func main() {
 		log.Warn("no receivers are enabled")
 	}
 
+	// -------------------------------------------------------------------------
+
 	// Add filters based on what's enabled
 	if config.FilterCriteriaMatchTailCode != "" {
 		enabledFilters = append(enabledFilters, "MatchesTailCode")
 	}
-
 	if config.FilterCriteriaHasText {
+		enabledFilters = append(enabledFilters, "HasText")
+	}
+	if config.FilterCriteriaMatchFlightNumber != "" {
+		enabledFilters = append(enabledFilters, "HasText")
+	}
+	if config.FilterCriteriaMatchFrequency != 0.0 {
+		enabledFilters = append(enabledFilters, "HasText")
+	}
+	if config.FilterCriteriaMatchStationID != "" {
+		enabledFilters = append(enabledFilters, "HasText")
+	}
+	if config.FilterCriteriaAboveSignaldBm != 0.0 {
 		enabledFilters = append(enabledFilters, "HasText")
 	}
 

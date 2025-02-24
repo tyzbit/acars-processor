@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -39,6 +40,11 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 			log.Errorf("json message did not match expected structure, we got: %+v", next)
 		} else {
 			log.Debugf("new acars message: %+v", next)
+			ok, filters := ACARSCriteriaFilter{}.Filter(next)
+			if !ok {
+				log.Infof("message was filtered out by %s", strings.Join(filters, ","))
+				continue
+			}
 			annotations := map[string]any{}
 			// Annotate the message via all enabled annotators
 			for _, h := range enabledAnnotators {
