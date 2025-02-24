@@ -70,7 +70,7 @@ func HandleACARSJSONMessages(j *json.Decoder) {
 			for _, rec := range enabledReceivers {
 				receivers = receivers + rec.Name()
 			}
-			log.Infof("sent to annotators: %s", annotators)
+			log.Infof("used annotators: %s", annotators)
 			log.Infof("sent to recievers: %s", receivers)
 		}
 	}
