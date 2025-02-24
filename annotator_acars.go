@@ -10,6 +10,9 @@ func (a ACARSHandlerAnnotator) Name() string {
 }
 
 func (a ACARSHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+	if config.ACARSAnnotatorSelectedFields == "" {
+		return annotation
+	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
 		if strings.Contains(config.ACARSAnnotatorSelectedFields, field) {

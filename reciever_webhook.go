@@ -35,9 +35,11 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 
 	h, err := http.NewRequest(config.WebhookMethod, config.WebhookURL, &b)
 	for _, header := range strings.Split(config.WebhookHeaders, ",") {
-		key := strings.Split(header, "=")[0]
-		value := strings.Split(header, "=")[1]
-		h.Header.Add(key, value)
+		if header != "" {
+			key := strings.Split(header, "=")[0]
+			value := strings.Split(header, "=")[1]
+			h.Header.Add(key, value)
+		}
 	}
 
 	c := http.Client{}
