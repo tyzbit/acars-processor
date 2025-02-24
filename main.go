@@ -93,7 +93,7 @@ func main() {
 		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
 	}
 	if config.DiscordWebhookURL != "" {
-		log.Info("New Relic reciever enabled")
+		log.Info("Discord reciever enabled")
 		enabledReceivers = append(enabledReceivers, DiscordHandlerReciever{})
 	}
 	if len(enabledReceivers) == 0 {
