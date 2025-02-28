@@ -24,8 +24,8 @@ variables for them.
 | Environment Variable             | Value                                                  |
 | -------------------------------- | ------------------------------------------------------ |
 | ACARSHUB_HOST                    | The hostname or IP to your acarshub instance           |
-| ACARSHUB_VDLM2_HOST              | The hostname or IP to your acarshub instance for VDLM2 |
 | ACARSHUB_PORT                    | The ACARS port to connect to your acarshub instance on |
+| ACARSHUB_VDLM2_HOST              | The hostname or IP to your acarshub instance for VDLM2 |
 | ACARSHUB_VDLM2_PORT              | The VDLM2 port to connect to your acarshub instance on |
 | LOGLEVEL                         | debug, info, warn, error (default "info")              |
 
@@ -43,6 +43,7 @@ variables for them.
 | Environment Variable                | Value                                                                            |
 | ----------------------------------- | -------------------------------------------------------------------------------- |
 | ACARS_ANNOTATOR_SELECTED_FIELDS     | If this is set, receivers will only receive fields present in this variable \*\* |
+| VDLM2_ANNOTATOR_SELECTED_FIELDS     | If this is set, receivers will only receive fields present in this variable \*\* |
 | ADSB_ANNOTATOR_SELECTED_FIELDS      | If this is set, receivers will only receive fields present in this variable \*\* |
 | FILTER_CRITERIA_HAS_TEXT            | Message must have text                                                           |
 | FILTER_CRITERIA_MATCH_TAIL_CODE     | Message must match tail code                                                     |
