@@ -43,6 +43,7 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 	}
 
 	c := http.Client{}
+	log.Info("calling custom webhook")
 	resp, err := c.Do(h)
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {

@@ -47,6 +47,7 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 	}
 
 	// Flush events to New Relic. HarvestNow sends any recorded events immediately.
+	log.Info("calling new relic")
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	harvester.HarvestNow(ctx)
