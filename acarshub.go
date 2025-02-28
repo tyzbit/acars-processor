@@ -77,7 +77,7 @@ func HandleACARSJSONMessages(r *io.Reader) {
 			}
 		}
 		for _, r := range enabledReceivers {
-			log.Debugf("sending event to reciever %s: %+v", r.Name(), annotations)
+			log.Debugf("sending acars event to reciever %s: %+v", r.Name(), annotations)
 			err := r.SubmitACARSAnnotations(annotations)
 			if err != nil {
 				log.Errorf("error submitting to %s, err: %v", r.Name(), err)
@@ -121,7 +121,7 @@ func HandleVDLM2JSONMessages(r *io.Reader) {
 			}
 		}
 		for _, r := range enabledReceivers {
-			log.Debugf("sending event to reciever %s: %+v", r.Name(), annotations)
+			log.Debugf("sending vdlm2 event to reciever %s: %+v", r.Name(), annotations)
 			err := r.SubmitACARSAnnotations(annotations)
 			if err != nil {
 				log.Errorf("error submitting to %s, err: %v", r.Name(), err)
