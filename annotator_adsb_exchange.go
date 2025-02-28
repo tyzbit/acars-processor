@@ -21,13 +21,23 @@ func (a ADSBHandlerAnnotator) Name() string {
 }
 
 func (a ADSBHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
-	if config.ADSBAnnotatorSelectedFields == "" {
+	selectedFields := Annotation{}
+	// If no fields are being selected, return annotation unchanged
+	if config.ADSBAnnotatorSelectedFields == "" && config.VDLM2AnnotatorSelectedFields == "" {
 		return annotation
 	}
-	selectedFields := Annotation{}
-	for field, value := range annotation {
-		if strings.Contains(config.ADSBAnnotatorSelectedFields, field) {
-			selectedFields[field] = value
+	if config.ADSBAnnotatorSelectedFields != "" {
+		for field, value := range annotation {
+			if strings.Contains(config.ADSBAnnotatorSelectedFields, field) {
+				selectedFields[field] = value
+			}
+		}
+	}
+	if config.VDLM2AnnotatorSelectedFields != "" {
+		for field, value := range annotation {
+			if strings.Contains(config.VDLM2AnnotatorSelectedFields, field) {
+				selectedFields[field] = value
+			}
 		}
 	}
 	return selectedFields

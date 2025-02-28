@@ -46,8 +46,7 @@ var (
 func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []string) {
 	ok = true
 	for _, filter := range enabledFilters {
-		match := ACARSFilterFunctions[filter](m)
-		if match == false {
+		if !ACARSFilterFunctions[filter](m) {
 			ok = false
 			failedFilters = append(failedFilters, filter)
 		}

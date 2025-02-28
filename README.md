@@ -21,17 +21,20 @@ variables for them.
 
 ### General Configuration
 
-| Environment Variable | Value                                            |
-| -------------------- | ------------------------------------------------ |
-| ACARSHUB_HOST        | The hostname or IP to your acarshub instance     |
-| ACARSHUB_PORT        | The port to connect to your acarshub instance on |
-| LOGLEVEL             | debug, info, warn, error (default "info")        |
+| Environment Variable             | Value                                                  |
+| -------------------------------- | ------------------------------------------------------ |
+| ACARSHUB_HOST                    | The hostname or IP to your acarshub instance           |
+| ACARSHUB_VDLM2_HOST              | The hostname or IP to your acarshub instance for VDLM2 |
+| ACARSHUB_PORT                    | The ACARS port to connect to your acarshub instance on |
+| ACARSHUB_VDLM2_PORT              | The VDLM2 port to connect to your acarshub instance on |
+| LOGLEVEL                         | debug, info, warn, error (default "info")              |
 
 ### Annotators
 
 | Environment Variable               | Value                                                       |
 | ---------------------------------- | ----------------------------------------------------------- |
 | ANNOTATE_ACARS                     | Include the original ACARS message, "true" or "false"       |
+| ANNOTATE_VDLM2                     | Include the original VDLM2 message, "true" or "false"       |
 | ADBSEXCHANGE_APIKEY                | Your API Key to adb-s exchange (lite tier is fine)          |
 | ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
 
@@ -74,12 +77,16 @@ An example is provided which shows a very simple webhook payload
 that uses annotations from the ACARS annotator.
 
 #### Example .env
+
 ```
 ACARSHUB_HOST=192.168.0.100
 ACARSHUB_PORT=15550
+ACARSHUB_VDLM2_PORT=15555
 ANNOTATE_ACARS=true
+ANNOTATE_VDLM2=true
 LOGLEVEL=debug
 WEBHOOK_URL=http://webhook
 WEBHOOK_METHOD=POST
 ACARS_ANNOTATOR_SELECTED_FIELDS=acarsAircraftTailCode,acarsExtraURL,acarsFlightNumber,acarsFrequencyMHz,acarsMessageText
+VDLM_ANNOTATOR_SELECTED_FIELDS=acarsAircraftTailCode,acarsExtraURL,acarsFlightNumber,vdlm2FrequencyHz,acarsMessageText
 ```

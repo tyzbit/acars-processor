@@ -15,7 +15,7 @@ func (a VDLM2CriteriaFilter) Name() string {
 var (
 	VDLM2FilterFunctions = map[string]func(m VDLM2Message) bool{
 		"HasText": func(m VDLM2Message) bool {
-			re := regexp.MustCompile("[\\S]+")
+			re := regexp.MustCompile(`[\S]+`)
 			return re.MatchString(m.VDL2.AVLC.ACARS.MessageText)
 		},
 		"MatchesTailCode": func(m VDLM2Message) bool {
@@ -44,8 +44,7 @@ var (
 func (f VDLM2CriteriaFilter) Filter(m VDLM2Message) (ok bool, failedFilters []string) {
 	ok = true
 	for _, filter := range enabledFilters {
-		match := VDLM2FilterFunctions[filter](m)
-		if match == false {
+		if !VDLM2FilterFunctions[filter](m) {
 			ok = false
 			failedFilters = append(failedFilters, filter)
 		}

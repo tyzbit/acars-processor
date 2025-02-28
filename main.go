@@ -1,7 +1,10 @@
 package main
 
 import (
+	"os"
+	"os/signal"
 	"strings"
+	"syscall"
 
 	cfg "github.com/golobby/config/v3"
 	"github.com/golobby/config/v3/pkg/feeder"
@@ -20,10 +23,14 @@ type Config struct {
 	ACARSHubHost                     string  `env:"ACARSHUB_HOST"`
 	ACARSHubPort                     int     `env:"ACARSHUB_PORT"`
 	AnnotateACARS                    bool    `env:"ANNOTATE_ACARS"`
+	ACARSHubVDLM2Host                string  `env:"ACARSHUB_HOST"`
+	ACARSHubVDLM2Port                int     `env:"ACARSHUB_VDLM2_PORT"`
+	AnnotateVDLM2                    bool    `env:"ANNOTATE_VDLM2"`
 	ACARSAnnotatorSelectedFields     string  `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
 	ADSBExchangeAPIKey               string  `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
 	ADSBAnnotatorSelectedFields      string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
+	VDLM2AnnotatorSelectedFields     string  `env:"VDLM2_ANNOTATOR_SELECTED_FIELDS"`
 	FilterCriteriaHasText            bool    `env:"FILTER_CRITERIA_HAS_TEXT"`
 	FilterCriteriaMatchTailCode      string  `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
 	FilterCriteriaMatchFlightNumber  string  `env:"FILTER_CRITERIA_MATCH_FLIGHT_NUMBER"`
@@ -133,4 +140,9 @@ func main() {
 	}
 
 	SubscribeToACARSHub()
+
+	// Listen for signals from the OS
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)
+	<-sc
 }
