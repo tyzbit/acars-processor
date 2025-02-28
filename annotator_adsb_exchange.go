@@ -156,3 +156,48 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 
 	return event
 }
+
+// Interface function to satisfy ACARSHandler
+func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+	if config.ADSBExchangeReferenceGeolocation == "" {
+		log.Info("ADSB enabled but geolocation not set, using '0,0'")
+		config.ADSBExchangeReferenceGeolocation = "0,0"
+	}
+	coords := strings.Split(config.ADSBExchangeReferenceGeolocation, ",")
+	if len(coords) != 2 {
+		log.Warn("geolocation coordinates are not in the format 'LAT,LON'")
+		return annotation
+	}
+	flat, _ := strconv.ParseFloat(coords[0], 64)
+	flon, _ := strconv.ParseFloat(coords[1], 64)
+	lat := geopoint.Degrees(flat)
+	lon := geopoint.Degrees(flon)
+	o := geopoint.NewGeoPoint(lat, lon)
+
+	position, err := a.SingleAircraftPositionByRegistration(strings.ReplaceAll(m.VDL2.AVLC.ACARS.Registration, ".", ""))
+	if err != nil {
+		log.Warnf("error getting aircraft position: %v", err)
+	}
+	if len(position.Aircraft) == 0 {
+		log.Warnf("no aircraft were returned from ADS-B API, response message was: %s", position.Message)
+		return annotation
+	}
+
+	airlat := geopoint.Degrees(position.Aircraft[0].Latitude)
+	airlon := geopoint.Degrees(position.Aircraft[0].Longitude)
+	airgeo := fmt.Sprintf("%f,%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
+	air := geopoint.NewGeoPoint(airlat, airlon)
+
+	event := Annotation{
+		"adsbOriginGeolocation":          config.ADSBExchangeReferenceGeolocation,
+		"adsbOriginGeolocationLatitude":  flat,
+		"adsbOriginGeolocationLongitude": flon,
+		"adsbAircraftGeolocation":        airgeo,
+		"adsbAircraftLatitude":           position.Aircraft[0].Latitude,
+		"adsbAircraftLongitude":          position.Aircraft[0].Longitude,
+		"adsbAircraftDistanceKm":         float64(air.DistanceTo(o, geopoint.Haversine)),
+		"adsbAircraftDistanceMi":         float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
+	}
+
+	return event
+}

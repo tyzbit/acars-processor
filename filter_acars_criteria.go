@@ -13,7 +13,7 @@ func (a ACARSCriteriaFilter) Name() string {
 
 // All filters are defined here
 var (
-	filterFunctions = map[string]func(m ACARSMessage) bool{
+	ACARSFilterFunctions = map[string]func(m ACARSMessage) bool{
 		"HasText": func(m ACARSMessage) bool {
 			re := regexp.MustCompile("[\\S]+")
 			return re.MatchString(m.MessageText)
@@ -46,7 +46,7 @@ var (
 func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []string) {
 	ok = true
 	for _, filter := range enabledFilters {
-		match := filterFunctions[filter](m)
+		match := ACARSFilterFunctions[filter](m)
 		if match == false {
 			ok = false
 			failedFilters = append(failedFilters, filter)

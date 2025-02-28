@@ -1,3 +1,3 @@
 {
-  "content": "{{ .acarsFrequencyMHz }}"
+  "flight_number": "{{ .acarsFlightNumber }}"
 }

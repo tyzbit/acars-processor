@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"io"
 	"os"
 
 	log "github.com/sirupsen/logrus"
@@ -42,4 +44,10 @@ func MergeMaps(m1, m2 map[string]any) map[string]any {
 	}
 
 	return merged
+}
+
+func CloneReader(r io.Reader) (io.Reader, io.Reader) {
+	var buf bytes.Buffer
+	tee := io.TeeReader(r, &buf) // Copy data while reading
+	return &buf, tee
 }
