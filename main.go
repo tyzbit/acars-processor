@@ -139,7 +139,7 @@ func main() {
 		enabledFilters = append(enabledFilters, "MatchesASSStatus")
 	}
 
-	SubscribeToACARSHub()
+	go SubscribeToACARSHub()
 
 	// Listen for signals from the OS
 	sc := make(chan os.Signal, 1)
