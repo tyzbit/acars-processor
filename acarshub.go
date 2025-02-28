@@ -10,33 +10,36 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+func ReadACARSHubACARSMessages() {
+	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
+	log.Debugf("connecting to %s acars json port", address)
+	s, err := net.Dial("tcp", address)
+	if err != nil {
+		log.Fatalf("error connecting to acars json: %v", err)
+	}
+	defer s.Close()
+	log.Info("connected to acarshub acars json port successfully")
+	r := io.Reader(s)
+	HandleACARSJSONMessages(&r)
+}
+
+func ReadACARSHubVDLM2Messages() {
+	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubVDLM2Port)
+	log.Debugf("connecting to %s vdlm2 json port", address)
+	s, err := net.Dial("tcp", address)
+	if err != nil {
+		log.Fatalf("error connecting to vdlm2 json: %v", err)
+	}
+	defer s.Close()
+	log.Info("connected to acarshub vdlm2 json port successfully")
+	r := io.Reader(s)
+	HandleVDLM2JSONMessages(&r)
+}
+
 // Connects to ACARS and starts listening to messages
 func SubscribeToACARSHub() {
-	if config.ACARSHubPort != 0 {
-		address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
-		log.Debugf("connecting to %s acars json port", address)
-		s, err := net.Dial("tcp", address)
-		if err != nil {
-			log.Fatalf("error connecting: %v", err)
-		}
-		defer s.Close()
-		log.Info("connected successfully")
-		r := io.Reader(s)
-		go HandleACARSJSONMessages(&r)
-	}
-
-	if config.ACARSHubVDLM2Port != 0 {
-		address := fmt.Sprintf("%s:%d", config.ACARSHubVDLM2Host, config.ACARSHubVDLM2Port)
-		log.Debugf("connecting to %s vdlm2 json port", address)
-		s, err := net.Dial("tcp", address)
-		if err != nil {
-			log.Fatalf("error connecting: %v", err)
-		}
-		defer s.Close()
-		log.Info("connected successfully")
-		r := io.Reader(s)
-		go HandleVDLM2JSONMessages(&r)
-	}
+	go ReadACARSHubACARSMessages()
+	go ReadACARSHubVDLM2Messages()
 }
 
 // Reads messages from the ACARSHub connection and annotates, then sends
