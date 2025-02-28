@@ -45,6 +45,8 @@ func (a ACARSHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsMessageNumber":         m.VDL2.AVLC.ACARS.MessageNumber,
 		"acarsMessageNumberSequence": m.VDL2.AVLC.ACARS.MessageNumberSequence,
 		"acarsMessageText":           m.VDL2.AVLC.ACARS.MessageText,
+		"acarsExtraURL":              FlightAwareRoot + m.VDL2.AVLC.ACARS.Registration,
+		"acarsExtraPhotos":           FlightAwarePhotos + m.VDL2.AVLC.ACARS.Registration,
 	}
 	return annotation
 }
