@@ -28,7 +28,7 @@ func (a ACARSHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"vdlm2HDRBitsFixed":          m.VDL2.HDRBitsFixed,
 		"vdlm2NoiseLevel":            m.VDL2.NoiseLevel,
 		"vdlm2OctetsCorrectedByFEC":  m.VDL2.OctetsCorrectedByFEC,
-		"vdlm2SignalLevel":           m.VDL2.SignalLevel,
+		"vdlm2SignalLeveldBm":        m.VDL2.SignalLevel,
 		"vdlm2Station":               m.VDL2.Station,
 		"vdlm2Timestamp":             m.VDL2.Timestamp.UnixTimestamp,
 		"vdlm2TimestampMicroseconds": m.VDL2.Timestamp.Microseconds,
