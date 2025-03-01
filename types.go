@@ -9,6 +9,11 @@ const (
 type ACARSAnnotator interface {
 	Name() string
 	AnnotateACARSMessage(ACARSMessage) Annotation
+	SelectFields(Annotation) Annotation
+}
+
+type VDLM2Annotator interface {
+	Name() string
 	AnnotateVDLM2Message(VDLM2Message) Annotation
 	SelectFields(Annotation) Annotation
 }

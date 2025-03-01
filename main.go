@@ -12,10 +12,11 @@ import (
 )
 
 var (
-	config            = Config{}
-	enabledAnnotators = []ACARSAnnotator{}
-	enabledReceivers  = []Receiver{}
-	enabledFilters    = []string{}
+	config                 = Config{}
+	enabledACARSAnnotators = []ACARSAnnotator{}
+	enabledVDLM2Annotators = []VDLM2Annotator{}
+	enabledReceivers       = []Receiver{}
+	enabledFilters         = []string{}
 )
 
 // Set via ENV variables or a .env file
@@ -77,19 +78,29 @@ func init() {
 
 func main() {
 	// Add annotators based on what's enabled
+	// ACARS-type messages
 	if config.AnnotateACARS {
 		log.Info("ACARS annotator enabled")
-		enabledAnnotators = append(enabledAnnotators, ACARSHandlerAnnotator{})
+		enabledACARSAnnotators = append(enabledACARSAnnotators, ACARSHandlerAnnotator{})
 	}
 	if config.ADSBExchangeAPIKey != "" {
 		log.Info("ADSB annotator enabled")
 		if config.ADSBExchangeAPIKey == "" {
 			log.Error("ADSB API key not set")
 		}
-		enabledAnnotators = append(enabledAnnotators, ADSBHandlerAnnotator{})
+		enabledACARSAnnotators = append(enabledACARSAnnotators, ADSBHandlerAnnotator{})
 	}
-	if len(enabledAnnotators) == 0 {
-		log.Warn("no annotators are enabled")
+	if len(enabledACARSAnnotators) == 0 {
+		log.Warn("no acars annotators are enabled")
+	}
+
+	// VDLM2-type messages
+	if config.AnnotateVDLM2 {
+		log.Info("VDLM2 annotator enabled")
+		enabledVDLM2Annotators = append(enabledVDLM2Annotators, VDLM2HandlerAnnotator{})
+	}
+	if len(enabledVDLM2Annotators) == 0 {
+		log.Info("no vdlm2 annotators are enabled")
 	}
 
 	// -------------------------------------------------------------------------
@@ -141,6 +152,7 @@ func main() {
 
 	go SubscribeToACARSHub()
 
+	log.Debug("launched acarshub subscribers")
 	// Listen for signals from the OS
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)

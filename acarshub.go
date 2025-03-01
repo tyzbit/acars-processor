@@ -11,6 +11,9 @@ import (
 )
 
 func ReadACARSHubACARSMessages() {
+	if !config.AnnotateACARS {
+		return
+	}
 	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
 	log.Debugf("connecting to %s acars json port", address)
 	s, err := net.Dial("tcp", address)
@@ -24,6 +27,9 @@ func ReadACARSHubACARSMessages() {
 }
 
 func ReadACARSHubVDLM2Messages() {
+	if !config.AnnotateVDLM2 {
+		return
+	}
 	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubVDLM2Port)
 	log.Debugf("connecting to %s vdlm2 json port", address)
 	s, err := net.Dial("tcp", address)
@@ -48,28 +54,28 @@ func HandleACARSJSONMessages(r *io.Reader) {
 	log.Debug("handling acars json messages")
 	for {
 		annotations := map[string]any{}
-		var next ACARSMessage
+		var next VDLM2Message
 		err := readJson.Decode(&next)
 		if err != nil {
 			log.Warnf("error decoding acars message: %s", err)
 			continue
 		}
 		log.Info("new acars message received")
-		if (next == ACARSMessage{}) {
+		if (next == VDLM2Message{}) {
 			log.Errorf("json message did not match expected structure, we got: %+v", next)
 			continue
 		} else {
 
 			log.Debugf("new acars message content: %+v", next)
-			ok, filters := ACARSCriteriaFilter{}.Filter(next)
+			ok, filters := VDLM2CriteriaFilter{}.Filter(next)
 			if !ok {
 				log.Infof("message was filtered out by %s", strings.Join(filters, ","))
 				continue
 			}
 			// Annotate the message via all enabled annotators
-			for _, h := range enabledAnnotators {
+			for _, h := range enabledVDLM2Annotators {
 				log.Debugf("sending event to annotator %s: %+v", h.Name(), next)
-				result := h.AnnotateACARSMessage(next)
+				result := h.AnnotateVDLM2Message(next)
 				if result != nil {
 					result = h.SelectFields(result)
 					annotations = MergeMaps(result, annotations)
@@ -111,8 +117,8 @@ func HandleVDLM2JSONMessages(r *io.Reader) {
 		if !ok {
 			log.Infof("message was filtered out by %s", strings.Join(filters, ","))
 			continue
-		} // Annotate the message via all enabled annotators
-		for _, h := range enabledAnnotators {
+		} // Annotate the message via all enabled VDLM2 annotators
+		for _, h := range enabledVDLM2Annotators {
 			log.Debugf("sending event to annotator %s: %+v", h.Name(), next)
 			result := h.AnnotateVDLM2Message(next)
 			if result != nil {

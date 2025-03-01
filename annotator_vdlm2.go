@@ -1,9 +1,31 @@
 package main
 
+import "strings"
+
+type VDLM2HandlerAnnotator struct {
+}
+
+func (v VDLM2HandlerAnnotator) Name() string {
+	return "vdlm2"
+}
+
+func (v VDLM2HandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+	if config.VDLM2AnnotatorSelectedFields == "" {
+		return annotation
+	}
+	selectedFields := Annotation{}
+	for field, value := range annotation {
+		if strings.Contains(config.VDLM2AnnotatorSelectedFields, field) {
+			selectedFields[field] = value
+		}
+	}
+	return selectedFields
+}
+
 // Interface function to satisfy ACARSHandler
 // Although this is the ACARS annotator, we must support ACARS and VLM2
 // message types
-func (a ACARSHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	annotation = Annotation{
 		"vdlm2AppName":               m.VDL2.App.Name,
 		"vdlm2AppVersion":            m.VDL2.App.Version,
