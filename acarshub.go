@@ -62,8 +62,7 @@ func HandleACARSJSONMessages(r *io.Reader) {
 	annotations := map[string]any{}
 	var next ACARSMessage
 	if err := readJson.Decode(&next); err != nil {
-		log.Warnf("error decoding acars message: %s", err)
-		return
+		log.Fatalf("error decoding acars message: %s", err)
 	}
 	log.Info("new acars message received")
 	if (next == ACARSMessage{}) {
@@ -102,8 +101,7 @@ func HandleVDLM2JSONMessages(r *io.Reader) {
 	var next VDLM2Message
 	// Decode consumes the buffer, so we use a second decoder
 	if err := readJson.Decode(&next); err != nil {
-		log.Warnf("error decoding vdlm2 message: %s", err)
-		return
+		log.Fatalf("error decoding vdlm2 message: %s", err)
 	}
 	log.Info("new vdlm2 message received")
 	if (next == VDLM2Message{}) {
