@@ -151,7 +151,7 @@ func main() {
 		enabledFilters = append(enabledFilters, "MatchesASSStatus")
 	}
 	if config.FilterCriteriaMore {
-		enabledFilters = append(enabledFilters, "ACARSMore")
+		enabledFilters = append(enabledFilters, "More")
 	}
 
 	go SubscribeToACARSHub()
