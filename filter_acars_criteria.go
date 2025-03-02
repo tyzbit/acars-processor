@@ -39,6 +39,9 @@ var (
 		"ASSStatus": func(m ACARSMessage) bool {
 			return config.FilterCriteriaMatchASSStatus == m.ASSStatus
 		},
+		"More": func(m ACARSMessage) bool {
+			return true
+		},
 	}
 )
 

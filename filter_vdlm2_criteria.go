@@ -37,7 +37,7 @@ var (
 		"BelowMaximumSignal": func(m VDLM2Message) bool {
 			return config.FilterCriteriaAboveSignaldBm > m.VDL2.SignalLevel
 		},
-		"ACARSMore": func(m VDLM2Message) bool {
+		"More": func(m VDLM2Message) bool {
 			return !m.VDL2.AVLC.ACARS.More
 		},
 	}

@@ -40,6 +40,7 @@ type Config struct {
 	FilterCriteriaAboveSignaldBm     float64 `env:"FILTER_CRITERIA_ABOVE_SIGNAL_DBM"`
 	FilterCriteriaBelowSignaldBm     float64 `env:"FILTER_CRITERIA_BELOW_SIGNAL_DBM"`
 	FilterCriteriaMatchStationID     string  `env:"FILTER_CRITERIA_MATCH_STATION_ID"`
+	FilterCriteriaMore               bool    `env:"FILTER_CRITERIA_MORE"`
 	LogLevel                         string  `env:"LOGLEVEL"`
 	NewRelicLicenseKey               string  `env:"NEW_RELIC_LICENSE_KEY"`
 	NewRelicLicenseCustomEventType   string  `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
@@ -148,6 +149,9 @@ func main() {
 	}
 	if config.FilterCriteriaMatchASSStatus != "" {
 		enabledFilters = append(enabledFilters, "MatchesASSStatus")
+	}
+	if config.FilterCriteriaMore {
+		enabledFilters = append(enabledFilters, "ACARSMore")
 	}
 
 	go SubscribeToACARSHub()
