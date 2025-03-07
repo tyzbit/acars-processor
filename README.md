@@ -37,21 +37,22 @@ variables for them.
 | ANNOTATE_VDLM2                     | Include the original VDLM2 message, "true" or "false"       |
 | ADBSEXCHANGE_APIKEY                | Your API Key to adb-s exchange (lite tier is fine)          |
 | ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
-| TAR1090_URL | URL to a tar1090 instance |
+| TAR1090_URL                        | URL to a tar1090 instance                                   |
 
 ### Filters
 
-| Environment Variable                | Value                                                                            |
-| ----------------------------------- | -------------------------------------------------------------------------------- |
-| ACARS_ANNOTATOR_SELECTED_FIELDS     | If this is set, receivers will only receive fields present in this variable \*\* |
-| VDLM2_ANNOTATOR_SELECTED_FIELDS     | If this is set, receivers will only receive fields present in this variable \*\* |
-| ADSB_ANNOTATOR_SELECTED_FIELDS      | If this is set, receivers will only receive fields present in this variable \*\* |
-| FILTER_CRITERIA_HAS_TEXT            | Message must have text                                                           |
-| FILTER_CRITERIA_MATCH_TAIL_CODE     | Message must match tail code                                                     |
-| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER | Message must match flight number                                                 |
-| FILTER_CRITERIA_MATCH_FREQUENCY     | Message must have been received on this frequency                                |
-| FILTER_CRITERIA_ABOVE_SIGNAL_DBM    | Message must have signal above this                                              |
-| FILTER_CRITERIA_MATCH_STATION_ID    | Message must have come from this station                                         |
+| Environment Variable                   | Value                                                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| ACARS_ANNOTATOR_SELECTED_FIELDS        | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*   |
+| VDLM2_ANNOTATOR_SELECTED_FIELDS        | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*   |
+| ADSB_ANNOTATOR_SELECTED_FIELDS         | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\* |
+| TAR1090_ANNOTATOR_SELECTED_FIELDS      | If this is set, receivers will only receive fields present in this variable \*\*                        |
+| FILTER_CRITERIA_HAS_TEXT               | Message must have text                                                                                  |
+| FILTER_CRITERIA_MATCH_TAIL_CODE        | Message must match tail code                                                                            |
+| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER    | Message must match flight number                                                                        |
+| FILTER_CRITERIA_MATCH_FREQUENCY        | Message must have been received on this frequency                                                       |
+| FILTER_CRITERIA_ABOVE_SIGNAL_DBM       | Message must have signal above this                                                                     |
+| FILTER_CRITERIA_MATCH_STATION_ID       | Message must have come from this station                                                                |
 
 ### Receivers
 
