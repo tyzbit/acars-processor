@@ -118,7 +118,7 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 // Interface function to satisfy ACARSHandler
 func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	if config.ADSBExchangeReferenceGeolocation == "" {
-		log.Info("ADSB enabled but geolocation not set, using '0,0'")
+		log.Info("adsb enabled but geolocation not set, using '0,0'")
 		config.ADSBExchangeReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.ADSBExchangeReferenceGeolocation, ",")

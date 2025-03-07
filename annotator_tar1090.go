@@ -138,7 +138,7 @@ func (a Tar1090Handler) SingleAircraftPositionByRegistration(reg string) (aircra
 // Interface function to satisfy ACARSHandler
 func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	if config.TAR1090ReferenceGeolocation == "" {
-		log.Info("ADSB enabled but geolocation not set, using '0,0'")
+		log.Info("tar1090 enabled but geolocation not set, using '0,0'")
 		config.TAR1090ReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.TAR1090ReferenceGeolocation, ",")
@@ -201,7 +201,7 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 // Interface function to satisfy ACARSHandler
 func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	if config.ADSBExchangeReferenceGeolocation == "" {
-		log.Info("ADSB enabled but geolocation not set, using '0,0'")
+		log.Info("tar1090 enabled but geolocation not set, using '0,0'")
 		config.ADSBExchangeReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.ADSBExchangeReferenceGeolocation, ",")

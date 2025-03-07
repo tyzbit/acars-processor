@@ -8,7 +8,15 @@ import (
 )
 
 func NormalizeAircraftRegistration(reg string) string {
-	return strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(reg, ".", ""), " ", ""))
+	s := []string{
+		".",
+		" ",
+		"-",
+	}
+	for _, r := range s {
+		reg = strings.ReplaceAll(reg, r, "")
+	}
+	return strings.ToLower(reg)
 }
 
 func ReadFile(filePath string) []byte {
