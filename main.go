@@ -19,37 +19,6 @@ var (
 	enabledFilters         = []string{}
 )
 
-// Set via ENV variables or a .env file
-type Config struct {
-	ACARSHubHost                     string  `env:"ACARSHUB_HOST"`
-	ACARSHubPort                     int     `env:"ACARSHUB_PORT"`
-	AnnotateACARS                    bool    `env:"ANNOTATE_ACARS"`
-	ACARSHubVDLM2Host                string  `env:"ACARSHUB_HOST"`
-	ACARSHubVDLM2Port                int     `env:"ACARSHUB_VDLM2_PORT"`
-	AnnotateVDLM2                    bool    `env:"ANNOTATE_VDLM2"`
-	ACARSAnnotatorSelectedFields     string  `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
-	ADSBExchangeAPIKey               string  `env:"ADBSEXCHANGE_APIKEY"`
-	ADSBExchangeReferenceGeolocation string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
-	ADSBAnnotatorSelectedFields      string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
-	VDLM2AnnotatorSelectedFields     string  `env:"VDLM2_ANNOTATOR_SELECTED_FIELDS"`
-	FilterCriteriaHasText            bool    `env:"FILTER_CRITERIA_HAS_TEXT"`
-	FilterCriteriaMatchTailCode      string  `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
-	FilterCriteriaMatchFlightNumber  string  `env:"FILTER_CRITERIA_MATCH_FLIGHT_NUMBER"`
-	FilterCriteriaMatchFrequency     float64 `env:"FILTER_CRITERIA_MATCH_FREQUENCY"`
-	FilterCriteriaMatchASSStatus     string  `env:"FILTER_CRITERIA_MATCH_ASSSTATUS"`
-	FilterCriteriaAboveSignaldBm     float64 `env:"FILTER_CRITERIA_ABOVE_SIGNAL_DBM"`
-	FilterCriteriaBelowSignaldBm     float64 `env:"FILTER_CRITERIA_BELOW_SIGNAL_DBM"`
-	FilterCriteriaMatchStationID     string  `env:"FILTER_CRITERIA_MATCH_STATION_ID"`
-	FilterCriteriaMore               bool    `env:"FILTER_CRITERIA_MORE"`
-	LogLevel                         string  `env:"LOGLEVEL"`
-	NewRelicLicenseKey               string  `env:"NEW_RELIC_LICENSE_KEY"`
-	NewRelicLicenseCustomEventType   string  `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
-	WebhookURL                       string  `env:"WEBHOOK_URL"`
-	WebhookMethod                    string  `env:"WEBHOOK_METHOD"`
-	WebhookHeaders                   string  `env:"WEBHOOK_HEADERS"`
-	DiscordWebhookURL                string  `env:"DISCORD_WEBHOOK_URL"`
-}
-
 // Set up Config, logging
 func init() {
 	// Read from .env and override from the local environment
@@ -78,81 +47,9 @@ func init() {
 }
 
 func main() {
-	// Add annotators based on what's enabled
-	// ACARS-type messages
-	if config.AnnotateACARS {
-		log.Info("ACARS annotator enabled")
-		enabledACARSAnnotators = append(enabledACARSAnnotators, ACARSHandlerAnnotator{})
-	}
-	if config.ADSBExchangeAPIKey != "" {
-		log.Info("ADSB annotator enabled")
-		if config.ADSBExchangeAPIKey == "" {
-			log.Error("ADSB API key not set")
-		}
-		enabledACARSAnnotators = append(enabledACARSAnnotators, ADSBHandlerAnnotator{})
-	}
-	if len(enabledACARSAnnotators) == 0 {
-		log.Warn("no acars annotators are enabled")
-	}
-
-	// VDLM2-type messages
-	if config.AnnotateVDLM2 {
-		log.Info("VDLM2 annotator enabled")
-		enabledVDLM2Annotators = append(enabledVDLM2Annotators, VDLM2HandlerAnnotator{})
-	}
-	if len(enabledVDLM2Annotators) == 0 {
-		log.Info("no vdlm2 annotators are enabled")
-	}
-
-	// -------------------------------------------------------------------------
-
-	// Add receivers based on what's enabled
-	if config.WebhookURL != "" {
-		log.Info("Webhook receiver enabled")
-		enabledReceivers = append(enabledReceivers, WebhookHandlerReciever{})
-	}
-	if config.NewRelicLicenseKey != "" {
-		log.Info("New Relic reciever enabled")
-		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
-	}
-	if config.DiscordWebhookURL != "" {
-		log.Info("Discord reciever enabled")
-		enabledReceivers = append(enabledReceivers, DiscordHandlerReciever{})
-	}
-	if len(enabledReceivers) == 0 {
-		log.Warn("no receivers are enabled")
-	}
-
-	// -------------------------------------------------------------------------
-
-	// Add filters based on what's enabled
-	if config.FilterCriteriaMatchTailCode != "" {
-		enabledFilters = append(enabledFilters, "MatchesTailCode")
-	}
-	if config.FilterCriteriaHasText {
-		enabledFilters = append(enabledFilters, "HasText")
-	}
-	if config.FilterCriteriaMatchFlightNumber != "" {
-		enabledFilters = append(enabledFilters, "MatchesFlightNumber")
-	}
-	if config.FilterCriteriaMatchFrequency != 0.0 {
-		enabledFilters = append(enabledFilters, "MatchesFrequency")
-	}
-	if config.FilterCriteriaMatchStationID != "" {
-		enabledFilters = append(enabledFilters, "MatchesStationID")
-	}
-	if config.FilterCriteriaAboveSignaldBm != 0.0 {
-		enabledFilters = append(enabledFilters, "AboveMinimumSignal")
-	}
-	if config.FilterCriteriaBelowSignaldBm != 0.0 {
-		enabledFilters = append(enabledFilters, "BelowMaximumSignal")
-	}
-	if config.FilterCriteriaMatchASSStatus != "" {
-		enabledFilters = append(enabledFilters, "MatchesASSStatus")
-	}
-	if config.FilterCriteriaMore {
-		enabledFilters = append(enabledFilters, "More")
-	}
+	ConfigureAnnotators()
+	ConfigureReceivers()
+	ConfigureFilters()
 
 	go SubscribeToACARSHub()
 
