@@ -20,10 +20,6 @@ func (a Tar1090Handler) Name() string {
 
 func (a Tar1090Handler) SelectFields(annotation Annotation) Annotation {
 	selectedFields := Annotation{}
-	// If no fields are being selected, return annotation unchanged
-	if config.ADSBAnnotatorSelectedFields == "" && config.VDLM2AnnotatorSelectedFields == "" {
-		return annotation
-	}
 	if config.ADSBAnnotatorSelectedFields != "" {
 		for field, value := range annotation {
 			if strings.Contains(config.ADSBAnnotatorSelectedFields, field) {
@@ -34,6 +30,13 @@ func (a Tar1090Handler) SelectFields(annotation Annotation) Annotation {
 	if config.VDLM2AnnotatorSelectedFields != "" {
 		for field, value := range annotation {
 			if strings.Contains(config.VDLM2AnnotatorSelectedFields, field) {
+				selectedFields[field] = value
+			}
+		}
+	}
+	if config.TAR1090AnnotatorSelectedFields != "" {
+		for field, value := range annotation {
+			if strings.Contains(config.TAR1090AnnotatorSelectedFields, field) {
 				selectedFields[field] = value
 			}
 		}

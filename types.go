@@ -21,6 +21,7 @@ type Config struct {
 	ADSBExchangeReferenceGeolocation string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
 	ADSBAnnotatorSelectedFields      string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
 	VDLM2AnnotatorSelectedFields     string  `env:"VDLM2_ANNOTATOR_SELECTED_FIELDS"`
+	TAR1090AnnotatorSelectedFields   string  `env:"TAR1090_ANNOTATOR_SELECTED_FIELDS"`
 	FilterCriteriaHasText            bool    `env:"FILTER_CRITERIA_HAS_TEXT"`
 	FilterCriteriaMatchTailCode      string  `env:"FILTER_CRITERIA_MATCH_TAIL_CODE"`
 	FilterCriteriaMatchFlightNumber  string  `env:"FILTER_CRITERIA_MATCH_FLIGHT_NUMBER"`

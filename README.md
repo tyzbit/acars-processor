@@ -37,6 +37,7 @@ variables for them.
 | ANNOTATE_VDLM2                     | Include the original VDLM2 message, "true" or "false"       |
 | ADBSEXCHANGE_APIKEY                | Your API Key to adb-s exchange (lite tier is fine)          |
 | ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \* |
+| TAR1090_URL | URL to a tar1090 instance |
 
 ### Filters
 
