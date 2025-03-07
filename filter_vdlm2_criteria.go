@@ -8,7 +8,7 @@ type VDLM2CriteriaFilter struct {
 }
 
 func (a VDLM2CriteriaFilter) Name() string {
-	return "CriteriaFilter"
+	return "vdlm2 criteria filter"
 }
 
 // All filters are defined here
@@ -32,10 +32,10 @@ var (
 				config.FilterCriteriaMatchStationID == m.VDL2.AVLC.Destination.Address
 		},
 		"AboveMinimumSignal": func(m VDLM2Message) bool {
-			return config.FilterCriteriaAboveSignaldBm < m.VDL2.SignalLevel
+			return config.FilterCriteriaAboveSignaldBm <= m.VDL2.SignalLevel
 		},
 		"BelowMaximumSignal": func(m VDLM2Message) bool {
-			return config.FilterCriteriaAboveSignaldBm > m.VDL2.SignalLevel
+			return config.FilterCriteriaBelowSignaldBm >= m.VDL2.SignalLevel
 		},
 		"More": func(m VDLM2Message) bool {
 			return !m.VDL2.AVLC.ACARS.More

@@ -2,9 +2,14 @@ package main
 
 import (
 	"os"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
+
+func NormalizeAircraftRegistration(reg string) string {
+	return strings.ToLower(strings.ReplaceAll(strings.ReplaceAll(reg, ".", ""), " ", ""))
+}
 
 func ReadFile(filePath string) []byte {
 	filePath = os.Getenv("HOME") + "/" + filePath

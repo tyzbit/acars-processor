@@ -55,7 +55,7 @@ type SingleAircraftPosition struct {
 		FlightNumber                                  string  `json:"flight"`
 		AircraftTailCode                              string  `json:"r"`
 		AircraftModel                                 string  `json:"t"`
-		AltimeterBarometer                            any     `json:"alt_baro"`
+		AltimeterBarometerFeet                        any     `json:"alt_baro"`
 		AltimeterGeometricFeet                        int64   `json:"alt_geom"`
 		GroundSpeedKnots                              float64 `json:"gs"`
 		TrueGroundTrack                               float64 `json:"track"`
@@ -170,12 +170,12 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 // Interface function to satisfy ACARSHandler
 func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	if config.ADSBExchangeReferenceGeolocation == "" {
-		log.Info("ADSB enabled but geolocation not set, using '0,0'")
+		log.Info("adsb exchange enabled but geolocation not set, using '0,0'")
 		config.ADSBExchangeReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.ADSBExchangeReferenceGeolocation, ",")
 	if len(coords) != 2 {
-		log.Warn("geolocation coordinates are not in the format 'LAT,LON'")
+		log.Warn("adsb exchange geolocation coordinates are not in the format 'LAT,LON'")
 		return annotation
 	}
 	flat, _ := strconv.ParseFloat(coords[0], 64)
@@ -184,12 +184,12 @@ func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 	lon := geopoint.Degrees(flon)
 	o := geopoint.NewGeoPoint(lat, lon)
 
-	position, err := a.SingleAircraftPositionByRegistration(strings.ReplaceAll(m.VDL2.AVLC.ACARS.Registration, ".", ""))
+	position, err := a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 	if err != nil {
-		log.Warnf("error getting aircraft position: %v", err)
+		log.Warnf("error getting aircraft position from adsb exchange: %v", err)
 	}
 	if len(position.Aircraft) == 0 {
-		log.Warnf("no aircraft were returned from ADS-B API, response message was: %s", position.Message)
+		log.Warnf("no aircraft were returned from adsb exchange, response message was: %s", position.Message)
 		return annotation
 	}
 

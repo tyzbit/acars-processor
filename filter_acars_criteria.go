@@ -8,7 +8,7 @@ type ACARSCriteriaFilter struct {
 }
 
 func (a ACARSCriteriaFilter) Name() string {
-	return "CriteriaFilter"
+	return "acars criteria filter"
 }
 
 // All filters are defined here
@@ -31,10 +31,10 @@ var (
 			return config.FilterCriteriaMatchStationID == m.StationID
 		},
 		"AboveMinimumSignal": func(m ACARSMessage) bool {
-			return config.FilterCriteriaAboveSignaldBm < m.SignaldBm
+			return config.FilterCriteriaAboveSignaldBm <= m.SignaldBm
 		},
 		"BelowMaximumSignal": func(m ACARSMessage) bool {
-			return config.FilterCriteriaAboveSignaldBm > m.SignaldBm
+			return config.FilterCriteriaBelowSignaldBm >= m.SignaldBm
 		},
 		"ASSStatus": func(m ACARSMessage) bool {
 			return config.FilterCriteriaMatchASSStatus == m.ASSStatus
