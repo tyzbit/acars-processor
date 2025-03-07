@@ -28,6 +28,10 @@ func ConfigureAnnotators() {
 		log.Info("VDLM2 annotator enabled")
 		enabledVDLM2Annotators = append(enabledVDLM2Annotators, VDLM2HandlerAnnotator{})
 	}
+	if config.TAR1090URL != "" {
+		log.Info("TAR1090 annotator enabled")
+		enabledACARSAnnotators = append(enabledACARSAnnotators, Tar1090Handler{})
+	}
 	if len(enabledVDLM2Annotators) == 0 {
 		log.Info("no vdlm2 annotators are enabled")
 	}
