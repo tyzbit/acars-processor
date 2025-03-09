@@ -26,7 +26,7 @@ func ConfigureFilters() {
 		log.Fatalf("error reading dictionary: %v", err)
 	}
 
-	log.Debugf("loaded %d words\n", len(englishDictionary))
+	log.Debugf("loaded %d words", len(englishDictionary))
 	// Add filters based on what's enabled
 	if config.FilterCriteriaMatchTailCode != "" {
 		enabledFilters = append(enabledFilters, "MatchesTailCode")
