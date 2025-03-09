@@ -64,7 +64,7 @@ func ConfigureFilters() {
 	if config.FilterCriteriaEmergency {
 		enabledFilters = append(enabledFilters, "Emergency")
 	}
-	if float64(config.FilterCriteriaEnglishWordCountMinimum) > 0 {
+	if config.FilterCriteriaEnglishWordCountMinimum > 0 {
 		enabledFilters = append(enabledFilters, "DictionaryWordCount")
 	}
 }
