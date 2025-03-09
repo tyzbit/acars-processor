@@ -2,6 +2,10 @@ package main
 
 import (
 	"regexp"
+	"strings"
+
+	ac "github.com/cloudflare/ahocorasick"
+	log "github.com/sirupsen/logrus"
 )
 
 type ACARSCriteriaFilter struct {
@@ -15,7 +19,7 @@ func (a ACARSCriteriaFilter) Name() string {
 var (
 	ACARSFilterFunctions = map[string]func(m ACARSMessage) bool{
 		"HasText": func(m ACARSMessage) bool {
-			re := regexp.MustCompile("[\\S]+")
+			re := regexp.MustCompile(`[\S]+`)
 			return re.MatchString(m.MessageText)
 		},
 		"MatchesTailCode": func(m ACARSMessage) bool {
@@ -42,6 +46,9 @@ var (
 		"More": func(m ACARSMessage) bool {
 			return true
 		},
+		"DictionaryWordCount": func(m ACARSMessage) bool {
+			return config.FilterCriteriaEnglishWordCountGreaterThan <= ACARSCriteriaFilter{}.DictionaryWordCount(m)
+		},
 	}
 )
 
@@ -55,4 +62,11 @@ func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []st
 		}
 	}
 	return ok, failedFilters
+}
+
+func (f ACARSCriteriaFilter) DictionaryWordCount(m ACARSMessage) (wc int64) {
+	matcher := ac.NewStringMatcher(englishDictionary)
+	matches := matcher.Match([]byte(strings.ToLower(m.MessageText)))
+	log.Debugf("message had %d English words", len(matches))
+	return int64(len(matches))
 }
