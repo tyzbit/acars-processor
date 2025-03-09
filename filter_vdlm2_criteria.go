@@ -2,10 +2,6 @@ package main
 
 import (
 	"regexp"
-	"strings"
-
-	ac "github.com/cloudflare/ahocorasick"
-	log "github.com/sirupsen/logrus"
 )
 
 type VDLM2CriteriaFilter struct {
@@ -45,7 +41,7 @@ var (
 			return !m.VDL2.AVLC.ACARS.More
 		},
 		"DictionaryWordCount": func(m VDLM2Message) bool {
-			return config.FilterCriteriaEnglishWordCountMinimum <= VDLM2CriteriaFilter{}.DictionaryWordCount(m)
+			return config.FilterCriteriaEnglishWordCountMinimum <= DictionaryWordCount(m.VDL2.AVLC.ACARS.MessageText)
 		},
 	}
 )
@@ -60,11 +56,4 @@ func (f VDLM2CriteriaFilter) Filter(m VDLM2Message) (ok bool, failedFilters []st
 		}
 	}
 	return ok, failedFilters
-}
-
-func (f VDLM2CriteriaFilter) DictionaryWordCount(m VDLM2Message) (wc int64) {
-	matcher := ac.NewStringMatcher(englishDictionary)
-	matches := matcher.Match([]byte(strings.ToLower(m.VDL2.AVLC.ACARS.MessageText)))
-	log.Debugf("message had %d English words", len(matches))
-	return int64(len(matches))
 }

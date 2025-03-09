@@ -2,10 +2,6 @@ package main
 
 import (
 	"regexp"
-	"strings"
-
-	ac "github.com/cloudflare/ahocorasick"
-	log "github.com/sirupsen/logrus"
 )
 
 type ACARSCriteriaFilter struct {
@@ -47,7 +43,7 @@ var (
 			return true
 		},
 		"DictionaryWordCount": func(m ACARSMessage) bool {
-			return config.FilterCriteriaEnglishWordCountMinimum <= ACARSCriteriaFilter{}.DictionaryWordCount(m)
+			return config.FilterCriteriaEnglishWordCountMinimum <= DictionaryWordCount(m.MessageText)
 		},
 	}
 )
@@ -62,11 +58,4 @@ func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []st
 		}
 	}
 	return ok, failedFilters
-}
-
-func (f ACARSCriteriaFilter) DictionaryWordCount(m ACARSMessage) (wc int64) {
-	matcher := ac.NewStringMatcher(englishDictionary)
-	matches := matcher.Match([]byte(strings.ToLower(m.MessageText)))
-	log.Debugf("message had %d English words", len(matches))
-	return int64(len(matches))
 }
