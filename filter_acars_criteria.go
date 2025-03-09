@@ -47,7 +47,7 @@ var (
 			return true
 		},
 		"DictionaryWordCount": func(m ACARSMessage) bool {
-			return config.FilterCriteriaEnglishWordCountGreaterThan <= ACARSCriteriaFilter{}.DictionaryWordCount(m)
+			return config.FilterCriteriaEnglishWordCountMinimum >= ACARSCriteriaFilter{}.DictionaryWordCount(m)
 		},
 	}
 )
