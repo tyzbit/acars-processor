@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"net/http"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -20,7 +21,10 @@ func ConfigureFilters() {
 
 	scanner := bufio.NewScanner(resp.Body)
 	for scanner.Scan() {
-		englishDictionary = append(englishDictionary, scanner.Text())
+		// Filter out words with numbers
+		if !strings.ContainsAny(scanner.Text(), "0123456789") {
+			englishDictionary = append(englishDictionary, scanner.Text())
+		}
 	}
 	if err := scanner.Err(); err != nil {
 		log.Fatalf("error reading dictionary: %v", err)
