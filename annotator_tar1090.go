@@ -174,6 +174,7 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 		"tar1090OriginGeolocation":                           config.TAR1090ReferenceGeolocation,
 		"tar1090OriginGeolocationLatitude":                   flat,
 		"tar1090OriginGeolocationLongitude":                  flon,
+		"tar1090AircraftEmergency":                           aircraft.Emergency,
 		"tar1090AircraftGeolocation":                         airgeo,
 		"tar1090AircraftLatitude":                            aircraft.Latitude,
 		"tar1090AircraftLongitude":                           aircraft.Longitude,
