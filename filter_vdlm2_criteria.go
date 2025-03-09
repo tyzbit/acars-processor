@@ -45,7 +45,7 @@ var (
 			return !m.VDL2.AVLC.ACARS.More
 		},
 		"DictionaryWordCount": func(m VDLM2Message) bool {
-			return config.FilterCriteriaEnglishWordCountMinimum >= VDLM2CriteriaFilter{}.DictionaryWordCount(m)
+			return config.FilterCriteriaEnglishWordCountMinimum <= VDLM2CriteriaFilter{}.DictionaryWordCount(m)
 		},
 	}
 )
