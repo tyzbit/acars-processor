@@ -64,5 +64,6 @@ func DictionaryWordCount(messageText string) (wc int64) {
 			wc = wc + 1
 		}
 	}
+	log.Debugf("message had %d English words in it", wc)
 	return wc
 }
