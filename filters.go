@@ -12,8 +12,6 @@ const dictionary = "https://github.com/dwyl/english-words/raw/refs/heads/master/
 
 func ConfigureFilters() {
 	// -------------------------------------------------------------------------
-
-	log.Debugf("loaded %d words", len(englishDictionary))
 	// Add filters based on what's enabled
 	if config.FilterCriteriaMatchTailCode != "" {
 		enabledFilters = append(enabledFilters, "MatchesTailCode")
@@ -68,6 +66,7 @@ func ConfigureFilters() {
 		if err := scanner.Err(); err != nil {
 			log.Errorf("error reading dictionary: %v", err)
 		}
+		log.Debugf("loaded %d words", len(englishDictionary))
 		enabledFilters = append(enabledFilters, "DictionaryWordCount")
 	}
 }
