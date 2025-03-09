@@ -8,7 +8,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const dictionary = "https://raw.githubusercontent.com/first20hours/google-10000-english/refs/heads/master/google-10000-english.txt"
+const dictionary = "https://github.com/dwyl/english-words/raw/refs/heads/master/words.txt"
 
 func ConfigureFilters() {
 	// -------------------------------------------------------------------------
