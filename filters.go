@@ -13,23 +13,6 @@ const dictionary = "https://github.com/dwyl/english-words/raw/refs/heads/master/
 func ConfigureFilters() {
 	// -------------------------------------------------------------------------
 
-	resp, err := http.Get(dictionary)
-	if err != nil {
-		log.Errorf("error fetching dictionary: %v", err)
-	}
-	defer resp.Body.Close()
-
-	scanner := bufio.NewScanner(resp.Body)
-	for scanner.Scan() {
-		// Filter out words with numbers
-		if !strings.ContainsAny(scanner.Text(), "0123456789") {
-			englishDictionary = append(englishDictionary, scanner.Text())
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		log.Fatalf("error reading dictionary: %v", err)
-	}
-
 	log.Debugf("loaded %d words", len(englishDictionary))
 	// Add filters based on what's enabled
 	if config.FilterCriteriaMatchTailCode != "" {
@@ -69,6 +52,22 @@ func ConfigureFilters() {
 		enabledFilters = append(enabledFilters, "Emergency")
 	}
 	if config.FilterCriteriaEnglishWordCountMinimum > 0 {
+		resp, err := http.Get(dictionary)
+		if err != nil {
+			log.Errorf("error fetching dictionary: %v", err)
+		}
+		defer resp.Body.Close()
+
+		scanner := bufio.NewScanner(resp.Body)
+		for scanner.Scan() {
+			// Filter out words with numbers
+			if !strings.ContainsAny(scanner.Text(), "0123456789") {
+				englishDictionary = append(englishDictionary, scanner.Text())
+			}
+		}
+		if err := scanner.Err(); err != nil {
+			log.Errorf("error reading dictionary: %v", err)
+		}
 		enabledFilters = append(enabledFilters, "DictionaryWordCount")
 	}
 }
