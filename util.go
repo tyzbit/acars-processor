@@ -66,7 +66,7 @@ func DictionaryWordCount(messageText string) (wc int64) {
 			words = append(words, word)
 		}
 	}
-	log.Debugf("message had %d English words in it", wc)
+	log.Debugf("message had %d dictionary words in it", wc)
 	if len(words) > 0 {
 		log.Debugf("words found: %s", strings.Join(words, ","))
 	}
