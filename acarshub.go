@@ -34,7 +34,7 @@ func ReadACARSHubVDLM2Messages() {
 	if !config.AnnotateVDLM2 {
 		return
 	}
-	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubVDLM2Port)
+	address := fmt.Sprintf("%s:%d", config.ACARSHubVDLM2Host, config.ACARSHubVDLM2Port)
 	log.Debugf("connecting to %s vdlm2 json port", address)
 	s, err := net.Dial("tcp", address)
 	if err != nil {

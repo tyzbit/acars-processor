@@ -5,7 +5,7 @@ type Config struct {
 	ACARSHubHost                                string  `env:"ACARSHUB_HOST"`
 	ACARSHubPort                                int     `env:"ACARSHUB_PORT"`
 	AnnotateACARS                               bool    `env:"ANNOTATE_ACARS"`
-	ACARSHubVDLM2Host                           string  `env:"ACARSHUB_HOST"`
+	ACARSHubVDLM2Host                           string  `env:"ACARSHUB_VDLM2_HOST"`
 	ACARSHubVDLM2Port                           int     `env:"ACARSHUB_VDLM2_PORT"`
 	AnnotateVDLM2                               bool    `env:"ANNOTATE_VDLM2"`
 	TAR1090URL                                  string  `env:"TAR1090_URL"`
