@@ -58,7 +58,7 @@ variables for them.
 | FILTER_CRITERIA_MATCH_FREQUENCY                 | Message must have been received on this frequency                                                       |
 | FILTER_CRITERIA_ABOVE_SIGNAL_DBM                | Message must have signal above this                                                                     |
 | FILTER_CRITERIA_MATCH_STATION_ID                | Message must have come from this station                                                                |
-| FILTER_CRITERIA_ENGLISH_WORD_COUNT_GREATER_THAN | Message must have more than this amount of English words                                                |
+| FILTER_CRITERIA_ENGLISH_PHRASE_LENGTH_MINIMUM   | Message must have more than this amount of consecutive words (English only at the moment)               |
 
 ### Receivers
 

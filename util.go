@@ -56,19 +56,3 @@ func MergeMaps(m1, m2 map[string]any) map[string]any {
 
 	return merged
 }
-
-// Unoptomized asf
-func DictionaryWordCount(messageText string) (wc int64) {
-	var words []string
-	for _, word := range englishDictionary {
-		if strings.Contains(messageText, word) {
-			wc = wc + 1
-			words = append(words, word)
-		}
-	}
-	log.Debugf("message had %d dictionary words in it", wc)
-	if len(words) > 0 {
-		log.Debugf("words found: %s", strings.Join(words, ","))
-	}
-	return wc
-}

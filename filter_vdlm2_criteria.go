@@ -40,8 +40,8 @@ var (
 		"More": func(m VDLM2Message) bool {
 			return !m.VDL2.AVLC.ACARS.More
 		},
-		"DictionaryWordCount": func(m VDLM2Message) bool {
-			return config.FilterCriteriaEnglishWordCountMinimum <= DictionaryWordCount(m.VDL2.AVLC.ACARS.MessageText)
+		"ConsecutiveDictionaryWordCount": func(m VDLM2Message) bool {
+			return config.FilterCriteriaEnglishPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.VDL2.AVLC.ACARS.MessageText)
 		},
 	}
 )

@@ -17,6 +17,7 @@ require (
 	github.com/golobby/dotenv v1.3.2 // indirect
 	github.com/golobby/env/v2 v2.2.4 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
+	github.com/tidwall/words v0.0.0-20181116223016-6463671b7759 // indirect
 	golang.org/x/sys v0.30.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

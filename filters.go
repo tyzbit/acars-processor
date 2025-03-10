@@ -1,14 +1,11 @@
 package main
 
 import (
-	"bufio"
-	"net/http"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/tidwall/words" // English only
 )
-
-const dictionary = "https://raw.githubusercontent.com/first20hours/google-10000-english/refs/heads/master/google-10000-english.txt"
 
 func ConfigureFilters() {
 	// -------------------------------------------------------------------------
@@ -49,24 +46,31 @@ func ConfigureFilters() {
 	if config.FilterCriteriaEmergency {
 		enabledFilters = append(enabledFilters, "Emergency")
 	}
-	if config.FilterCriteriaEnglishWordCountMinimum > 0 {
-		resp, err := http.Get(dictionary)
-		if err != nil {
-			log.Errorf("error fetching dictionary: %v", err)
-		}
-		defer resp.Body.Close()
+	if config.FilterCriteriaEnglishPhraseLengthMinimum > 0 {
+		enabledFilters = append(enabledFilters, "ConsecutiveDictionaryWordCount")
+	}
+}
 
-		scanner := bufio.NewScanner(resp.Body)
-		for scanner.Scan() {
-			// Filter out words with numbers
-			if !strings.ContainsAny(scanner.Text(), "0123456789") {
-				englishDictionary = append(englishDictionary, scanner.Text())
+// Unoptomized asf
+func LongestDictionaryWordPhraseLength(messageText string) (wc int64) {
+	var consecutiveWordSlice, maxConsecutiveWordSlice []string
+	wordSlice := strings.Split(messageText, " ")
+	for _, word := range wordSlice {
+		for _, dictWord := range words.Words {
+			if strings.EqualFold(word, dictWord) {
+				consecutiveWordSlice = append(consecutiveWordSlice, word)
+			} else {
+				if len(maxConsecutiveWordSlice) < len(consecutiveWordSlice) {
+					maxConsecutiveWordSlice = consecutiveWordSlice
+				}
 			}
 		}
-		if err := scanner.Err(); err != nil {
-			log.Errorf("error reading dictionary: %v", err)
-		}
-		log.Debugf("loaded %d words", len(englishDictionary))
-		enabledFilters = append(enabledFilters, "DictionaryWordCount")
 	}
+
+	wc = int64(len(maxConsecutiveWordSlice))
+	log.Debugf("message had %d consecutive dictionary words in it", wc)
+	if wc > 0 {
+		log.Debugf("longest dictionary word phrase found: %s", strings.Join(maxConsecutiveWordSlice, ","))
+	}
+	return wc
 }
