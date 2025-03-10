@@ -43,7 +43,7 @@ var (
 			return true
 		},
 		"ConsecutiveDictionaryWordCount": func(m ACARSMessage) bool {
-			return config.FilterCriteriaEnglishPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.MessageText)
+			return config.FilterCriteriaDictionaryPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.MessageText)
 		},
 	}
 )
