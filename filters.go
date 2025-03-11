@@ -76,7 +76,7 @@ func LongestDictionaryWordPhraseLength(messageText string) (wc int64) {
 
 	wc = int64(len(maxConsecutiveWordSlice))
 	log.Debugf("message had %d consecutive dictionary words in it", wc)
-	if wc >= config.FilterCriteriaDictionaryPhraseLengthMinimum {
+	if wc > 0 {
 		log.Debugf("longest dictionary word phrase found: %s", strings.Join(maxConsecutiveWordSlice, " "))
 	}
 	return wc
