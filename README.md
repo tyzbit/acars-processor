@@ -46,19 +46,19 @@ variables for them.
 
 ### Filters
 
-| Environment Variable                            | Value                                                                                                   |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| ACARS_ANNOTATOR_SELECTED_FIELDS                 | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*   |
-| VDLM2_ANNOTATOR_SELECTED_FIELDS                 | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*   |
-| ADSB_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\* |
-| TAR1090_ANNOTATOR_SELECTED_FIELDS               | If this is set, receivers will only receive fields present in this variable \*\*                        |
-| FILTER_CRITERIA_HAS_TEXT                        | Message must have text                                                                                  |
-| FILTER_CRITERIA_MATCH_TAIL_CODE                 | Message must match tail code                                                                            |
-| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER             | Message must match flight number                                                                        |
-| FILTER_CRITERIA_MATCH_FREQUENCY                 | Message must have been received on this frequency                                                       |
-| FILTER_CRITERIA_ABOVE_SIGNAL_DBM                | Message must have signal above this                                                                     |
-| FILTER_CRITERIA_MATCH_STATION_ID                | Message must have come from this station                                                                |
-| FILTER_CRITERIA_ENGLISH_PHRASE_LENGTH_MINIMUM   | Message must have more than this amount of consecutive words (English only at the moment)               |
+| Environment Variable                             | Value                                                                                                   |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| ACARS_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*   |
+| VDLM2_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*   |
+| ADSB_ANNOTATOR_SELECTED_FIELDS                   | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\* |
+| TAR1090_ANNOTATOR_SELECTED_FIELDS                | If this is set, receivers will only receive fields present in this variable \*\*                        |
+| FILTER_CRITERIA_HAS_TEXT                         | Message must have text                                                                                  |
+| FILTER_CRITERIA_MATCH_TAIL_CODE                  | Message must match tail code                                                                            |
+| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER              | Message must match flight number                                                                        |
+| FILTER_CRITERIA_MATCH_FREQUENCY                  | Message must have been received on this frequency                                                       |
+| FILTER_CRITERIA_ABOVE_SIGNAL_DBM                 | Message must have signal above this                                                                     |
+| FILTER_CRITERIA_MATCH_STATION_ID                 | Message must have come from this station                                                                |
+| FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM | Message must have at least this amount of consecutive words (English only at the moment)                |
 
 ### Receivers
 
