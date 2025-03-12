@@ -56,3 +56,9 @@ func MergeMaps(m1, m2 map[string]any) map[string]any {
 
 	return merged
 }
+
+func SplitByAny(s string, delimiters string) []string {
+	return strings.FieldsFunc(s, func(r rune) bool {
+		return strings.ContainsRune(delimiters, r)
+	})
+}

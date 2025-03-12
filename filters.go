@@ -4,12 +4,12 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/tidwall/words" // English only
+	// English only
 )
 
+// Enables filters based on configuration; filters are identified with a
+// string like "MatchesTailCode" and filter providers can implement them.
 func ConfigureFilters() {
-	// -------------------------------------------------------------------------
-	// Add filters based on what's enabled
 	if config.FilterCriteriaMatchTailCode != "" {
 		enabledFilters = append(enabledFilters, "MatchesTailCode")
 	}
@@ -54,10 +54,10 @@ func ConfigureFilters() {
 // Unoptomized asf
 func LongestDictionaryWordPhraseLength(messageText string) (wc int64) {
 	var consecutiveWordSlice, maxConsecutiveWordSlice []string
-	wordSlice := strings.Split(messageText, " ")
+	wordSlice := SplitByAny(messageText, " ,;'.")
 	for idx, word := range wordSlice {
 		var found bool
-		for _, dictWord := range words.Words {
+		for _, dictWord := range ACARSDictionary() {
 			found = false
 			if strings.EqualFold(word, dictWord) {
 				consecutiveWordSlice = append(consecutiveWordSlice, word)
@@ -75,9 +75,8 @@ func LongestDictionaryWordPhraseLength(messageText string) (wc int64) {
 	}
 
 	wc = int64(len(maxConsecutiveWordSlice))
-	log.Debugf("message had %d consecutive dictionary words in it", wc)
 	if wc > 0 {
-		log.Debugf("longest dictionary word phrase found: %s", strings.Join(maxConsecutiveWordSlice, " "))
+		log.Debugf("longest dictionary word phrase found (%d words): %s", wc, strings.Join(maxConsecutiveWordSlice, " "))
 	}
 	return wc
 }
