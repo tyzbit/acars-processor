@@ -13,6 +13,10 @@ type Config struct {
 	ACARSAnnotatorSelectedFields                string  `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
 	ADSBExchangeAPIKey                          string  `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation            string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
+	OpenAIAPIKey                                string  `env:"FILTER_OPENAI_APIKEY"`
+	OpenAIPrompt                                string  `env:"FILTER_OPENAI_PROMPT"`
+	OpenAIModel                                 string  `env:"FILTER_OPENAI_MODEL"`
+	OpenAICustomPreamble                        string  `env:"FILTER_OPENAI_PREAMBLE"`
 	ADSBAnnotatorSelectedFields                 string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
 	VDLM2AnnotatorSelectedFields                string  `env:"VDLM2_ANNOTATOR_SELECTED_FIELDS"`
 	TAR1090AnnotatorSelectedFields              string  `env:"TAR1090_ANNOTATOR_SELECTED_FIELDS"`

@@ -46,19 +46,23 @@ variables for them.
 
 ### Filters
 
-| Environment Variable                             | Value                                                                                                   |
-| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| ACARS_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*   |
-| VDLM2_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*   |
-| ADSB_ANNOTATOR_SELECTED_FIELDS                   | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\* |
-| TAR1090_ANNOTATOR_SELECTED_FIELDS                | If this is set, receivers will only receive fields present in this variable \*\*                        |
-| FILTER_CRITERIA_HAS_TEXT                         | Message must have text                                                                                  |
-| FILTER_CRITERIA_MATCH_TAIL_CODE                  | Message must match tail code                                                                            |
-| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER              | Message must match flight number                                                                        |
-| FILTER_CRITERIA_MATCH_FREQUENCY                  | Message must have been received on this frequency                                                       |
-| FILTER_CRITERIA_ABOVE_SIGNAL_DBM                 | Message must have signal above this                                                                     |
-| FILTER_CRITERIA_MATCH_STATION_ID                 | Message must have come from this station                                                                |
-| FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM | Message must have at least this amount of consecutive words (English only at the moment)                |
+| Environment Variable                             | Value                                                                                                                             |
+| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| ACARS_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*                             |
+| VDLM2_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*                             |
+| ADSB_ANNOTATOR_SELECTED_FIELDS                   | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\*                           |
+| TAR1090_ANNOTATOR_SELECTED_FIELDS                | If this is set, receivers will only receive fields present in this variable \*\*                                                  |
+| FILTER_CRITERIA_HAS_TEXT                         | Message must have text                                                                                                            |
+| FILTER_CRITERIA_MATCH_TAIL_CODE                  | Message must match tail code                                                                                                      |
+| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER              | Message must match flight number                                                                                                  |
+| FILTER_CRITERIA_MATCH_FREQUENCY                  | Message must have been received on this frequency                                                                                 |
+| FILTER_CRITERIA_ABOVE_SIGNAL_DBM                 | Message must have signal above this                                                                                               |
+| FILTER_CRITERIA_MATCH_STATION_ID                 | Message must have come from this station                                                                                          |
+| FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM | Message must have at least this amount of consecutive words (English only at the moment)                                          |
+| FILTER_OPENAI_PROMPT                             | Criteria to evaluate the message, sent to OpenAI (`gpt-4o` by default) \*\*\*\*                                                 |
+| FILTER_OPENAI_APIKEY                             | API key for OpenAI, required for functionality                                                                                    |
+| FILTER_OPENAI_MODEL                              | Override the default model, see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
+| FILTER_OPENAI_PREAMBLE                           | By default, `acars-annotator` includes a preamble that describes what the response should look like. This overrides that.           |
 
 ### Receivers
 
@@ -77,6 +81,9 @@ in the variable.
 
 \*\*\* The headers should be in the format `key=value,otherkey=value`
 
+\*\*\*\* Yes or no question works best. Example:
+"Does this message look like at least part of it was written by a human?"
+
 #### Webhooks
 
 In order to define the payload for your webhook, edit `receiver_webhook.tpl`
@@ -87,7 +94,7 @@ that uses annotations from the ACARS annotator.
 
 #### Example .env
 
-```
+```env
 ACARSHUB_HOST=192.168.0.100
 ACARSHUB_PORT=15550
 ACARSHUB_VDLM2_PORT=15555

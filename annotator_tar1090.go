@@ -44,6 +44,7 @@ type Tar1090AircraftJSON struct {
 	Aircraft []TJSONAircraft `json:"aircraft,omitempty"`
 }
 
+// The FIXME values are because I don't know what they are
 type TJSONAircraft struct {
 	Hex                        string   `json:"hex,omitempty"`
 	Type                       string   `json:"type,omitempty"`

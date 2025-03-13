@@ -45,6 +45,9 @@ var (
 		"ConsecutiveDictionaryWordCount": func(m ACARSMessage) bool {
 			return config.FilterCriteriaDictionaryPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.MessageText)
 		},
+		"OpenAIPromptFilter": func(m ACARSMessage) bool {
+			return OpenAIFilter(m.MessageText)
+		},
 	}
 )
 
