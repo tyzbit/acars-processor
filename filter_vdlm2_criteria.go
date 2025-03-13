@@ -43,6 +43,9 @@ var (
 		"ConsecutiveDictionaryWordCount": func(m VDLM2Message) bool {
 			return config.FilterCriteriaDictionaryPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.VDL2.AVLC.ACARS.MessageText)
 		},
+		"OpenAIPromptFilter": func(m VDLM2Message) bool {
+			return OpenAIFilter(m.VDL2.AVLC.ACARS.MessageText)
+		},
 	}
 )
 

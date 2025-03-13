@@ -49,6 +49,9 @@ func ConfigureFilters() {
 	if config.FilterCriteriaDictionaryPhraseLengthMinimum > 0 {
 		enabledFilters = append(enabledFilters, "ConsecutiveDictionaryWordCount")
 	}
+	if config.OpenAIAPIKey != "" {
+		enabledFilters = append(enabledFilters, "OpenAIPromptFilter")
+	}
 }
 
 // Unoptomized asf
