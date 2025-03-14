@@ -35,44 +35,48 @@ variables for them.
 
 ### Annotators
 
-| Environment Variable               | Value                                                             |
-| ---------------------------------- | ----------------------------------------------------------------- |
-| ANNOTATE_ACARS                     | Include the original ACARS message, "true" or "false"             |
-| ANNOTATE_VDLM2                     | Include the original VDLM2 message, "true" or "false"             |
-| ADBSEXCHANGE_APIKEY                | Your API Key to adb-s exchange (lite tier is fine)                |
-| ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \*       |
-| TAR1090_URL                        | URL to a tar1090 instance                                         |
-| TAR1090_REFERENCE_GEOLOCATION      | Geolocation to allow the annotator to provide distance metrics \* |
+| Environment Variable               | Value                                                                  |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| ANNOTATE_ACARS                     | Include the original ACARS message, "true" or "false"                  |
+| ANNOTATE_VDLM2                     | Include the original VDLM2 message, "true" or "false"                  |
+| ADBSEXCHANGE_APIKEY                | **REQUIRED TO USE** Your API Key to adb-s exchange (lite tier is fine) |
+| ADBSEXCHANGE_REFERENCE_GEOLOCATION | A geolocation to calulate distance from (ex: "0.1,-0.1") \*            |
+| TAR1090_URL                        | **REQUIRED TO USE** URL to a tar1090 instance                          |
+| TAR1090_REFERENCE_GEOLOCATION      | Geolocation to allow the annotator to provide distance metrics \*      |
 
 ### Filters
 
-| Environment Variable                             | Value                                                                                                                             |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
-| ACARS_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*                             |
-| VDLM2_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*                             |
-| ADSB_ANNOTATOR_SELECTED_FIELDS                   | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\*                           |
-| TAR1090_ANNOTATOR_SELECTED_FIELDS                | If this is set, receivers will only receive fields present in this variable \*\*                                                  |
-| FILTER_CRITERIA_HAS_TEXT                         | Message must have text                                                                                                            |
-| FILTER_CRITERIA_MATCH_TAIL_CODE                  | Message must match tail code                                                                                                      |
-| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER              | Message must match flight number                                                                                                  |
-| FILTER_CRITERIA_MATCH_FREQUENCY                  | Message must have been received on this frequency                                                                                 |
-| FILTER_CRITERIA_ABOVE_SIGNAL_DBM                 | Message must have signal above this                                                                                               |
-| FILTER_CRITERIA_MATCH_STATION_ID                 | Message must have come from this station                                                                                          |
-| FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM | Message must have at least this amount of consecutive words (English only at the moment)                                          |
-| FILTER_OPENAI_PROMPT                             | Criteria to evaluate the message, sent to OpenAI (`gpt-4o` by default) \*\*\*\*                                                 |
-| FILTER_OPENAI_APIKEY                             | API key for OpenAI, required for functionality                                                                                    |
-| FILTER_OPENAI_MODEL                              | Override the default model, see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
-| FILTER_OPENAI_PREAMBLE                           | By default, `acars-annotator` includes a preamble that describes what the response should look like. This overrides that.           |
+| Environment Variable                             | Value                                                                                                                                                   |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ACARS_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*                                                   |
+| VDLM2_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*                                                   |
+| ADSB_ANNOTATOR_SELECTED_FIELDS                   | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\*                                                 |
+| TAR1090_ANNOTATOR_SELECTED_FIELDS                | If this is set, receivers will only receive fields present in this variable \*\*                                                                        |
+| FILTER_CRITERIA_HAS_TEXT                         | Message must have text                                                                                                                                  |
+| FILTER_CRITERIA_MATCH_TAIL_CODE                  | Message must match tail code                                                                                                                            |
+| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER              | Message must match flight number                                                                                                                        |
+| FILTER_CRITERIA_MATCH_FREQUENCY                  | Message must have been received on this frequency                                                                                                       |
+| FILTER_CRITERIA_ABOVE_SIGNAL_DBM                 | Message must have signal above this                                                                                                                     |
+| FILTER_CRITERIA_MATCH_STATION_ID                 | Message must have come from this station                                                                                                                |
+| FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM | Message must have at least this amount of consecutive words (English only at the moment)                                                                |
+| FILTER_OLLAMA_URL                                | **REQUIRED TO USE** Full URL to your ollama instance (<scheme>://<host>:<port>)                                                                         |
+| FILTER_OLLAMA_MODEL                              | **REQUIRED TO USE** The model to use; ex: "llama3.2"                                                                                                    |
+| FILTER_OLLAMA_PROMPT                             | **REQUIRED TO USE** Criteria for the model to evaluate the message against \*\*\*\*                                                                     |
+| FILTER_OLLAMA_SYSTEM_PROMPT                      | By default, `acars-annotator` includes a system prompt that describes what the response should look like. This overrides that.                          |
+| FILTER_OPENAI_PROMPT                             | **REQUIRED TO USE** Criteria to evaluate the message, sent to OpenAI \*\*\*\*                                                                           |
+| FILTER_OPENAI_APIKEY                             | **REQUIRED TO USE** API key for OpenAI, required for functionality                                                                                      |
+| FILTER_OPENAI_MODEL                              | Override the default model (`gpt-4o` by default), see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
+| FILTER_OPENAI_PREAMBLE                           | By default, `acars-annotator` includes a preamble that describes what the response should look like. This overrides that.                               |
 
 ### Receivers
 
-| Environment Variable  | Value                                                  |
-| --------------------- | ------------------------------------------------------ |
-| DISCORD_WEBHOOK_URL   | URL to a Discord webhook to post messages in a channel |
-| NEW_RELIC_LICENSE_KEY | Your New Relic Infra license key (ex: 123456NRAL)      |
-| WEBHOOK_URL           | URL to your custom webhook                             |
-| WEBHOOK_METHOD        | GET, POST, etc                                         |
-| WEBHOOK_HEADERS       | Headers to send along with the webhook request\*\*\*   |
+| Environment Variable  | Value                                                                      |
+| --------------------- | -------------------------------------------------------------------------- |
+| DISCORD_WEBHOOK_URL   | **REQUIRED TO USE** URL to a Discord webhook to post messages in a channel |
+| NEW_RELIC_LICENSE_KEY | **REQUIRED TO USE** Your New Relic Infra license key (ex: 123456NRAL)      |
+| WEBHOOK_URL           | **REQUIRED TO USE** URL to your custom webhook                             |
+| WEBHOOK_METHOD        | **REQUIRED TO USE** GET, POST, etc                                         |
+| WEBHOOK_HEADERS       | Headers to send along with the webhook request \*\*\*                      |
 
 \* If none provided, "0,0" is used.
 
