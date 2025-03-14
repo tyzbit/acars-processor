@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"regexp"
 
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
@@ -34,6 +35,10 @@ type OpenAIResponse struct {
 
 // Return true if a message passes a filter, false otherwise
 func OpenAIFilter(m string) bool {
+	if match, err := regexp.Match(`\S*`, []byte(m)); !match || err != nil {
+		log.Info("message was blank, filtering without calling OpenAI")
+		return true
+	}
 	client := openai.NewClient(
 		option.WithAPIKey(config.OpenAIAPIKey),
 	)
