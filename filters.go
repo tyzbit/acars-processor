@@ -52,6 +52,7 @@ func ConfigureFilters() {
 	if config.OpenAIAPIKey != "" {
 		enabledFilters = append(enabledFilters, "OpenAIPromptFilter")
 	}
+	log.Infof("enabled filters: %s", strings.Join(enabledFilters, ","))
 }
 
 // Unoptomized asf
