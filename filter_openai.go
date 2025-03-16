@@ -35,7 +35,8 @@ type OpenAIResponse struct {
 
 // Return true if a message passes a filter, false otherwise
 func OpenAIFilter(m string) bool {
-	if match, err := regexp.Match(`\S*`, []byte(m)); !match || err != nil {
+	// If message is blank, return
+	if regexp.MustCompile(`\s*`).MatchString(m) {
 		log.Info("message was blank, filtering without calling OpenAI")
 		return false
 	}
