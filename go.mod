@@ -6,7 +6,7 @@ toolchain go1.23.6
 
 require (
 	github.com/golobby/config/v3 v3.4.2
-	github.com/marcinwyszynski/geopoint v0.0.0-20140302213024-cf2a6f750c5b
+	github.com/jftuga/geodist v1.0.0
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.8.1
 	github.com/openai/openai-go v0.1.0-alpha.62
 	github.com/sirupsen/logrus v1.9.3
@@ -18,7 +18,6 @@ require (
 	github.com/golobby/cast v1.3.3 // indirect
 	github.com/golobby/dotenv v1.3.2 // indirect
 	github.com/golobby/env/v2 v2.2.4 // indirect
-	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/tidwall/gjson v1.14.4 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.1 // indirect

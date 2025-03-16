@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/marcinwyszynski/geopoint"
+	"github.com/jftuga/geodist"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -126,11 +126,9 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 		log.Warn("geolocation coordinates are not in the format 'LAT,LON'")
 		return annotation
 	}
-	flat, _ := strconv.ParseFloat(coords[0], 64)
-	flon, _ := strconv.ParseFloat(coords[1], 64)
-	lat := geopoint.Degrees(flat)
-	lon := geopoint.Degrees(flon)
-	o := geopoint.NewGeoPoint(lat, lon)
+	olat, _ := strconv.ParseFloat(coords[0], 64)
+	olon, _ := strconv.ParseFloat(coords[1], 64)
+	origin := geodist.Coord{Lat: olat, Lon: olon}
 
 	position, err := a.SingleAircraftPositionByRegistration(m.AircraftTailCode)
 	if err != nil {
@@ -141,20 +139,21 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 		return annotation
 	}
 
-	airlat := geopoint.Degrees(position.Aircraft[0].Latitude)
-	airlon := geopoint.Degrees(position.Aircraft[0].Longitude)
-	airgeo := fmt.Sprintf("%f,%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
-	air := geopoint.NewGeoPoint(airlat, airlon)
-
+	alat, alon := position.Aircraft[0].Latitude, position.Aircraft[0].Longitude
+	aircraft := geodist.Coord{Lat: alat, Lon: alon}
+	mi, km, err := geodist.VincentyDistance(origin, aircraft)
+	if err != nil {
+		log.Warnf("error calculating distance: %s", err)
+	}
 	event := Annotation{
 		"adsbOriginGeolocation":          config.ADSBExchangeReferenceGeolocation,
-		"adsbOriginGeolocationLatitude":  flat,
-		"adsbOriginGeolocationLongitude": flon,
-		"adsbAircraftGeolocation":        airgeo,
-		"adsbAircraftLatitude":           position.Aircraft[0].Latitude,
-		"adsbAircraftLongitude":          position.Aircraft[0].Longitude,
-		"adsbAircraftDistanceKm":         float64(air.DistanceTo(o, geopoint.Haversine)),
-		"adsbAircraftDistanceMi":         float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
+		"adsbOriginGeolocationLatitude":  olat,
+		"adsbOriginGeolocationLongitude": olon,
+		"adsbAircraftGeolocation":        fmt.Sprintf("%f,%f", alat, alon),
+		"adsbAircraftLatitude":           alat,
+		"adsbAircraftLongitude":          alon,
+		"adsbAircraftDistanceKm":         km,
+		"adsbAircraftDistanceMi":         mi,
 	}
 
 	return event
@@ -171,11 +170,9 @@ func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 		log.Warn("adsb exchange geolocation coordinates are not in the format 'LAT,LON'")
 		return annotation
 	}
-	flat, _ := strconv.ParseFloat(coords[0], 64)
-	flon, _ := strconv.ParseFloat(coords[1], 64)
-	lat := geopoint.Degrees(flat)
-	lon := geopoint.Degrees(flon)
-	o := geopoint.NewGeoPoint(lat, lon)
+	olat, _ := strconv.ParseFloat(coords[0], 64)
+	olon, _ := strconv.ParseFloat(coords[1], 64)
+	origin := geodist.Coord{Lat: olat, Lon: olon}
 
 	position, err := a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 	if err != nil {
@@ -186,20 +183,21 @@ func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 		return annotation
 	}
 
-	airlat := geopoint.Degrees(position.Aircraft[0].Latitude)
-	airlon := geopoint.Degrees(position.Aircraft[0].Longitude)
-	airgeo := fmt.Sprintf("%f,%f", position.Aircraft[0].Latitude, position.Aircraft[0].Longitude)
-	air := geopoint.NewGeoPoint(airlat, airlon)
-
+	alat, alon := position.Aircraft[0].Latitude, position.Aircraft[0].Longitude
+	aircraft := geodist.Coord{Lat: alat, Lon: alon}
+	mi, km, err := geodist.VincentyDistance(origin, aircraft)
+	if err != nil {
+		log.Warnf("error calculating distance: %s", err)
+	}
 	event := Annotation{
 		"adsbOriginGeolocation":          config.ADSBExchangeReferenceGeolocation,
-		"adsbOriginGeolocationLatitude":  flat,
-		"adsbOriginGeolocationLongitude": flon,
-		"adsbAircraftGeolocation":        airgeo,
-		"adsbAircraftLatitude":           position.Aircraft[0].Latitude,
-		"adsbAircraftLongitude":          position.Aircraft[0].Longitude,
-		"adsbAircraftDistanceKm":         float64(air.DistanceTo(o, geopoint.Haversine)),
-		"adsbAircraftDistanceMi":         float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
+		"adsbOriginGeolocationLatitude":  olat,
+		"adsbOriginGeolocationLongitude": olon,
+		"adsbAircraftGeolocation":        fmt.Sprintf("%f,%f", alat, alon),
+		"adsbAircraftLatitude":           alat,
+		"adsbAircraftLongitude":          alon,
+		"adsbAircraftDistanceKm":         km,
+		"adsbAircraftDistanceMi":         mi,
 	}
 
 	return event

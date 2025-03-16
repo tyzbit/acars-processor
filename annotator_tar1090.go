@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/marcinwyszynski/geopoint"
+	"github.com/jftuga/geodist"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -99,8 +99,8 @@ type MLAT struct {
 type TISB struct {
 }
 
-// Wrapper around the SingleAircraftPositionByRegistration API
-func (a Tar1090Handler) SingleAircraftPositionByRegistration(reg string) (aircraft TJSONAircraft, err error) {
+// Wrapper around the SingleAircraftQueryByRegistration API
+func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft TJSONAircraft, err error) {
 	reg = NormalizeAircraftRegistration(reg)
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/data/aircraft.json?_=%d/", config.TAR1090URL, time.Now().Unix()), nil)
 	if err != nil {
@@ -147,25 +147,24 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 		log.Warn("tar1090 geolocation coordinates are not in the format 'LAT,LON'")
 		return annotation
 	}
-	flat, _ := strconv.ParseFloat(coords[0], 64)
-	flon, _ := strconv.ParseFloat(coords[1], 64)
-	lat := geopoint.Degrees(flat)
-	lon := geopoint.Degrees(flon)
-	o := geopoint.NewGeoPoint(lat, lon)
+	olat, _ := strconv.ParseFloat(coords[0], 64)
+	olon, _ := strconv.ParseFloat(coords[1], 64)
+	origin := geodist.Coord{Lat: olat, Lon: olon}
 
-	aircraft, err := a.SingleAircraftPositionByRegistration(m.AircraftTailCode)
+	aircraftInfo, err := a.SingleAircraftQueryByRegistration(m.AircraftTailCode)
 	if err != nil {
 		log.Warnf("error getting aircraft position from tar1090: %v", err)
 		return annotation
 	}
 
-	airlat := geopoint.Degrees(aircraft.Latitude)
-	airlon := geopoint.Degrees(aircraft.Longitude)
-	airgeo := fmt.Sprintf("%f,%f", aircraft.Latitude, aircraft.Longitude)
-	air := geopoint.NewGeoPoint(airlat, airlon)
+	aircraft := geodist.Coord{Lat: aircraftInfo.Latitude, Lon: aircraftInfo.Longitude}
+	mi, km, err := geodist.VincentyDistance(origin, aircraft)
+	if err != nil {
+		log.Warnf("error calculating distance: %s", err)
+	}
 
 	var navmodes string
-	for i, mode := range aircraft.NavModes {
+	for i, mode := range aircraftInfo.NavModes {
 		if i != 0 {
 			navmodes = mode + ","
 		}
@@ -173,27 +172,27 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 	}
 	event := Annotation{
 		"tar1090OriginGeolocation":                           config.TAR1090ReferenceGeolocation,
-		"tar1090OriginGeolocationLatitude":                   flat,
-		"tar1090OriginGeolocationLongitude":                  flon,
-		"tar1090AircraftEmergency":                           aircraft.Emergency,
-		"tar1090AircraftGeolocation":                         airgeo,
-		"tar1090AircraftLatitude":                            aircraft.Latitude,
-		"tar1090AircraftLongitude":                           aircraft.Longitude,
-		"tar1090AircraftHaversineDistanceKm":                 float64(air.DistanceTo(o, geopoint.Haversine)),
-		"tar1090AircraftHaversineDistanceMi":                 float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
-		"tar1090AircraftDistanceNm":                          aircraft.DistanceFromReceiverNm,
-		"tar1090AircraftDirectionDegrees":                    aircraft.DirectionFromReceiverDegrees,
-		"tar1090AircraftAltimeterBarometerFeet":              aircraft.AltimeterBarometerFeet,
-		"tar1090AircraftAltimeterGeometricFeet":              aircraft.AltimeterGeometricFeet,
-		"tar1090AircraftAltimeterBarometerRateFeetPerSecond": aircraft.AltimeterBarometerRateFeet,
-		"tar1090AircraftOwnerOperator":                       aircraft.AircraftOwnerOperator,
-		"tar1090AircraftFlightNumber":                        aircraft.AircraftTailCode,
-		"tar1090AircraftHexCode":                             aircraft.Hex,
-		"tar1090AircraftType":                                aircraft.AircraftType,
-		"tar1090AircraftDescription":                         aircraft.AircraftDescription,
-		"tar1090AircraftYearOfManufacture":                   aircraft.AircraftManufactureYear,
-		"tar1090AircraftADSBMessageCount":                    aircraft.MessageCount,
-		"tar1090AircraftRSSIdBm":                             aircraft.RSSISignalPowerdBm,
+		"tar1090OriginGeolocationLatitude":                   olat,
+		"tar1090OriginGeolocationLongitude":                  olon,
+		"tar1090AircraftEmergency":                           aircraftInfo.Emergency,
+		"tar1090AircraftGeolocation":                         aircraftInfo,
+		"tar1090AircraftLatitude":                            aircraftInfo.Latitude,
+		"tar1090AircraftLongitude":                           aircraftInfo.Longitude,
+		"tar1090AircraftHaversineDistanceKm":                 km,
+		"tar1090AircraftHaversineDistanceMi":                 mi,
+		"tar1090AircraftDistanceNm":                          aircraftInfo.DistanceFromReceiverNm,
+		"tar1090AircraftDirectionDegrees":                    aircraftInfo.DirectionFromReceiverDegrees,
+		"tar1090AircraftAltimeterBarometerFeet":              aircraftInfo.AltimeterBarometerFeet,
+		"tar1090AircraftAltimeterGeometricFeet":              aircraftInfo.AltimeterGeometricFeet,
+		"tar1090AircraftAltimeterBarometerRateFeetPerSecond": aircraftInfo.AltimeterBarometerRateFeet,
+		"tar1090AircraftOwnerOperator":                       aircraftInfo.AircraftOwnerOperator,
+		"tar1090AircraftFlightNumber":                        aircraftInfo.AircraftTailCode,
+		"tar1090AircraftHexCode":                             aircraftInfo.Hex,
+		"tar1090AircraftType":                                aircraftInfo.AircraftType,
+		"tar1090AircraftDescription":                         aircraftInfo.AircraftDescription,
+		"tar1090AircraftYearOfManufacture":                   aircraftInfo.AircraftManufactureYear,
+		"tar1090AircraftADSBMessageCount":                    aircraftInfo.MessageCount,
+		"tar1090AircraftRSSIdBm":                             aircraftInfo.RSSISignalPowerdBm,
 		"tar1090AircraftNavModes":                            navmodes,
 	}
 
@@ -211,25 +210,25 @@ func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotat
 		log.Warn("geolocation coordinates are not in the format 'LAT,LON'")
 		return annotation
 	}
-	flat, _ := strconv.ParseFloat(coords[0], 64)
-	flon, _ := strconv.ParseFloat(coords[1], 64)
-	lat := geopoint.Degrees(flat)
-	lon := geopoint.Degrees(flon)
-	o := geopoint.NewGeoPoint(lat, lon)
+	olat, _ := strconv.ParseFloat(coords[0], 64)
+	olon, _ := strconv.ParseFloat(coords[1], 64)
+	origin := geodist.Coord{Lat: olat, Lon: olon}
 
-	aircraft, err := a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
+	aircraftInfo, err := a.SingleAircraftQueryByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 	if err != nil {
 		log.Warnf("error getting aircraft position: %v", err)
 		return annotation
 	}
 
-	airlat := geopoint.Degrees(aircraft.Latitude)
-	airlon := geopoint.Degrees(aircraft.Longitude)
-	airgeo := fmt.Sprintf("%f,%f", aircraft.Latitude, aircraft.Longitude)
-	air := geopoint.NewGeoPoint(airlat, airlon)
+	alat, alon := aircraftInfo.Latitude, aircraftInfo.Longitude
+	aircraft := geodist.Coord{Lat: alat, Lon: alon}
+	mi, km, err := geodist.VincentyDistance(origin, aircraft)
+	if err != nil {
+		log.Warnf("error calculating distance: %s", err)
+	}
 
 	var navmodes string
-	for i, mode := range aircraft.NavModes {
+	for i, mode := range aircraftInfo.NavModes {
 		if i != 0 {
 			navmodes = mode + ","
 		}
@@ -237,26 +236,26 @@ func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotat
 	}
 	event := Annotation{
 		"tar1090OriginGeolocation":                           config.TAR1090ReferenceGeolocation,
-		"tar1090OriginGeolocationLatitude":                   flat,
-		"tar1090OriginGeolocationLongitude":                  flon,
-		"tar1090AircraftGeolocation":                         airgeo,
-		"tar1090AircraftLatitude":                            aircraft.Latitude,
-		"tar1090AircraftLongitude":                           aircraft.Longitude,
-		"tar1090AircraftHaversineDistanceKm":                 float64(air.DistanceTo(o, geopoint.Haversine)),
-		"tar1090AircraftHaversineDistanceMi":                 float64(air.DistanceTo(o, geopoint.Haversine).Miles()),
-		"tar1090AircraftDistanceNm":                          aircraft.DistanceFromReceiverNm,
-		"tar1090AircraftDirectionDegrees":                    aircraft.DirectionFromReceiverDegrees,
-		"tar1090AircraftAltimeterBarometerFeet":              aircraft.AltimeterBarometerFeet,
-		"tar1090AircraftAltimeterGeometricFeet":              aircraft.AltimeterGeometricFeet,
-		"tar1090AircraftAltimeterBarometerRateFeetPerSecond": aircraft.AltimeterBarometerRateFeet,
-		"tar1090AircraftOwnerOperator":                       aircraft.AircraftOwnerOperator,
-		"tar1090AircraftFlightNumber":                        aircraft.AircraftTailCode,
-		"tar1090AircraftHexCode":                             aircraft.Hex,
-		"tar1090AircraftType":                                aircraft.AircraftType,
-		"tar1090AircraftDescription":                         aircraft.AircraftDescription,
-		"tar1090AircraftYearOfManufacture":                   aircraft.AircraftManufactureYear,
-		"tar1090AircraftADSBMessageCount":                    aircraft.MessageCount,
-		"tar1090AircraftRSSIdBm":                             aircraft.RSSISignalPowerdBm,
+		"tar1090OriginGeolocationLatitude":                   olat,
+		"tar1090OriginGeolocationLongitude":                  olon,
+		"tar1090AircraftGeolocation":                         fmt.Sprintf("%f,%f", alat, alon),
+		"tar1090AircraftLatitude":                            alat,
+		"tar1090AircraftLongitude":                           alon,
+		"tar1090AircraftHaversineDistanceKm":                 km,
+		"tar1090AircraftHaversineDistanceMi":                 mi,
+		"tar1090AircraftDistanceNm":                          aircraftInfo.DistanceFromReceiverNm,
+		"tar1090AircraftDirectionDegrees":                    aircraftInfo.DirectionFromReceiverDegrees,
+		"tar1090AircraftAltimeterBarometerFeet":              aircraftInfo.AltimeterBarometerFeet,
+		"tar1090AircraftAltimeterGeometricFeet":              aircraftInfo.AltimeterGeometricFeet,
+		"tar1090AircraftAltimeterBarometerRateFeetPerSecond": aircraftInfo.AltimeterBarometerRateFeet,
+		"tar1090AircraftOwnerOperator":                       aircraftInfo.AircraftOwnerOperator,
+		"tar1090AircraftFlightNumber":                        aircraftInfo.AircraftTailCode,
+		"tar1090AircraftHexCode":                             aircraftInfo.Hex,
+		"tar1090AircraftType":                                aircraftInfo.AircraftType,
+		"tar1090AircraftDescription":                         aircraftInfo.AircraftDescription,
+		"tar1090AircraftYearOfManufacture":                   aircraftInfo.AircraftManufactureYear,
+		"tar1090AircraftADSBMessageCount":                    aircraftInfo.MessageCount,
+		"tar1090AircraftRSSIdBm":                             aircraftInfo.RSSISignalPowerdBm,
 		"tar1090AircraftNavModes":                            navmodes,
 	}
 
