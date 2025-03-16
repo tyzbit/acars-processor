@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"regexp"
 
 	api "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
 )
 
-var OLLamaSystemPrompt string = `You will evaluate a message to decide if it 
+var OllamaSystemPrompt string = `You will evaluate a message to decide if it 
 matches the provided criteria.
 You MUST respond in valid JSON with the format:
 
@@ -37,36 +39,41 @@ type OllamaResponse struct {
 
 // Return true if a message passes a filter, false otherwise
 func OllamaFilter(m string) bool {
-	if config.OLLamaModel == "" {
-		log.Warn("ollama model not specified, this is required to use the ollama filter")
+	if config.OllamaModel == "" {
+		log.Warn("Ollama model not specified, this is required to use the ollama filter")
 		return true
 	}
 	if match, err := regexp.Match(`\S*`, []byte(m)); !match || err != nil {
 		log.Info("message was blank, filtering without calling Ollama")
 		return true
 	}
-	client, err := api.ClientFromEnvironment()
+	url, err := url.Parse(config.OllamaURL)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Ollama url could not be parsed: %s", err)
+		return true
+	}
+	client := api.NewClient(url, &http.Client{})
+	if err != nil {
+		log.Fatalf("error initializing Ollama: %s", err)
 	}
 
-	if config.OLLamaSystemPrompt != "" {
-		OLLamaSystemPrompt = config.OLLamaSystemPrompt
+	if config.OllamaSystemPrompt != "" {
+		OllamaSystemPrompt = config.OllamaSystemPrompt
 	}
 	messages := []api.Message{
 		{
 			Role:    "system",
-			Content: OLLamaSystemPrompt,
+			Content: OllamaSystemPrompt,
 		},
 		{
 			Role:    "user",
-			Content: fmt.Sprintf(OLLamaSystemPrompt, config.OLLamaPrompt, m),
+			Content: fmt.Sprintf(OllamaSystemPrompt, config.OllamaPrompt, m),
 		},
 	}
 
 	ctx := context.Background()
 	req := &api.ChatRequest{
-		Model:    config.OLLamaModel,
+		Model:    config.OllamaModel,
 		Messages: messages,
 	}
 

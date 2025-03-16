@@ -17,11 +17,11 @@ type Config struct {
 	OpenAIPrompt                                string  `env:"FILTER_OPENAI_PROMPT"`
 	OpenAIModel                                 string  `env:"FILTER_OPENAI_MODEL"`
 	OpenAICustomPreamble                        string  `env:"FILTER_OPENAI_PREAMBLE"`
-	OLLamaURL                                   string  `env:"FILTER_OLLAMA_URL"`
-	OLLamaPrompt                                string  `env:"FILTER_OLLAMA_PROMPT"`
-	OLLamaSystemPrompt                          string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
-	OLLamaSystemAssistant                       string  `env:"FILTER_OLLAMA_SYSTEM_ASSISTANT"`
-	OLLamaModel                                 string  `env:"FILTER_OLLAMA_MODEL"`
+	OllamaURL                                   string  `env:"FILTER_OLLAMA_URL"`
+	OllamaPrompt                                string  `env:"FILTER_OLLAMA_PROMPT"`
+	OllamaSystemPrompt                          string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
+	OllamaSystemAssistant                       string  `env:"FILTER_OLLAMA_SYSTEM_ASSISTANT"`
+	OllamaModel                                 string  `env:"FILTER_OLLAMA_MODEL"`
 	ADSBAnnotatorSelectedFields                 string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
 	VDLM2AnnotatorSelectedFields                string  `env:"VDLM2_ANNOTATOR_SELECTED_FIELDS"`
 	TAR1090AnnotatorSelectedFields              string  `env:"TAR1090_ANNOTATOR_SELECTED_FIELDS"`
