@@ -36,7 +36,7 @@ type OpenAIResponse struct {
 // Return true if a message passes a filter, false otherwise
 func OpenAIFilter(m string) bool {
 	// If message is blank, return
-	if regexp.MustCompile(`\s*`).MatchString(m) {
+	if regexp.MustCompile(`^\s*$`).MatchString(m) {
 		log.Info("message was blank, filtering without calling OpenAI")
 		return false
 	}
