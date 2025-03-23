@@ -84,8 +84,8 @@ func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation 
 		"acarsMessageText":      m.MessageText,
 		"acarsMessageNumber":    m.MessageNumber,
 		"acarsFlightNumber":     m.FlightNumber,
-		"acarsExtraURL":         FlightAwareRoot + m.AircraftTailCode,
-		"acarsExtraPhotos":      FlightAwarePhotos + m.AircraftTailCode,
+		"acarsExtraURL":         FlightAwareRoot + tailcode,
+		"acarsExtraPhotos":      FlightAwarePhotos + tailcode,
 	}
 	return annotation
 }
