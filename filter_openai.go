@@ -11,10 +11,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var OpenAIPromptTemplate string = `I have a message I want you to evaluate.
+var OpenAIPromptTemplate string = `You will evaluate a message to decide if it 
+matches the provided criteria.
 You MUST respond in valid JSON with the format:
-{"decision": boolean, "reasoning": string} with the unquoted data in that object
-being results from your evaluation.
+
+{"decision": boolean, "reasoning": string}
+
+with the unquoted data in that object being results from your evaluation.
 
 "decision" should ONLY be true or false.
 "reasoning" should ONLY be a string, and it should be a terse explanation of
