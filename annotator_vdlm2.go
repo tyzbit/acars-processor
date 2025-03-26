@@ -89,6 +89,10 @@ type VDLM2Message struct {
 // Although this is the ACARS annotator, we must support ACARS and VLM2
 // message types
 func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+	tailcode, cut := strings.CutPrefix(m.VDL2.AVLC.ACARS.Registration, ".")
+	if !cut {
+		tailcode = m.VDL2.AVLC.ACARS.Registration
+	}
 	annotation = Annotation{
 		"vdlm2AppName":               m.VDL2.App.Name,
 		"vdlm2AppVersion":            m.VDL2.App.Version,
@@ -121,7 +125,7 @@ func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsErrorCode":             m.VDL2.AVLC.ACARS.Error,
 		"acarsCRCOK":                 m.VDL2.AVLC.ACARS.CRCOK,
 		"acarsMore":                  m.VDL2.AVLC.ACARS.More,
-		"acarsAircraftTailCode":      m.VDL2.AVLC.ACARS.Registration,
+		"acarsAircraftTailCode":      tailcode,
 		"acarsMode":                  m.VDL2.AVLC.ACARS.Mode,
 		"acarsLabel":                 m.VDL2.AVLC.ACARS.Mode,
 		"acarsBlockID":               m.VDL2.AVLC.ACARS.BlockID,
@@ -130,8 +134,8 @@ func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsMessageNumber":         m.VDL2.AVLC.ACARS.MessageNumber,
 		"acarsMessageNumberSequence": m.VDL2.AVLC.ACARS.MessageNumberSequence,
 		"acarsMessageText":           m.VDL2.AVLC.ACARS.MessageText,
-		"acarsExtraURL":              FlightAwareRoot + m.VDL2.AVLC.ACARS.Registration,
-		"acarsExtraPhotos":           FlightAwarePhotos + m.VDL2.AVLC.ACARS.Registration,
+		"acarsExtraURL":              FlightAwareRoot + tailcode,
+		"acarsExtraPhotos":           FlightAwarePhotos + tailcode,
 	}
 	return annotation
 }

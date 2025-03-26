@@ -57,6 +57,11 @@ type ACARSMessage struct {
 
 // Interface function to satisfy ACARSHandler
 func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
+	// Chop off leading periods
+	tailcode, cut := strings.CutPrefix(m.AircraftTailCode, ".")
+	if !cut {
+		tailcode = m.AircraftTailCode
+	}
 	annotation = Annotation{
 		"acarsFrequencyMHz":     m.FrequencyMHz,
 		"acarsChannel":          m.Channel,
@@ -75,12 +80,12 @@ func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation 
 		"acarsLabel":            m.Label,
 		"acarsBlockID":          m.BlockID,
 		"acarsAcknowledge":      m.Acknowledge,
-		"acarsAircraftTailCode": m.AircraftTailCode,
+		"acarsAircraftTailCode": tailcode,
 		"acarsMessageText":      m.MessageText,
 		"acarsMessageNumber":    m.MessageNumber,
 		"acarsFlightNumber":     m.FlightNumber,
-		"acarsExtraURL":         FlightAwareRoot + m.AircraftTailCode,
-		"acarsExtraPhotos":      FlightAwarePhotos + m.AircraftTailCode,
+		"acarsExtraURL":         FlightAwareRoot + tailcode,
+		"acarsExtraPhotos":      FlightAwarePhotos + tailcode,
 	}
 	return annotation
 }
