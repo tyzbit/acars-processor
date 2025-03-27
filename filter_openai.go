@@ -13,16 +13,16 @@ import (
 
 var OpenAIPromptTemplate string = `You will evaluate a message to decide if it 
 matches the provided criteria.
-You MUST respond in valid JSON with the format:
+Your entire response MUST BE A VALID JSON OBJECT with the format:
 
 {"decision": boolean, "reasoning": string}
 
 with the unquoted data in that object being results from your evaluation.
 
+Do not use backticks.
 "decision" should ONLY be true or false.
 "reasoning" should ONLY be a string, and it should be a terse explanation of
 why, based on the criteria, you made the decision you made.
-Do not use backticks.
 
 Here is the criteria:
 %s
