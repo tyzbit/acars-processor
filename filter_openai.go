@@ -53,7 +53,7 @@ func OpenAIFilter(m string) bool {
 	if config.OpenAIModel != "" {
 		openAIModel = config.OpenAIModel
 	}
-	log.Debugf("calling OpenAI, prompt: %s", config.OpenAIPrompt)
+	log.Debugf("calling OpenAI model %s, prompt: %s", openAIModel, config.OpenAIPrompt)
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
