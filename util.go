@@ -59,7 +59,10 @@ func MergeMaps(m1, m2 map[string]any) map[string]any {
 }
 
 // Returns if the string is empty or if it only contains nonprintable characters
-func IsBlankString(s string) (b bool) {
-	b, _ = regexp.Match("\\s*", []byte(s))
-	return b
+func AircraftOrTower(s string) (r string) {
+	b, _ := regexp.Match("\\s*", []byte(s))
+	if b {
+		return "Tower"
+	}
+	return "Aircraft"
 }

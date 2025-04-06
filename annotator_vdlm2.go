@@ -131,7 +131,7 @@ func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsBlockID":               m.VDL2.AVLC.ACARS.BlockID,
 		"acarsAcknowledge":           m.VDL2.AVLC.ACARS.Acknowledge,
 		"acarsFlightNumber":          m.VDL2.AVLC.ACARS.FlightNumber,
-		"acarsMessageFromAircraft":   IsBlankString(m.VDL2.AVLC.ACARS.FlightNumber),
+		"acarsMessageFrom":           AircraftOrTower(m.VDL2.AVLC.ACARS.FlightNumber),
 		"acarsMessageNumber":         m.VDL2.AVLC.ACARS.MessageNumber,
 		"acarsMessageNumberSequence": m.VDL2.AVLC.ACARS.MessageNumberSequence,
 		"acarsMessageText":           m.VDL2.AVLC.ACARS.MessageText,
