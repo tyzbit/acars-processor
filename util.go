@@ -62,7 +62,7 @@ func MergeMaps(m1, m2 map[string]any) map[string]any {
 func AircraftOrTower(s string) (r string) {
 	b, _ := regexp.Match("\\S+", []byte(s))
 	if b {
-		return "Tower"
+		return "Aircraft"
 	}
-	return "Aircraft"
+	return "Tower"
 }
