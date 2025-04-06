@@ -2,6 +2,7 @@ package main
 
 import (
 	"os"
+	"regexp"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -55,4 +56,10 @@ func MergeMaps(m1, m2 map[string]any) map[string]any {
 	}
 
 	return merged
+}
+
+// Returns if the string is empty or if it only contains nonprintable characters
+func IsBlankString(s string) (b bool) {
+	b, _ = regexp.Match("\\s*", []byte(s))
+	return b
 }
