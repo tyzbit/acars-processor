@@ -111,7 +111,7 @@ func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft 
 	log.Debug("making call to tar1090")
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error(err)
+		return aircraft, err
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
