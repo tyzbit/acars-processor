@@ -71,10 +71,12 @@ func OllamaFilter(m string) bool {
 		},
 	}
 
+	stream := false
 	ctx := context.Background()
 	req := &api.ChatRequest{
 		Model:    config.OllamaModel,
 		Messages: messages,
+		Stream:   &stream,
 	}
 
 	var r OllamaResponse
