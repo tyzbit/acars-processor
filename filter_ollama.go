@@ -80,6 +80,7 @@ func OllamaFilter(m string) bool {
 	var r OllamaResponse
 	respFunc := func(resp api.ChatResponse) error {
 		err = json.Unmarshal([]byte(resp.Message.Content), &r)
+		log.Debugf("ollama response: %s", resp.Message.Content)
 		if err != nil {
 			return err
 		}
