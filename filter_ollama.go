@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strings"
 
 	api "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
@@ -83,7 +84,10 @@ func OllamaFilter(m string) bool {
 
 	var r OllamaResponse
 	respFunc := func(resp api.ChatResponse) error {
-		err = json.Unmarshal([]byte(resp.Message.Content), &r)
+		// Remove any extra formatting
+		content := strings.ReplaceAll(resp.Message.Content, "```json", "")
+		content = strings.ReplaceAll(content, "`", "")
+		err = json.Unmarshal([]byte(content), &r)
 		log.Debugf("ollama response: %s", resp.Message.Content)
 		if err != nil {
 			return err

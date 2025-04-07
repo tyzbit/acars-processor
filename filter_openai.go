@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strings"
 
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
@@ -68,7 +69,9 @@ func OpenAIFilter(m string) bool {
 		return true
 	}
 	var r OpenAIResponse
-	content := chatCompletion.Choices[0].Message.Content
+	// Remove any extra formatting
+	content := strings.ReplaceAll(chatCompletion.Choices[0].Message.Content, "```json", "")
+	content = strings.ReplaceAll(content, "`", "")
 	log.Debugf("response from OpenAI: %s", content)
 	err = json.Unmarshal([]byte(content), &r)
 	if err != nil {
