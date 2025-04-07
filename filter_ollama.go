@@ -87,11 +87,11 @@ func OllamaFilter(m string) bool {
 		return nil
 	}
 
+	log.Debugf("calling Ollama, model %s, prompt: %s", config.OllamaModel, config.OllamaPrompt)
 	err = client.Chat(ctx, req, respFunc)
 	if err != nil {
 		log.Errorf("error using Ollama: %s", err)
 		return true
 	}
-	log.Debugf("Ollama response: %+v", r)
 	return r.Decision
 }
