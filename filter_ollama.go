@@ -52,12 +52,13 @@ func OllamaFilter(m string) bool {
 	}
 	url, err := url.Parse(config.OllamaURL)
 	if err != nil {
-		log.Fatalf("Ollama url could not be parsed: %s", err)
+		log.Errorf("Ollama url could not be parsed: %s", err)
 		return true
 	}
 	client := api.NewClient(url, &http.Client{})
 	if err != nil {
-		log.Fatalf("error initializing Ollama: %s", err)
+		log.Errorf("error initializing Ollama: %s", err)
+		return true
 	}
 
 	if config.OllamaSystemPrompt != "" {
