@@ -14,13 +14,13 @@ import (
 
 var OllamaSystemPrompt string = `You will evaluate a message to decide if it 
 matches the provided criteria.
-Your entire response MUST BE A VALID JSON OBJECT with the format:
+Your entire response MUST BE A VALID RAW JSON OBJECT with the format:
 
 {"decision": DECISION, "reasoning": REASONING}
 
 with the unquoted data in that object being results from your evaluation.
 
-Do not use backticks.
+DO NOT USE BACKTICKS.
 DECISION MUST BE EITHER true or false without quotes adhering to JSON standards.
 
 REASONING MUST BE a valid quoted string adhering to JSON standards and
