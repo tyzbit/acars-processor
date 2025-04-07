@@ -46,6 +46,9 @@ var (
 		"OpenAIPromptFilter": func(m VDLM2Message) bool {
 			return OpenAIFilter(m.VDL2.AVLC.ACARS.MessageText)
 		},
+		"OllamaPromptFilter": func(m VDLM2Message) bool {
+			return OllamaFilter(m.VDL2.AVLC.ACARS.MessageText)
+		},
 	}
 )
 

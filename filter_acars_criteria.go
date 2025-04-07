@@ -48,6 +48,9 @@ var (
 		"OpenAIPromptFilter": func(m ACARSMessage) bool {
 			return OpenAIFilter(m.MessageText)
 		},
+		"OllamaPromptFilter": func(m ACARSMessage) bool {
+			return OllamaFilter(m.MessageText)
+		},
 	}
 )
 

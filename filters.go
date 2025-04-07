@@ -52,6 +52,9 @@ func ConfigureFilters() {
 	if config.OpenAIAPIKey != "" {
 		enabledFilters = append(enabledFilters, "OpenAIPromptFilter")
 	}
+	if config.OllamaURL != "" {
+		enabledFilters = append(enabledFilters, "OllamaPromptFilter")
+	}
 	log.Infof("enabled filters: %s", strings.Join(enabledFilters, ","))
 }
 
