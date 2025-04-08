@@ -17,7 +17,6 @@ var (
 	enabledVDLM2Annotators = []VDLM2Annotator{}
 	enabledReceivers       = []Receiver{}
 	enabledFilters         = []string{}
-	englishDictionary      = []string{}
 )
 
 // Set up Config, logging

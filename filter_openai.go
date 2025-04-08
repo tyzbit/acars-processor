@@ -5,37 +5,33 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
-	"strings"
 
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 	log "github.com/sirupsen/logrus"
 )
 
-var OpenAIPromptTemplate string = `You will evaluate a message to decide if it 
-matches the provided criteria.
-Your entire response MUST BE A VALID RAW JSON OBJECT with the format:
+var OpenAIPromptTemplate string = `You are an API that only responds in
+valid, compact JSON objects without newlines. You will be provided with 
+a message and criteria to evaluate it against.
 
-{"decision": DECISION, "reasoning": REASONING}
+You will respond with a JSON object without newlines that has:
 
-with the unquoted data in that object being results from your evaluation.
-
-DO NOT USE BACKTICKS.
-DECISION MUST BE EITHER true or false without quotes adhering to JSON standards.
-
-REASONING MUST BE a valid quoted string adhering to JSON standards and
-it should be a terse explanation of why, based on the criteria, 
-you made the decision you made.
-
-Here is the criteria:
-%s
+- a "decision" key which is a boolean of true (if the message
+matches the criteria) or false (if the message does not match the criteria) 
+- a "reasoning" key which must be a simple explanation of the reasoning
+behind your decision. You will always provide your reasoning for your decision
+in the response under the "reasoning" key.
 
 Here is the message I want you to evaluate:
+%s
+
+Here is the criteria:
 %s
 `
 
 type OpenAIResponse struct {
-	Decision  bool   `json:"decision"`
+	Decision  any    `json:"decision"`
 	Reasoning string `json:"reasoning"`
 }
 
@@ -60,7 +56,7 @@ func OpenAIFilter(m string) bool {
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-				openai.UserMessage(fmt.Sprintf(OpenAIPromptTemplate, config.OpenAIPrompt, m)),
+				openai.UserMessage(fmt.Sprintf(OpenAIPromptTemplate, m, config.OpenAIPrompt)),
 			}),
 			Model: openai.F(openAIModel),
 		})
@@ -68,15 +64,28 @@ func OpenAIFilter(m string) bool {
 		log.Errorf("error using OpenAI: %s", err)
 		return true
 	}
+
 	var r OpenAIResponse
-	// Remove any extra formatting
-	content := strings.ReplaceAll(chatCompletion.Choices[0].Message.Content, "```json", "")
-	content = strings.ReplaceAll(content, "`", "")
-	log.Debugf("response from OpenAI: %s", content)
-	err = json.Unmarshal([]byte(content), &r)
-	if err != nil {
-		log.Warnf("error unmarshaling response from OpenAI: %s", err)
+	// Parse the JSON payload (hopefully)
+	rex := regexp.MustCompile(`\{[^{}]+\}`)
+	matches := rex.FindAllStringIndex(chatCompletion.Choices[0].Message.Content, -1)
+
+	// Find the last json payload in case the model reasons about
+	// one in the middle of thinking
+	if len(matches) == 0 {
+		log.Errorf("did not find a json object in response: %s",
+			chatCompletion.Choices[0].Message.Content)
 		return true
 	}
-	return r.Decision
+	start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
+	content := chatCompletion.Choices[0].Message.Content[start:end]
+	err = json.Unmarshal([]byte(content), &r)
+
+	log.Debugf("OpenAI parsed json response: %s", content)
+	if err != nil {
+		log.Warnf("error unmarshaling response from OpenAI: %s", err)
+		log.Debugf("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content)
+		return true
+	}
+	return r.Decision == "true" || r.Decision == true
 }

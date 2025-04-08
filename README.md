@@ -68,6 +68,28 @@ variables for them.
 | FILTER_OPENAI_MODEL                              | Override the default model (`gpt-4o` by default), see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
 | FILTER_OPENAI_PREAMBLE                           | By default, `acars-annotator` includes a preamble that describes what the response should look like. This overrides that.                               |
 
+### A Note on Using Large Language Models for Filters
+
+OpenAI's gpt3.5 and higher do well with the system prompt. With Ollama,
+the model you choose will greatly impact the quality of the filtering.
+I recommend `gemma3:12b`. It uses about 13GB at runtime but is similar in
+effectiveness to OpenAI's models.
+
+Other models may not work as well, either because they do not respond fast
+enough in high-message environments, or because, frankly, they do not
+follow instructions. The built-in system prompt instructs the model to respond
+only in a simple, valid JSON object but some models have trouble with this.
+
+`deepseek-r1:8b` can be cajoled into responding correctly, but sometimes it
+responds to the prompt without any JSON at all. Additionally, multiple models
+have required treating what should be a boolean as a string or boolean,
+despite clear instructions.
+
+If you're not seeing great results out of your model, try another one or try
+overriding the system prompt with `FILTER_OLLAMA_SYSTEM_PROMPT`.
+If acars-processor isn't able to pull a JSON object from the response, it'll
+log it at a `DEBUG` level for troubleshooting.
+
 ### Receivers
 
 | Environment Variable  | Value                                                                      |
