@@ -108,7 +108,7 @@ in the variable.
 \*\*\* The headers should be in the format `key=value,otherkey=value`
 
 \*\*\*\* Yes or no question works best. Example:
-"Does this message look like at least part of it was written by a human?"
+"Does this contain what looks like a bespoke message from one person to another?"
 
 #### Webhooks
 
