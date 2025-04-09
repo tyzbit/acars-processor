@@ -23,9 +23,6 @@ matches the criteria) or false (if the message does not match the criteria)
 behind your decision. You will always provide your reasoning for your decision
 in the response under the "reasoning" key.
 
-Here is the message I want you to evaluate:
-%s
-
 Here is the criteria:
 %s
 `
@@ -56,7 +53,8 @@ func OpenAIFilter(m string) bool {
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-				openai.UserMessage(fmt.Sprintf(OpenAIPromptTemplate, m, config.OpenAIPrompt)),
+				openai.SystemMessage(fmt.Sprintf(OpenAIPromptTemplate, config.OpenAIPrompt)),
+				openai.UserMessage(m),
 			}),
 			Model: openai.F(openAIModel),
 		})
