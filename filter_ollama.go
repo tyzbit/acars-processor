@@ -14,7 +14,7 @@ import (
 
 var OllamaSystemPrompt string = `You are an API that only responds in
 valid, compact JSON objects without newlines. You will be provided with 
-a message and criteria to evaluate it against.
+criteria which you will use to evaluate every message.
 
 You will respond with a JSON object without newlines that has:
 
@@ -23,9 +23,6 @@ matches the criteria) or false (if the message does not match the criteria)
 - a "reasoning" key which must be a simple explanation of the reasoning
 behind your decision. You will always provide your reasoning for your decision
 in the response under the "reasoning" key.
-
-Here is the message you will evaluate:
-%s
 
 Here is the criteria:
 %s
@@ -64,11 +61,11 @@ func OllamaFilter(m string) bool {
 	messages := []api.Message{
 		{
 			Role:    "system",
-			Content: OllamaSystemPrompt,
+			Content: fmt.Sprintf(OllamaSystemPrompt, config.OllamaPrompt),
 		},
 		{
 			Role:    "user",
-			Content: fmt.Sprintf(OllamaSystemPrompt, m, config.OllamaPrompt),
+			Content: m,
 		},
 	}
 
