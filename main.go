@@ -53,7 +53,6 @@ func main() {
 
 	go SubscribeToACARSHub()
 
-	log.Debug("launched acarshub subscribers")
 	// Listen for signals from the OS
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt)

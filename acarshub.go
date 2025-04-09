@@ -12,9 +12,7 @@ import (
 )
 
 func ReadACARSHubACARSMessages() {
-	if !config.AnnotateACARS {
-		return
-	}
+	var achan = make(chan ACARSMessage, 1000)
 	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
 	for {
 		log.Debugf("connecting to %s acars json port", address)
@@ -25,19 +23,42 @@ func ReadACARSHubACARSMessages() {
 			continue
 		}
 		log.Info("connected to acarshub acars json port successfully")
-		r := io.Reader(s)
+		readJson := json.NewDecoder(io.Reader(s))
 		log.Debug("handling acars json messages")
-		HandleACARSJSONMessages(&r)
+		var next ACARSMessage
+		if err := readJson.Decode(&next); err != nil {
+			// Might have connection issues, exit to reconnect
+			log.Errorf("error decoding acars message: %s", err)
+			return
+		}
+		go HandleACARSJSONMessages(achan)
+
+		for {
+			var next ACARSMessage
+			if err := readJson.Decode(&next); err != nil {
+				// Might have connection issues, exit to reconnect
+				log.Errorf("error decoding acars message: %s", err)
+				break
+			}
+			log.Info("new acars message received")
+			if (next == ACARSMessage{}) {
+				log.Errorf("json message did not match expected structure, we got: %+v", next)
+				continue
+			} else {
+				log.Debugf("new acars message content: %+v", next)
+				achan <- next
+				continue
+			}
+		}
 		log.Warn("acars handler exited, reconnecting")
 		s.Close()
+		close(achan)
 		time.Sleep(time.Second * 1)
 	}
 }
 
 func ReadACARSHubVDLM2Messages() {
-	if !config.AnnotateVDLM2 {
-		return
-	}
+	var vchan = make(chan VDLM2Message, 1000)
 	address := fmt.Sprintf("%s:%d", config.ACARSHubVDLM2Host, config.ACARSHubVDLM2Port)
 	for {
 		log.Debugf("connecting to %s vdlm2 json port", address)
@@ -48,52 +69,69 @@ func ReadACARSHubVDLM2Messages() {
 			continue
 		}
 		log.Info("connected to acarshub vdlm2 json port successfully")
-		r := io.Reader(s)
-		log.Debug("handling vdlm2 json messages")
-		HandleVDLM2JSONMessages(&r)
-		log.Warn("vdlm2 handler exited, reconnecting")
+		readJson := json.NewDecoder(io.Reader(s))
+		log.Debug("handling acars json messages")
+		var next VDLM2Message
+		if err := readJson.Decode(&next); err != nil {
+			// Might have connection issues, exit to reconnect
+			log.Errorf("error decoding acars message: %s", err)
+			return
+		}
+		go HandleVDLM2JSONMessages(vchan)
+
+		for {
+			var next VDLM2Message
+			if err := readJson.Decode(&next); err != nil {
+				// Might have connection issues, exit to reconnect
+				log.Errorf("error decoding vdlm2 message: %s", err)
+				break
+			}
+			log.Info("new vdlm2 message received")
+			if (next == VDLM2Message{}) {
+				log.Errorf("json message did not match expected structure, we got: %+v", next)
+				continue
+			} else {
+				log.Debugf("new vdlm2 message content: %+v", next)
+				vchan <- next
+				continue
+			}
+		}
+		log.Warn("acars handler exited, reconnecting")
 		s.Close()
+		close(vchan)
 		time.Sleep(time.Second * 1)
 	}
 }
 
 // Connects to ACARS and starts listening to messages
 func SubscribeToACARSHub() {
-	go ReadACARSHubACARSMessages()
-	go ReadACARSHubVDLM2Messages()
+	if config.AnnotateACARS {
+		go ReadACARSHubACARSMessages()
+	}
+	if config.AnnotateVDLM2 {
+		go ReadACARSHubVDLM2Messages()
+	}
+	log.Debug("launched acarshub subscribers")
 }
 
-// Reads messages from the ACARSHub connection and annotates, then sends to
-// receivers. Called again if returned from.
-func HandleACARSJSONMessages(r *io.Reader) {
-	for {
-		readJson := json.NewDecoder(*r)
+// Reads messages in the channel from ReadACARSHubVDLM2Messages, annotates and
+// sends off to configured receivers
+func HandleACARSJSONMessages(achan chan ACARSMessage) {
+	for message := range achan {
 		annotations := map[string]any{}
-		var next ACARSMessage
-		if err := readJson.Decode(&next); err != nil {
-			// Might have connection issues, exit to reconnect
-			log.Errorf("error decoding acars message: %s", err)
-			return
-		}
 		log.Info("new acars message received")
-		if (next == ACARSMessage{}) {
-			log.Errorf("json message did not match expected structure, we got: %+v", next)
+		ok, filters := ACARSCriteriaFilter{}.Filter(message)
+		if !ok {
+			log.Infof("message was filtered out by %s", strings.Join(filters, ","))
 			continue
-		} else {
-			log.Debugf("new acars message content: %+v", next)
-			ok, filters := ACARSCriteriaFilter{}.Filter(next)
-			if !ok {
-				log.Infof("message was filtered out by %s", strings.Join(filters, ","))
-				continue
-			}
-			// Annotate the message via all enabled annotators
-			for _, h := range enabledACARSAnnotators {
-				log.Debugf("sending event to annotator %s: %+v", h.Name(), next)
-				result := h.AnnotateACARSMessage(next)
-				if result != nil {
-					result = h.SelectFields(result)
-					annotations = MergeMaps(result, annotations)
-				}
+		}
+		// Annotate the message via all enabled annotators
+		for _, h := range enabledACARSAnnotators {
+			log.Debugf("sending event to annotator %s: %+v", h.Name(), message)
+			result := h.AnnotateACARSMessage(message)
+			if result != nil {
+				result = h.SelectFields(result)
+				annotations = MergeMaps(result, annotations)
 			}
 		}
 		for _, r := range enabledReceivers {
@@ -106,32 +144,21 @@ func HandleACARSJSONMessages(r *io.Reader) {
 	}
 }
 
-// Reads messages from the ACARSHub connection and annotates, then sends
-func HandleVDLM2JSONMessages(r *io.Reader) {
-	for {
-		readJson := json.NewDecoder(*r)
+// Reads messages in the channel from ReadACARSHubACARSMessages, annotates and
+// sends off to configured receivers
+func HandleVDLM2JSONMessages(vchan chan VDLM2Message) {
+	for message := range vchan {
 		annotations := map[string]any{}
-		var next VDLM2Message
-		// Decode consumes the buffer, so we use a second decoder
-		if err := readJson.Decode(&next); err != nil {
-			// Might have connection issues, exit to reconnect
-			log.Errorf("error decoding vdlm2 message: %s", err)
-			return
-		}
 		log.Info("new vdlm2 message received")
-		if (next == VDLM2Message{}) {
-			log.Errorf("json message did not match expected structure, we got: %+v", next)
-			continue
-		}
-		log.Debugf("new vdlm2 message content: %+v", next)
-		ok, filters := VDLM2CriteriaFilter{}.Filter(next)
+		ok, filters := VDLM2CriteriaFilter{}.Filter(message)
 		if !ok {
 			log.Infof("message was filtered out by %s", strings.Join(filters, ","))
 			continue
-		} // Annotate the message via all enabled VDLM2 annotators
+		}
+		// Annotate the message via all enabled annotators
 		for _, h := range enabledVDLM2Annotators {
-			log.Debugf("sending event to annotator %s: %+v", h.Name(), next)
-			result := h.AnnotateVDLM2Message(next)
+			log.Debugf("sending event to annotator %s: %+v", h.Name(), message)
+			result := h.AnnotateVDLM2Message(message)
 			if result != nil {
 				result = h.SelectFields(result)
 				annotations = MergeMaps(result, annotations)
