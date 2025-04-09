@@ -52,7 +52,6 @@ func ReadACARSHubACARSMessages() {
 		}
 		log.Warn("acars handler exited, reconnecting")
 		s.Close()
-		close(achan)
 		time.Sleep(time.Second * 1)
 	}
 }
@@ -98,7 +97,6 @@ func ReadACARSHubVDLM2Messages() {
 		}
 		log.Warn("acars handler exited, reconnecting")
 		s.Close()
-		close(vchan)
 		time.Sleep(time.Second * 1)
 	}
 }
@@ -119,7 +117,6 @@ func SubscribeToACARSHub() {
 func HandleACARSJSONMessages(achan chan ACARSMessage) {
 	for message := range achan {
 		annotations := map[string]any{}
-		log.Info("new acars message received")
 		ok, filters := ACARSCriteriaFilter{}.Filter(message)
 		if !ok {
 			log.Infof("message was filtered out by %s", strings.Join(filters, ","))
@@ -149,7 +146,6 @@ func HandleACARSJSONMessages(achan chan ACARSMessage) {
 func HandleVDLM2JSONMessages(vchan chan VDLM2Message) {
 	for message := range vchan {
 		annotations := map[string]any{}
-		log.Info("new vdlm2 message received")
 		ok, filters := VDLM2CriteriaFilter{}.Filter(message)
 		if !ok {
 			log.Infof("message was filtered out by %s", strings.Join(filters, ","))

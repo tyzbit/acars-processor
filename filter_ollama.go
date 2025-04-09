@@ -13,19 +13,15 @@ import (
 )
 
 var OllamaSystemPrompt string = `You are an API that only responds in
-valid, compact JSON objects without newlines. You will be provided with 
-criteria which you will use to evaluate every message.
+valid JSON objects. You will be asked if a message matches certain criteria.
 
-You will respond with a JSON object without newlines that has:
+If the message matches the criteria, "decision" will ALWAYS be true: 
+{"decision": true, "reasoning": "REASON"}
 
-- a "decision" key which is a boolean of true (if the message
-matches the criteria) or false (if the message does not match the criteria) 
-- a "reasoning" key which must be a simple explanation of the reasoning
-behind your decision. You will always provide your reasoning for your decision
-in the response under the "reasoning" key.
+If the message does not match the criteria, "decision" will ALWAYS be false:
+{"decision": false, "reasoning": "REASON"}
 
-Here is the criteria:
-%s
+Replace REASON with a short explanation of why "decision" was true or false.
 `
 
 type OllamaResponse struct {
@@ -61,7 +57,11 @@ func OllamaFilter(m string) bool {
 	messages := []api.Message{
 		{
 			Role:    "system",
-			Content: fmt.Sprintf(OllamaSystemPrompt, config.OllamaPrompt),
+			Content: OllamaSystemPrompt,
+		},
+		{
+			Role:    "system",
+			Content: config.OllamaPrompt,
 		},
 		{
 			Role:    "user",
@@ -94,7 +94,6 @@ func OllamaFilter(m string) bool {
 		content := resp.Message.Content[start:end]
 		err = json.Unmarshal([]byte(content), &r)
 
-		log.Debugf("ollama parsed json response: %s", content)
 		if err != nil {
 			err = fmt.Errorf("%w, ollama full response: %s", err, resp.Message.Content)
 			return err
@@ -102,11 +101,18 @@ func OllamaFilter(m string) bool {
 		return nil
 	}
 
-	log.Debugf("calling Ollama, model %s, prompt: %s", config.OllamaModel, config.OllamaPrompt)
+	log.Debugf("calling Ollama, model %s", config.OllamaModel)
 	err = client.Chat(ctx, req, respFunc)
 	if err != nil {
 		log.Errorf("error using Ollama: %s", err)
 		return true
 	}
-	return r.Decision == "true" || r.Decision == true
+
+	decision := r.Decision == "true" || r.Decision == true
+	action := map[bool]string{
+		true:  "allow",
+		false: "filter",
+	}
+	log.Infof("ollama decision: %s, reasoning: %s", action[decision], r.Reasoning)
+	return decision
 }

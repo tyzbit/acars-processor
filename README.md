@@ -68,6 +68,8 @@ variables for them.
 | FILTER_OPENAI_MODEL                              | Override the default model (`gpt-4o` by default), see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
 | FILTER_OPENAI_PREAMBLE                           | By default, `acars-annotator` includes a preamble that describes what the response should look like. This overrides that.                               |
 
+Filters fail **CLOSED** which means if they fail, they do not filter the message.
+
 ### A Note on Using Large Language Models for Filters
 
 OpenAI's gpt3.5 and higher do well with the system prompt. With Ollama,
