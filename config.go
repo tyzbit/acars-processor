@@ -18,7 +18,7 @@ type Config struct {
 	OpenAIModel                                 string  `env:"FILTER_OPENAI_MODEL"`
 	OpenAICustomPreamble                        string  `env:"FILTER_OPENAI_PREAMBLE"`
 	OllamaURL                                   string  `env:"FILTER_OLLAMA_URL"`
-	OllamaPrompt                                string  `env:"FILTER_OLLAMA_PROMPT"`
+	OllamaUserPrompt                            string  `env:"FILTER_OLLAMA_PROMPT"`
 	OllamaSystemPrompt                          string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
 	OllamaSystemAssistant                       string  `env:"FILTER_OLLAMA_SYSTEM_ASSISTANT"`
 	OllamaModel                                 string  `env:"FILTER_OLLAMA_MODEL"`

@@ -12,21 +12,42 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var OllamaSystemPrompt string = `You are an API that only responds in
-valid JSON objects. You will be asked if a message matches certain criteria.
-
-If the message matches the criteria, "decision" will ALWAYS be true: 
-{"decision": true, "reasoning": "REASON"}
-
-If the message does not match the criteria, "decision" will ALWAYS be false:
-{"decision": false, "reasoning": "REASON"}
-
-Replace REASON with a short explanation of why "decision" was true or false.
+var OllamaSystemPrompt string = `You will carefully evaluate a message to
+determine if it matches specific criteria. Summarize your reasoning for the
+decision.
 `
 
 type OllamaResponse struct {
-	Decision  any    `json:"decision"`
-	Reasoning string `json:"reasoning"`
+	Matches   bool
+	Reasoning string
+}
+
+type OllamaResponseFormat struct {
+	Type       string                                  `json:"type"`
+	Properties OllamaResponseFormatRequestedProperties `json:"properties"`
+	Required   []string                                `json:"required"`
+}
+
+type OllamaResponseFormatRequestedProperties struct {
+	Matches   OllamaResponseFormatRequestedProperty `json:"matches"`
+	Reasoning OllamaResponseFormatRequestedProperty `json:"reasoning"`
+}
+
+type OllamaResponseFormatRequestedProperty struct {
+	Type string `json:"type"`
+}
+
+var OllamaResponseRequestedFormat = OllamaResponseFormat{
+	Type: "object",
+	Properties: OllamaResponseFormatRequestedProperties{
+		Matches: OllamaResponseFormatRequestedProperty{
+			Type: "boolean",
+		},
+		Reasoning: OllamaResponseFormatRequestedProperty{
+			Type: "string",
+		},
+	},
+	Required: []string{"matches", "reasoning"},
 }
 
 // Return true if a message passes a filter, false otherwise
@@ -36,7 +57,7 @@ func OllamaFilter(m string) bool {
 		log.Debug("message was blank, filtering without calling ollama")
 		return false
 	}
-	if config.OllamaModel == "" || config.OllamaPrompt == "" {
+	if config.OllamaModel == "" || config.OllamaUserPrompt == "" {
 		log.Warn("Ollama model and prompt are required to use the ollama filter")
 		return true
 	}
@@ -61,7 +82,7 @@ func OllamaFilter(m string) bool {
 		},
 		{
 			Role:    "system",
-			Content: config.OllamaPrompt,
+			Content: config.OllamaUserPrompt,
 		},
 		{
 			Role:    "user",
@@ -71,29 +92,22 @@ func OllamaFilter(m string) bool {
 
 	stream := false
 	ctx := context.Background()
+	requestedFormatJson, err := json.Marshal(OllamaResponseRequestedFormat)
+	if err != nil {
+		log.Errorf("error setting ollama response format: %s", err)
+		return true
+	}
+
 	req := &api.ChatRequest{
 		Model:    config.OllamaModel,
 		Messages: messages,
 		Stream:   &stream,
+		Format:   requestedFormatJson,
 	}
 
 	var r OllamaResponse
 	respFunc := func(resp api.ChatResponse) error {
-		// Parse the JSON payload (hopefully)
-		rex := regexp.MustCompile(`\{[^{}]+\}`)
-		matches := rex.FindAllStringIndex(resp.Message.Content, -1)
-
-		// Find the last json payload in case the model reasons about
-		// one in the middle of thinking
-		if len(matches) == 0 {
-			err = fmt.Errorf("did not find a json object in response: %s",
-				resp.Message.Content)
-			return err
-		}
-		start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
-		content := resp.Message.Content[start:end]
-		err = json.Unmarshal([]byte(content), &r)
-
+		err = json.Unmarshal([]byte(resp.Message.Content), &r)
 		if err != nil {
 			err = fmt.Errorf("%w, ollama full response: %s", err, resp.Message.Content)
 			return err
@@ -108,11 +122,10 @@ func OllamaFilter(m string) bool {
 		return true
 	}
 
-	decision := r.Decision == "true" || r.Decision == true
 	action := map[bool]string{
 		true:  "allow",
 		false: "filter",
 	}
-	log.Infof("ollama decision: %s, reasoning: %s", action[decision], r.Reasoning)
-	return decision
+	log.Infof("ollama decision: %s, reasoning: %s", action[r.Matches], r.Reasoning)
+	return r.Matches
 }
