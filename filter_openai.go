@@ -10,8 +10,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var OpenAIPromptTemplate string = `You are an API that only responds in
-valid JSON objects. You will be asked if a message matches certain criteria.
+var OpenAISystemPrompt string = `You are an API that only responds in
+valid JSON objects. You will carefully evaluate a message to determine if it 
+matches specific criteria.
 
 If the message matches the criteria, "decision" will ALWAYS be true: 
 {"decision": true, "reasoning": "REASON"}
@@ -19,7 +20,7 @@ If the message matches the criteria, "decision" will ALWAYS be true:
 If the message does not match the criteria, "decision" will ALWAYS be false:
 {"decision": false, "reasoning": "REASON"}
 
-Replace REASON with a short explanation of why "decision" was true or false.
+Replace REASON with a summary of why "decision" was true or false.
 `
 
 type OpenAIResponse struct {
@@ -37,8 +38,8 @@ func OpenAIFilter(m string) bool {
 	client := openai.NewClient(
 		option.WithAPIKey(config.OpenAIAPIKey),
 	)
-	if config.OpenAICustomPreamble != "" {
-		OpenAIPromptTemplate = config.OpenAICustomPreamble
+	if config.OpenAISystemPrompt != "" {
+		OpenAISystemPrompt = config.OpenAISystemPrompt
 	}
 	openAIModel := openai.ChatModelGPT4o
 	if config.OpenAIModel != "" {
@@ -48,8 +49,8 @@ func OpenAIFilter(m string) bool {
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-				openai.SystemMessage(OpenAIPromptTemplate),
-				openai.SystemMessage(config.OpenAIPrompt),
+				openai.SystemMessage(OpenAISystemPrompt),
+				openai.SystemMessage(config.OpenAIUserPrompt),
 				openai.UserMessage(m),
 			}),
 			Model: openai.F(openAIModel),

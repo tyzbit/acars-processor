@@ -13,15 +13,14 @@ type Config struct {
 	ACARSAnnotatorSelectedFields                string  `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
 	ADSBExchangeAPIKey                          string  `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation            string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
-	OpenAIAPIKey                                string  `env:"FILTER_OPENAI_APIKEY"`
-	OpenAIPrompt                                string  `env:"FILTER_OPENAI_PROMPT"`
-	OpenAIModel                                 string  `env:"FILTER_OPENAI_MODEL"`
-	OpenAICustomPreamble                        string  `env:"FILTER_OPENAI_PREAMBLE"`
+	OllamaModel                                 string  `env:"FILTER_OLLAMA_MODEL"`
 	OllamaURL                                   string  `env:"FILTER_OLLAMA_URL"`
 	OllamaUserPrompt                            string  `env:"FILTER_OLLAMA_PROMPT"`
 	OllamaSystemPrompt                          string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
-	OllamaSystemAssistant                       string  `env:"FILTER_OLLAMA_SYSTEM_ASSISTANT"`
-	OllamaModel                                 string  `env:"FILTER_OLLAMA_MODEL"`
+	OpenAIAPIKey                                string  `env:"FILTER_OPENAI_APIKEY"`
+	OpenAIModel                                 string  `env:"FILTER_OPENAI_MODEL"`
+	OpenAIUserPrompt                            string  `env:"FILTER_OPENAI_PROMPT"`
+	OpenAISystemPrompt                          string  `env:"FILTER_OPENAI_SYSTEM_PROMPT"`
 	ADSBAnnotatorSelectedFields                 string  `env:"ADSB_ANNOTATOR_SELECTED_FIELDS"`
 	VDLM2AnnotatorSelectedFields                string  `env:"VDLM2_ANNOTATOR_SELECTED_FIELDS"`
 	TAR1090AnnotatorSelectedFields              string  `env:"TAR1090_ANNOTATOR_SELECTED_FIELDS"`
