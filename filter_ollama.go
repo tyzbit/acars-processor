@@ -7,15 +7,19 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"time"
 
 	api "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
 )
 
-var OllamaSystemPrompt string = `You will carefully evaluate a message to
+var (
+	OllamaSystemPrompt string = `You will carefully evaluate a message to
 determine if it matches specific criteria. Summarize your reasoning for the
 decision.
 `
+	OllamaTimeout int = 60
+)
 
 type OllamaResponse struct {
 	Matches   bool
@@ -75,6 +79,9 @@ func OllamaFilter(m string) bool {
 	if config.OllamaSystemPrompt != "" {
 		OllamaSystemPrompt = config.OllamaSystemPrompt
 	}
+	if config.OllamaTimeout != 0 {
+		OllamaTimeout = config.OllamaTimeout
+	}
 	messages := []api.Message{
 		{
 			Role:    "system",
@@ -91,7 +98,6 @@ func OllamaFilter(m string) bool {
 	}
 
 	stream := false
-	ctx := context.Background()
 	requestedFormatJson, err := json.Marshal(OllamaResponseRequestedFormat)
 	if err != nil {
 		log.Errorf("error setting ollama response format: %s", err)
@@ -115,6 +121,8 @@ func OllamaFilter(m string) bool {
 		return nil
 	}
 
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaTimeout)*time.Second)
+	defer cancel()
 	log.Debugf("calling Ollama, model %s", config.OllamaModel)
 	err = client.Chat(ctx, req, respFunc)
 	if err != nil {

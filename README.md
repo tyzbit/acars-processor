@@ -60,6 +60,7 @@ variables for them.
 | FILTER_CRITERIA_MATCH_STATION_ID                 | Message must have come from this station                                                                                                                |
 | FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM | Message must have at least this amount of consecutive words (English only at the moment)                                                                |
 | FILTER_OLLAMA_URL                                | **REQUIRED TO USE** Full URL to your ollama instance (<scheme>://<host>:<port>)                                                                         |
+| FILTER_OLLAMA_TIMEOUT                            | Max time to wait for results from Ollama in seconds (default 60)                                                                                        |
 | FILTER_OLLAMA_MODEL                              | **REQUIRED TO USE** The model to use; ex: "llama3.2"                                                                                                    |
 | FILTER_OLLAMA_PROMPT                             | **REQUIRED TO USE** Criteria for the model to evaluate the message against \*\*\*\*                                                                     |
 | FILTER_OLLAMA_SYSTEM_PROMPT                      | By default, `acars-annotator` includes a system prompt that describes what the response should look like. This overrides that.                          |
