@@ -16,6 +16,7 @@ type Config struct {
 	OllamaModel                                 string  `env:"FILTER_OLLAMA_MODEL"`
 	OllamaURL                                   string  `env:"FILTER_OLLAMA_URL"`
 	OllamaUserPrompt                            string  `env:"FILTER_OLLAMA_PROMPT"`
+	OllamaMaxPredictionTokens                   int     `env:"FILTER_OLLAMA_MAX_PREDICTION_TOKENS"`
 	OllamaSystemPrompt                          string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
 	OllamaTimeout                               int     `env:"FILTER_OLLAMA_TIMEOUT"`
 	OpenAIAPIKey                                string  `env:"FILTER_OPENAI_APIKEY"`

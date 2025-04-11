@@ -18,7 +18,8 @@ var (
 determine if it matches specific criteria. Provide a very short explanation
 for your reasoning.
 `
-	OllamaTimeout int = 120
+	OllamaTimeout             int = 120
+	OllamaMaxPredictionTokens     = 512
 )
 
 type OllamaResponse struct {
@@ -76,6 +77,9 @@ func OllamaFilter(m string) bool {
 		return true
 	}
 
+	if config.OllamaMaxPredictionTokens != 0 {
+		OllamaMaxPredictionTokens = config.OllamaMaxPredictionTokens
+	}
 	if config.OllamaSystemPrompt != "" {
 		OllamaSystemPrompt = config.OllamaSystemPrompt
 	}
@@ -96,6 +100,10 @@ func OllamaFilter(m string) bool {
 		System: OllamaSystemPrompt + " and " + config.OllamaUserPrompt,
 		Stream: &stream,
 		Prompt: m,
+		Options: map[string]interface{}{
+			// Hopefully minimizes the model timing out
+			"num_predict": OllamaMaxPredictionTokens,
+		},
 	}
 
 	var r OllamaResponse

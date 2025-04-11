@@ -63,6 +63,7 @@ variables for them.
 | FILTER_OLLAMA_TIMEOUT                            | Max time to wait for results from Ollama in seconds (default 60)                                                                                        |
 | FILTER_OLLAMA_MODEL                              | **REQUIRED TO USE** The model to use; ex: "llama3.2"                                                                                                    |
 | FILTER_OLLAMA_PROMPT                             | **REQUIRED TO USE** Criteria for the model to evaluate the message against \*\*\*\*                                                                     |
+| FILTER_OLLAMA_MAX_PREDICTION_TOKENS              | Maximum tokens to return for prediction. Don't go below about 40.                                                                                       |
 | FILTER_OLLAMA_SYSTEM_PROMPT                      | By default, `acars-annotator` includes a system prompt that describes what the response should look like. This overrides that.                          |
 | FILTER_OPENAI_PROMPT                             | **REQUIRED TO USE** Criteria to evaluate the message, sent to OpenAI \*\*\*\*                                                                           |
 | FILTER_OPENAI_APIKEY                             | **REQUIRED TO USE** API key for OpenAI, required for functionality                                                                                      |
