@@ -15,8 +15,8 @@ import (
 
 var (
 	OllamaSystemPrompt string = `You will carefully evaluate a message to
-determine if it matches specific criteria. Summarize your reasoning for the
-decision.
+determine if it matches specific criteria. Provide a very short explanation
+for your reasoning.
 `
 	OllamaTimeout int = 120
 )
