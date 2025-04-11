@@ -82,20 +82,6 @@ func OllamaFilter(m string) bool {
 	if config.OllamaTimeout != 0 {
 		OllamaTimeout = config.OllamaTimeout
 	}
-	messages := []api.Message{
-		{
-			Role:    "system",
-			Content: OllamaSystemPrompt,
-		},
-		{
-			Role:    "system",
-			Content: config.OllamaUserPrompt,
-		},
-		{
-			Role:    "user",
-			Content: m,
-		},
-	}
 
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaResponseRequestedFormat)
@@ -104,18 +90,19 @@ func OllamaFilter(m string) bool {
 		return true
 	}
 
-	req := &api.ChatRequest{
-		Model:    config.OllamaModel,
-		Messages: messages,
-		Stream:   &stream,
-		Format:   requestedFormatJson,
+	req := &api.GenerateRequest{
+		Model:  config.OllamaModel,
+		Format: requestedFormatJson,
+		System: OllamaSystemPrompt + " and " + config.OllamaUserPrompt,
+		Stream: &stream,
+		Prompt: m,
 	}
 
 	var r OllamaResponse
-	respFunc := func(resp api.ChatResponse) error {
-		err = json.Unmarshal([]byte(resp.Message.Content), &r)
+	respFunc := func(resp api.GenerateResponse) error {
+		err = json.Unmarshal([]byte(resp.Response), &r)
 		if err != nil {
-			err = fmt.Errorf("%w, ollama full response: %s", err, resp.Message.Content)
+			err = fmt.Errorf("%w, ollama full response: %s", err, resp.Response)
 			return err
 		}
 		return nil
@@ -124,7 +111,7 @@ func OllamaFilter(m string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaTimeout)*time.Second)
 	defer cancel()
 	log.Debugf("calling Ollama, model %s", config.OllamaModel)
-	err = client.Chat(ctx, req, respFunc)
+	err = client.Generate(ctx, req, respFunc)
 	if err != nil {
 		log.Errorf("error using Ollama: %s", err)
 		return true
