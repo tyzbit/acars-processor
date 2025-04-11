@@ -108,7 +108,19 @@ func OllamaFilter(m string) bool {
 
 	var r OllamaResponse
 	respFunc := func(resp api.GenerateResponse) error {
-		err = json.Unmarshal([]byte(resp.Response), &r)
+		// Parse the JSON payload (hopefully)
+		rex := regexp.MustCompile(`\{[^{}]+\}`)
+		matches := rex.FindAllStringIndex(resp.Response, -1)
+
+		// Find the last json payload in case the model reasons about
+		// one in the middle of thinking
+		if len(matches) == 0 {
+			return fmt.Errorf("did not find a json object in response: %s", resp.Response)
+		}
+		start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
+		content := resp.Response[start:end]
+
+		err = json.Unmarshal([]byte(content), &r)
 		if err != nil {
 			err = fmt.Errorf("%w, ollama full response: %s", err, resp.Response)
 			return err
