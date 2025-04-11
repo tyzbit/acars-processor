@@ -83,6 +83,9 @@ overriding the system prompt with `FILTER_OLLAMA_SYSTEM_PROMPT`.
 If acars-processor isn't able to pull a JSON object from the response, it'll
 log it at a `DEBUG` level for troubleshooting.
 
+Also, if Ollama requests start taking an inconsistent amount of time, try
+increasing the parallelism.
+
 ### Receivers
 
 | Environment Variable  | Value                                                                      |
