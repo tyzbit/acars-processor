@@ -10,9 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var OpenAISystemPrompt string = `You are an API that only responds in
-valid JSON objects. You will carefully evaluate a message to determine if it 
-matches specific criteria.
+var OpenAISystemPrompt string = `You will carefully evaluate a message to 
+determine if it matches specific criteria. Return as JSON.
 
 If the message matches the criteria, "decision" will ALWAYS be true: 
 {"decision": true, "reasoning": "REASON"}
@@ -45,6 +44,7 @@ func OpenAIFilter(m string) bool {
 	if config.OpenAIModel != "" {
 		openAIModel = config.OpenAIModel
 	}
+
 	log.Debugf("calling OpenAI model %s", openAIModel)
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
@@ -54,6 +54,8 @@ func OpenAIFilter(m string) bool {
 				openai.UserMessage(m),
 			}),
 			Model: openai.F(openAIModel),
+			// Make it deterministic
+			Temperature: openai.Float(0),
 		})
 	if err != nil {
 		log.Errorf("error using OpenAI: %s", err)
@@ -74,6 +76,7 @@ func OpenAIFilter(m string) bool {
 	}
 	start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
 	content := chatCompletion.Choices[0].Message.Content[start:end]
+	content = SanitizeJSONString(content)
 	err = json.Unmarshal([]byte(content), &r)
 
 	if err != nil {

@@ -16,7 +16,7 @@ import (
 var (
 	OllamaSystemPrompt = `You will carefully evaluate a message to
 determine if it matches specific criteria. Provide a very short explanation
-for your reasoning.
+for your reasoning. Return as JSON.
 `
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
@@ -103,6 +103,8 @@ func OllamaFilter(m string) bool {
 		Options: map[string]interface{}{
 			// Hopefully minimizes the model timing out
 			"num_predict": OllamaMaxPredictionTokens,
+			// Make output deterministic
+			"temperature": 0,
 		},
 	}
 
@@ -120,6 +122,7 @@ func OllamaFilter(m string) bool {
 		start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
 		content := resp.Response[start:end]
 
+		content = SanitizeJSONString(content)
 		err = json.Unmarshal([]byte(content), &r)
 		if err != nil {
 			err = fmt.Errorf("%w, ollama full response: %s", err, resp.Response)

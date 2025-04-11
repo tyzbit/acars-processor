@@ -66,3 +66,14 @@ func AircraftOrTower(s string) (r string) {
 	}
 	return "Tower"
 }
+
+// Fixes AI output bullshit
+func SanitizeJSONString(s string) string {
+	replacer := strings.NewReplacer(
+		"“", "\"",
+		"”", "\"",
+		"‘", "'",
+		"’", "'",
+	)
+	return replacer.Replace(s)
+}
