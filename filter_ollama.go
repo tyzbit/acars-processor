@@ -18,7 +18,7 @@ var (
 determine if it matches specific criteria. Summarize your reasoning for the
 decision.
 `
-	OllamaTimeout int = 60
+	OllamaTimeout int = 120
 )
 
 type OllamaResponse struct {
