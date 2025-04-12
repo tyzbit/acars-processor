@@ -21,7 +21,7 @@ for your reasoning. Return as JSON.
 `
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
-	OllamaMaxRetryAttempts    = 3
+	OllamaMaxRetryAttempts    = 6
 )
 
 type OllamaResponse struct {
@@ -150,7 +150,7 @@ func OllamaFilter(m string) bool {
 		return nil
 	},
 		retry.Attempts(uint(OllamaMaxRetryAttempts)),
-		retry.Delay(1*time.Second),
+		retry.Delay(10*time.Second),
 		retry.DelayType(retry.BackOffDelay),
 	)
 
