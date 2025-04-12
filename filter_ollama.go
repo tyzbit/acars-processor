@@ -143,8 +143,7 @@ func OllamaFilter(m string) bool {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
 			return &RetriableError{
-				Err:        fmt.Errorf("error using Ollama: %s", err),
-				RetryAfter: 1 * time.Second,
+				Err: fmt.Errorf("error using Ollama: %s", err),
 			}
 		}
 		return nil
