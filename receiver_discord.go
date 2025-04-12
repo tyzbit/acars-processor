@@ -61,7 +61,10 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	}
 
 	buff := new(bytes.Buffer)
-	json.NewEncoder(buff).Encode(message)
+	err := json.NewEncoder(buff).Encode(message)
+	if err != nil {
+		return err
+	}
 	req, err := http.NewRequest("POST", config.DiscordWebhookURL, buff)
 	if err != nil {
 		return err

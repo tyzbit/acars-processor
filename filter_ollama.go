@@ -9,6 +9,7 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/avast/retry-go"
 	api "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,6 +21,7 @@ for your reasoning. Return as JSON.
 `
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
+	OllamaMaxRetryAttempts    = 3
 )
 
 type OllamaResponse struct {
@@ -86,6 +88,9 @@ func OllamaFilter(m string) bool {
 	if config.OllamaTimeout != 0 {
 		OllamaTimeout = config.OllamaTimeout
 	}
+	if config.OllamaMaxRetryAttempts != 0 {
+		OllamaMaxRetryAttempts = config.OllamaMaxRetryAttempts
+	}
 
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaResponseRequestedFormat)
@@ -134,9 +139,23 @@ func OllamaFilter(m string) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaTimeout)*time.Second)
 	defer cancel()
 	log.Debugf("calling Ollama, model %s", config.OllamaModel)
-	err = client.Generate(ctx, req, respFunc)
+	err = retry.Do(func() error {
+		err = client.Generate(ctx, req, respFunc)
+		if err != nil {
+			return &RetriableError{
+				Err:        fmt.Errorf("error using Ollama: %s", err),
+				RetryAfter: 1 * time.Second,
+			}
+		}
+		return nil
+	},
+		retry.Attempts(uint(OllamaMaxRetryAttempts)),
+		retry.Delay(1*time.Second),
+		retry.DelayType(retry.BackOffDelay),
+	)
+
 	if err != nil {
-		log.Errorf("error using Ollama: %s", err)
+		log.Errorf("too many failures calling Ollama, giving up")
 		return true
 	}
 

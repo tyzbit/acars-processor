@@ -1,12 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 )
+
+type RetriableError struct {
+	Err        error
+	RetryAfter time.Duration
+}
+
+// Error returns error message and a Retry-After duration.
+func (e *RetriableError) Error() string {
+	return fmt.Sprintf("%s (retry after %v)", e.Err.Error(), e.RetryAfter)
+}
 
 func NormalizeAircraftRegistration(reg string) string {
 	s := []string{
