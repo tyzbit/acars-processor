@@ -161,7 +161,7 @@ func OllamaFilter(m string) bool {
 	)
 
 	if err != nil {
-		log.Errorf("too many failures calling Ollama, giving up")
+		log.Errorf("too many failures calling Ollama, giving up: %s", err)
 		return true
 	}
 
