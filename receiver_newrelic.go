@@ -52,5 +52,6 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 	defer cancel()
 	harvester.HarvestNow(ctx)
 
+	err = ctx.Err()
 	return err
 }
