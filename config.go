@@ -18,7 +18,7 @@ type Config struct {
 	OllamaUserPrompt                            string  `env:"FILTER_OLLAMA_PROMPT"`
 	OllamaMaxPredictionTokens                   int     `env:"FILTER_OLLAMA_MAX_PREDICTION_TOKENS"`
 	OllamaMaxRetryAttempts                      int     `env:"FILTER_OLLAMA_MAX_RETRY_ATTEMPTS"`
-	OllamaRetryDelay                            int     `env:"FILTER_OLLAMA_RETRY_DELAY"`
+	OllamaRetryDelaySeconds                     int     `env:"FILTER_OLLAMA_RETRY_DELAY"`
 	OllamaSystemPrompt                          string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
 	OllamaTimeout                               int     `env:"FILTER_OLLAMA_TIMEOUT"`
 	OpenAIAPIKey                                string  `env:"FILTER_OPENAI_APIKEY"`

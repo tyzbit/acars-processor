@@ -22,6 +22,7 @@ for your reasoning. Return as JSON.
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
 	OllamaMaxRetryAttempts    = 6
+	OllamaRetryDelaySeconds   = 5
 )
 
 type OllamaResponse struct {
@@ -91,6 +92,9 @@ func OllamaFilter(m string) bool {
 	if config.OllamaMaxRetryAttempts != 0 {
 		OllamaMaxRetryAttempts = config.OllamaMaxRetryAttempts
 	}
+	if config.OllamaRetryDelaySeconds != 0 {
+		OllamaRetryDelaySeconds = config.OllamaRetryDelaySeconds
+	}
 
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaResponseRequestedFormat)
@@ -143,13 +147,13 @@ func OllamaFilter(m string) bool {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
 			return &RetriableError{
-				Err: fmt.Errorf("error using Ollama: %s", err),
+				Err:        fmt.Errorf("error using Ollama: %s", err),
+				RetryAfter: time.Duration(OllamaRetryDelaySeconds) * time.Second,
 			}
 		}
 		return nil
 	},
 		retry.Attempts(uint(OllamaMaxRetryAttempts)),
-		retry.Delay(10*time.Second),
 		retry.DelayType(retry.BackOffDelay),
 		retry.OnRetry(func(n uint, err error) {
 			log.Errorf("Ollama attempt #%d failed: %v", n+1, err)
