@@ -89,3 +89,10 @@ func SanitizeJSONString(s string) string {
 	)
 	return replacer.Replace(s)
 }
+
+func Last20Characters(s string) string {
+	if len(s) <= 20 {
+		return s
+	}
+	return s[len(s)-20:]
+}

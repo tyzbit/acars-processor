@@ -170,6 +170,6 @@ func OllamaFilter(m string) bool {
 		false: "filter",
 	}
 
-	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.Matches], m[len(m)-20:], r.Reasoning)
+	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.Matches], Last20Characters(m), r.Reasoning)
 	return r.Matches
 }
