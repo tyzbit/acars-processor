@@ -10,21 +10,13 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var OpenAISystemPrompt string = `You will carefully evaluate a message to 
-determine if it matches specific criteria. Return as JSON.
-
-If the message matches the criteria, "decision" will ALWAYS be true: 
-{"decision": true, "reasoning": "REASON"}
-
-If the message does not match the criteria, "decision" will ALWAYS be false:
-{"decision": false, "reasoning": "REASON"}
-
-Replace REASON with a summary of why "decision" was true or false.
-`
+var OpenAISystemPrompt string = `You will carefully evaluate a message to
+determine if the message matches specific criteria. Provide a very short 
+explanation for your reasoning. Return as JSON.`
 
 type OpenAIResponse struct {
-	Decision  any    `json:"decision"`
-	Reasoning string `json:"reasoning"`
+	MessageMatches any    `json:"decision"`
+	Reasoning      string `json:"reasoning"`
 }
 
 // Return true if a message passes a filter, false otherwise
@@ -84,7 +76,7 @@ func OpenAIFilter(m string) bool {
 		log.Debugf("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content)
 		return true
 	}
-	decision := r.Decision == "true" || r.Decision == true
+	decision := r.MessageMatches == "true" || r.MessageMatches == true
 	action := map[bool]string{
 		true:  "allow",
 		false: "filter",

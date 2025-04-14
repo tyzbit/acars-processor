@@ -16,9 +16,8 @@ import (
 
 var (
 	OllamaSystemPrompt = `You will carefully evaluate a message to
-determine if it matches specific criteria. Provide a very short explanation
-for your reasoning. Return as JSON.
-`
+determine if the message matches specific criteria. Provide a very short 
+explanation for your reasoning. Return as JSON.`
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
 	OllamaMaxRetryAttempts    = 6
@@ -26,8 +25,8 @@ for your reasoning. Return as JSON.
 )
 
 type OllamaResponse struct {
-	Matches   bool
-	Reasoning string
+	MessageMatches bool
+	Reasoning      string
 }
 
 type OllamaResponseFormat struct {
@@ -37,8 +36,8 @@ type OllamaResponseFormat struct {
 }
 
 type OllamaResponseFormatRequestedProperties struct {
-	Matches   OllamaResponseFormatRequestedProperty `json:"matches"`
-	Reasoning OllamaResponseFormatRequestedProperty `json:"reasoning"`
+	MessageMatches OllamaResponseFormatRequestedProperty `json:"matches"`
+	Reasoning      OllamaResponseFormatRequestedProperty `json:"reasoning"`
 }
 
 type OllamaResponseFormatRequestedProperty struct {
@@ -48,7 +47,7 @@ type OllamaResponseFormatRequestedProperty struct {
 var OllamaResponseRequestedFormat = OllamaResponseFormat{
 	Type: "object",
 	Properties: OllamaResponseFormatRequestedProperties{
-		Matches: OllamaResponseFormatRequestedProperty{
+		MessageMatches: OllamaResponseFormatRequestedProperty{
 			Type: "boolean",
 		},
 		Reasoning: OllamaResponseFormatRequestedProperty{
@@ -170,6 +169,6 @@ func OllamaFilter(m string) bool {
 		false: "filter",
 	}
 
-	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.Matches], Last20Characters(m), r.Reasoning)
-	return r.Matches
+	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.MessageMatches], Last20Characters(m), r.Reasoning)
+	return r.MessageMatches
 }
