@@ -63,6 +63,7 @@ variables for them.
 | FILTER_OLLAMA_TIMEOUT                            | Max time to wait for results from Ollama in seconds (default 60)                                                                                        |
 | FILTER_OLLAMA_MODEL                              | **REQUIRED TO USE** The model to use; ex: "llama3.2"                                                                                                    |
 | FILTER_OLLAMA_PROMPT                             | **REQUIRED TO USE** Criteria for the model to evaluate the message against \*\*\*\*                                                                     |
+| FILTER_OLLAMA_FILTER_ON_FAILURE                  | If Ollama fails, should the message be filtered?                                                                                                        |
 | FILTER_OLLAMA_MAX_PREDICTION_TOKENS              | Maximum tokens to return for prediction. Don't go below about 40.                                                                                       |
 | FILTER_OLLAMA_MAX_RETRY_ATTEMPTS                 | Maximum number of times to retry calling Ollama PER MESSAGE                                                                                             |
 | FILTER_OLLAMA_RETRY_DELAY                        | Seconds to wait between Ollama retries (exponential backoff)                                                                                            |
