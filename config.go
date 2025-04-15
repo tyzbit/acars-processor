@@ -13,6 +13,7 @@ type Config struct {
 	ACARSAnnotatorSelectedFields                string  `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
 	ADSBExchangeAPIKey                          string  `env:"ADBSEXCHANGE_APIKEY"`
 	ADSBExchangeReferenceGeolocation            string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
+	OllamaFilterOnFailure                       bool    `env:"FILTER_OLLAMA_FILTER_ON_FAILURE"`
 	OllamaModel                                 string  `env:"FILTER_OLLAMA_MODEL"`
 	OllamaURL                                   string  `env:"FILTER_OLLAMA_URL"`
 	OllamaUserPrompt                            string  `env:"FILTER_OLLAMA_PROMPT"`

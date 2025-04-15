@@ -160,14 +160,14 @@ func OllamaFilter(m string) bool {
 		}),
 	)
 
-	if err != nil {
-		log.Errorf("too many failures calling Ollama, giving up: %s", err)
-		return true
-	}
-
 	action := map[bool]string{
 		true:  "allow",
 		false: "filter",
+	}
+
+	if err != nil {
+		log.Errorf("too many failures calling Ollama, giving up and %sing: %s", action[!config.OllamaFilterOnFailure], err)
+		return !config.OllamaFilterOnFailure
 	}
 
 	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.MessageMatches], Last20Characters(m), r.Reasoning)
