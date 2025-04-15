@@ -15,9 +15,10 @@ import (
 )
 
 var (
-	OllamaSystemPrompt = `You will carefully evaluate a message to
-determine if the message matches specific criteria. Provide a very short 
-explanation for your reasoning. Return as JSON.`
+	OllamaSystemPrompt = `You will carefully evaluate some text to
+determine if the content matches certain criteria. Return True if the message
+matches the criteria, False if it does not. Provide a very short explanation 
+explaining the reasoning for your decision. Return as JSON.`
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
 	OllamaMaxRetryAttempts    = 6
