@@ -15,22 +15,23 @@ import (
 )
 
 var (
-	OllamaSystemPrompt = `You are an AI that is an expert at logical 
+	OllamaFirstInstructions = `You are an AI that is an expert at logical 
 	reasoning. You will be provided criteria and then a communication message. 
 	You will use your skills and any examples provided to evaluate determine 
 	if the message positively matches the provided criteria. 
-	
-	If the message definitely matches the criteria, return 'true' in the 
-	'message_matches_criteria' field.
-
-	If the message definitely does not match the criteria, return 'false' in the
-	'message_matches_criteria' field. 
-	
-	Briefly provide your reasoning regarding your 
-	decision in the 'reasoning' field, pointing out specific evidence that 
-	factored in your decision on whether the message matches the criteria.
 
 	Here's the criteria:
+	`
+	OllamaFinalInstructions = `
+	If the message definitely matches the criteria, 
+	return 'true' in the 'message_matches_criteria' field.
+
+	If the message definitely does not match the criteria, 
+	return 'false' in the 'message_matches_criteria' field. 
+	
+	Briefly provide your reasoning regarding your
+	decision in the 'reasoning' field, pointing out specific evidence that 
+	factored in your decision on whether the message matches the criteria.
 	`
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
@@ -97,7 +98,7 @@ func OllamaFilter(m string) bool {
 		OllamaMaxPredictionTokens = config.OllamaMaxPredictionTokens
 	}
 	if config.OllamaSystemPrompt != "" {
-		OllamaSystemPrompt = config.OllamaSystemPrompt
+		OllamaFirstInstructions = config.OllamaSystemPrompt
 	}
 	if config.OllamaTimeout != 0 {
 		OllamaTimeout = config.OllamaTimeout
@@ -119,7 +120,8 @@ func OllamaFilter(m string) bool {
 	req := &api.GenerateRequest{
 		Model:  config.OllamaModel,
 		Format: requestedFormatJson,
-		System: OllamaSystemPrompt + config.OllamaUserPrompt,
+		System: OllamaFirstInstructions + config.OllamaUserPrompt +
+			OllamaFinalInstructions,
 		Stream: &stream,
 		Prompt: `Here is the message to evaluate:\n` + m,
 		Options: map[string]interface{}{
