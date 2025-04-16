@@ -39,7 +39,7 @@ func ReadACARSHubACARSMessages() {
 				log.Errorf("json message did not match expected structure, we got: %+v", next)
 				continue
 			} else {
-				log.Debugf("new acars message content, (%d already in queue): %+v", len(achan), next)
+				log.Debugf("new acars message content (%d already in queue): %+v", len(achan), next)
 				achan <- next
 				continue
 			}
