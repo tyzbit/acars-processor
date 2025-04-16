@@ -20,11 +20,11 @@ var (
 	You will use your skills and any examples provided to evaluate determine 
 	if the message positively matches the provided criteria. 
 	
-	If the message affirmatively matches the criteria, 
-	return 'true' in the 'message_matches' field.
+	If the message definitely matches the criteria, return 'true' in the 
+	'message_matches_criteria' field.
 
 	If the message definitely does not match the criteria, return 'false' in the
-	'message_matches' field. 
+	'message_matches_criteria' field. 
 	
 	Briefly provide your reasoning regarding your 
 	decision in the 'reasoning' field, pointing out specific evidence that 
@@ -39,8 +39,8 @@ var (
 )
 
 type OllamaResponse struct {
-	MessageMatches bool   `json:"message_matches"`
-	Reasoning      string `json:"reasoning"`
+	MessageMatchesCriteria bool   `json:"message_matches_criteria"`
+	Reasoning              string `json:"reasoning"`
 }
 
 type OllamaResponseFormat struct {
@@ -50,8 +50,8 @@ type OllamaResponseFormat struct {
 }
 
 type OllamaResponseFormatRequestedProperties struct {
-	MessageMatches OllamaResponseFormatRequestedProperty `json:"message_matches"`
-	Reasoning      OllamaResponseFormatRequestedProperty `json:"reasoning"`
+	MessageMatchesCriteria OllamaResponseFormatRequestedProperty `json:"message_matches_criteria"`
+	Reasoning              OllamaResponseFormatRequestedProperty `json:"reasoning"`
 }
 
 type OllamaResponseFormatRequestedProperty struct {
@@ -61,14 +61,14 @@ type OllamaResponseFormatRequestedProperty struct {
 var OllamaResponseRequestedFormat = OllamaResponseFormat{
 	Type: "object",
 	Properties: OllamaResponseFormatRequestedProperties{
-		MessageMatches: OllamaResponseFormatRequestedProperty{
+		MessageMatchesCriteria: OllamaResponseFormatRequestedProperty{
 			Type: "boolean",
 		},
 		Reasoning: OllamaResponseFormatRequestedProperty{
 			Type: "string",
 		},
 	},
-	Required: []string{"message_matches", "reasoning"},
+	Required: []string{"message_matches_criteria", "reasoning"},
 }
 
 // Return true if a message passes a filter, false otherwise
@@ -183,6 +183,6 @@ func OllamaFilter(m string) bool {
 		return !config.OllamaFilterOnFailure
 	}
 
-	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.MessageMatches], Last20Characters(m), r.Reasoning)
-	return r.MessageMatches
+	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.MessageMatchesCriteria], Last20Characters(m), r.Reasoning)
+	return r.MessageMatchesCriteria
 }
