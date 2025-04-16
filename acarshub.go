@@ -13,6 +13,8 @@ import (
 
 func ReadACARSHubACARSMessages() {
 	var achan = make(chan ACARSMessage, 1000)
+	go HandleACARSJSONMessages(achan)
+
 	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
 	for {
 		log.Debugf("connecting to %s acars json port", address)
@@ -25,14 +27,6 @@ func ReadACARSHubACARSMessages() {
 		log.Info("connected to acarshub acars json port successfully")
 		readJson := json.NewDecoder(io.Reader(s))
 		log.Debug("handling acars json messages")
-		var next ACARSMessage
-		if err := readJson.Decode(&next); err != nil {
-			// Might have connection issues, exit to reconnect
-			log.Errorf("error decoding acars message: %s", err)
-			return
-		}
-		go HandleACARSJSONMessages(achan)
-
 		for {
 			var next ACARSMessage
 			if err := readJson.Decode(&next); err != nil {
@@ -45,11 +39,12 @@ func ReadACARSHubACARSMessages() {
 				log.Errorf("json message did not match expected structure, we got: %+v", next)
 				continue
 			} else {
-				log.Debugf("new acars message content: %+v", next)
+				log.Debugf("new acars message content, (%d already in queue): %+v", len(achan), next)
 				achan <- next
 				continue
 			}
 		}
+
 		log.Warn("acars handler exited, reconnecting")
 		s.Close()
 		time.Sleep(time.Second * 1)
@@ -58,6 +53,8 @@ func ReadACARSHubACARSMessages() {
 
 func ReadACARSHubVDLM2Messages() {
 	var vchan = make(chan VDLM2Message, 1000)
+	go HandleVDLM2JSONMessages(vchan)
+
 	address := fmt.Sprintf("%s:%d", config.ACARSHubVDLM2Host, config.ACARSHubVDLM2Port)
 	for {
 		log.Debugf("connecting to %s vdlm2 json port", address)
@@ -65,19 +62,11 @@ func ReadACARSHubVDLM2Messages() {
 		if err != nil {
 			log.Errorf("error connecting to vdlm2 json: %v", err)
 			time.Sleep(time.Second * 1)
-			continue
+			break
 		}
 		log.Info("connected to acarshub vdlm2 json port successfully")
 		readJson := json.NewDecoder(io.Reader(s))
-		log.Debug("handling acars json messages")
-		var next VDLM2Message
-		if err := readJson.Decode(&next); err != nil {
-			// Might have connection issues, exit to reconnect
-			log.Errorf("error decoding acars message: %s", err)
-			return
-		}
-		go HandleVDLM2JSONMessages(vchan)
-
+		log.Debug("handling vdlm2 json messages")
 		for {
 			var next VDLM2Message
 			if err := readJson.Decode(&next); err != nil {
@@ -90,12 +79,13 @@ func ReadACARSHubVDLM2Messages() {
 				log.Errorf("json message did not match expected structure, we got: %+v", next)
 				continue
 			} else {
-				log.Debugf("new vdlm2 message content: %+v", next)
+				log.Debugf("new vdlm2 message content (%d already in queue): %+v", len(vchan), next)
 				vchan <- next
 				continue
 			}
 		}
-		log.Warn("acars handler exited, reconnecting")
+
+		log.Warn("vdlm2 handler exited, reconnecting")
 		s.Close()
 		time.Sleep(time.Second * 1)
 	}
