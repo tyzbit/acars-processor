@@ -27,7 +27,7 @@ var (
 	'message_matches' field. 
 	
 	Briefly provide your reasoning regarding your 
-	decision in the 'decision' field, pointing out specific evidence that 
+	decision in the 'reasoning' field, pointing out specific evidence that 
 	factored in your decision on whether the message matches the criteria.
 
 	Here's the criteria:
