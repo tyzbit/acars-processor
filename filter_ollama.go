@@ -15,7 +15,7 @@ import (
 )
 
 var (
-	OllamaFirstInstructions = `You are an AI that is an expert at logical 
+	OllamaSystemPrompt = `You are an AI that is an expert at logical 
 	reasoning. You will be provided criteria and then a communication message. 
 	You will use your skills and any examples provided to evaluate determine 
 	if the message positively matches the provided criteria. 
@@ -98,7 +98,7 @@ func OllamaFilter(m string) bool {
 		OllamaMaxPredictionTokens = config.OllamaMaxPredictionTokens
 	}
 	if config.OllamaSystemPrompt != "" {
-		OllamaFirstInstructions = config.OllamaSystemPrompt
+		OllamaSystemPrompt = config.OllamaSystemPrompt
 	}
 	if config.OllamaTimeout != 0 {
 		OllamaTimeout = config.OllamaTimeout
@@ -120,7 +120,7 @@ func OllamaFilter(m string) bool {
 	req := &api.GenerateRequest{
 		Model:  config.OllamaModel,
 		Format: requestedFormatJson,
-		System: OllamaFirstInstructions + config.OllamaUserPrompt +
+		System: OllamaSystemPrompt + config.OllamaUserPrompt +
 			OllamaFinalInstructions,
 		Stream: &stream,
 		Prompt: `Here is the message to evaluate:\n` + m,
