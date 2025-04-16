@@ -50,7 +50,7 @@ type OllamaResponseFormat struct {
 }
 
 type OllamaResponseFormatRequestedProperties struct {
-	MessageMatches OllamaResponseFormatRequestedProperty `json:"matches"`
+	MessageMatches OllamaResponseFormatRequestedProperty `json:"message_matches"`
 	Reasoning      OllamaResponseFormatRequestedProperty `json:"reasoning"`
 }
 
@@ -68,7 +68,7 @@ var OllamaResponseRequestedFormat = OllamaResponseFormat{
 			Type: "string",
 		},
 	},
-	Required: []string{"matches", "reasoning"},
+	Required: []string{"message_matches", "reasoning"},
 }
 
 // Return true if a message passes a filter, false otherwise
