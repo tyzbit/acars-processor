@@ -15,10 +15,23 @@ import (
 )
 
 var (
-	OllamaSystemPrompt = `You will carefully evaluate some text to
-determine if the content matches certain criteria. Return True if the message
-matches the criteria, False if it does not. Provide a very short explanation 
-explaining the reasoning for your decision. Return as JSON.`
+	OllamaSystemPrompt = `You are an AI that is an expert at logical 
+	reasoning. You will be provided criteria and then a communication message. 
+	You will use your skills and any examples provided to evaluate determine 
+	if the message positively matches the provided criteria. 
+	
+	If the message affirmatively matches the criteria, 
+	return 'true' in the 'message_matches' field.
+
+	If the message definitely does not match the criteria, return 'false' in the
+	'message_matches' field. 
+	
+	Briefly provide your reasoning regarding your 
+	decision in the 'decision' field, pointing out specific evidence that 
+	factored in your decision on whether the message matches the criteria.
+
+	Here's the criteria:
+	`
 	OllamaTimeout             = 120
 	OllamaMaxPredictionTokens = 512
 	OllamaMaxRetryAttempts    = 6
@@ -26,8 +39,8 @@ explaining the reasoning for your decision. Return as JSON.`
 )
 
 type OllamaResponse struct {
-	MessageMatches bool
-	Reasoning      string
+	MessageMatches bool   `json:"message_matches"`
+	Reasoning      string `json:"reasoning"`
 }
 
 type OllamaResponseFormat struct {
@@ -106,9 +119,9 @@ func OllamaFilter(m string) bool {
 	req := &api.GenerateRequest{
 		Model:  config.OllamaModel,
 		Format: requestedFormatJson,
-		System: OllamaSystemPrompt + " and " + config.OllamaUserPrompt,
+		System: OllamaSystemPrompt + config.OllamaUserPrompt,
 		Stream: &stream,
-		Prompt: m,
+		Prompt: `Here is the message to evaluate:\n` + m,
 		Options: map[string]interface{}{
 			// Hopefully minimizes the model timing out
 			"num_predict": OllamaMaxPredictionTokens,

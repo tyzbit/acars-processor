@@ -10,12 +10,26 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var OpenAISystemPrompt string = `You will carefully evaluate a message to
-determine if the message matches specific criteria. Provide a very short 
-explanation for your reasoning. Return as JSON.`
+var OpenAISystemPrompt string = `You are an AI that is an expert at logical 
+	reasoning. You will be provided criteria and then a communication message. 
+	You will use your skills and any examples provided to evaluate determine 
+	if the message positively matches the provided criteria. 
+	
+	If the message affirmatively matches the criteria, 
+	return 'true' in the 'message_matches' field.
+
+	If the message definitely does not match the criteria, return 'false' in the
+	'message_matches' field. 
+	
+	Briefly provide your reasoning regarding your 
+	decision in the 'decision' field, pointing out specific evidence that 
+	factored in your decision on whether the message matches the criteria.
+
+	Here's the criteria:
+	`
 
 type OpenAIResponse struct {
-	MessageMatches any    `json:"decision"`
+	MessageMatches any    `json:"message_matches"`
 	Reasoning      string `json:"reasoning"`
 }
 
