@@ -10,12 +10,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var OpenAISystemPrompt string = `You are an AI that is an expert at logical 
+var (
+	OpenAISystemPrompt = `You are an AI that is an expert at logical 
 	reasoning. You will be provided criteria and then a communication message. 
 	You will use your skills and any examples provided to evaluate determine 
-	if the message positively matches the provided criteria. 
-	
-	If the message affirmatively matches the criteria, 
+	if the message positively matches the provided criteria.
+
+	Here's the criteria:
+	`
+	OpenAIFinalInstructions = `If the message affirmatively matches the criteria, 
 	return 'true' in the 'message_matches' field.
 
 	If the message definitely does not match the criteria, return 'false' in the
@@ -23,10 +26,8 @@ var OpenAISystemPrompt string = `You are an AI that is an expert at logical
 	
 	Briefly provide your reasoning regarding your 
 	decision in the 'reasoning' field, pointing out specific evidence that 
-	factored in your decision on whether the message matches the criteria.
-
-	Here's the criteria:
-	`
+	factored in your decision on whether the message matches the criteria.`
+)
 
 type OpenAIResponse struct {
 	MessageMatches any    `json:"message_matches"`
@@ -57,6 +58,7 @@ func OpenAIFilter(m string) bool {
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
 				openai.SystemMessage(OpenAISystemPrompt),
 				openai.SystemMessage(config.OpenAIUserPrompt),
+				openai.SystemMessage(OpenAIFinalInstructions),
 				openai.UserMessage(m),
 			}),
 			Model: openai.F(openAIModel),
