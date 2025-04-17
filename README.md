@@ -63,13 +63,13 @@ variables for them.
 | FILTER_OLLAMA_URL                                | **REQUIRED TO USE** Full URL to your ollama instance (<scheme>://<host>:<port>)                                                                         |
 | FILTER_OLLAMA_TIMEOUT                            | Max time to wait for results from Ollama in seconds (default 60)                                                                                        |
 | FILTER_OLLAMA_MODEL                              | **REQUIRED TO USE** The model to use; ex: "llama3.2"                                                                                                    |
-| FILTER_OLLAMA_PROMPT                             | **REQUIRED TO USE** Criteria for the model to evaluate the message against \*\*\*\*                                                                     |
+| FILTER_OLLAMA_PROMPT                             | **REQUIRED TO USE** Criteria for the model to evaluate the message against                                                                              |
 | FILTER_OLLAMA_FILTER_ON_FAILURE                  | If Ollama fails, should the message be filtered?                                                                                                        |
 | FILTER_OLLAMA_MAX_PREDICTION_TOKENS              | Maximum tokens to return for prediction. Don't go below about 40.                                                                                       |
 | FILTER_OLLAMA_MAX_RETRY_ATTEMPTS                 | Maximum number of times to retry calling Ollama PER MESSAGE                                                                                             |
 | FILTER_OLLAMA_RETRY_DELAY                        | Seconds to wait between Ollama retries (exponential backoff)                                                                                            |
 | FILTER_OLLAMA_SYSTEM_PROMPT                      | By default, `acars-processor` includes a system prompt that describes what the response should look like. This overrides that.                          |
-| FILTER_OPENAI_PROMPT                             | **REQUIRED TO USE** Criteria to evaluate the message, sent to OpenAI \*\*\*\*                                                                           |
+| FILTER_OPENAI_PROMPT                             | **REQUIRED TO USE** Criteria to evaluate the message, sent to OpenAI                                                                                    |
 | FILTER_OPENAI_APIKEY                             | **REQUIRED TO USE** API key for OpenAI, required for functionality                                                                                      |
 | FILTER_OPENAI_MODEL                              | Override the default model (`gpt-4o` by default), see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
 | FILTER_OPENAI_SYSTEM_PROMPT                      | By default, `acars-processor` includes a system prompt that describes what the response should look like. This overrides that.                          |
@@ -88,7 +88,10 @@ include examples of what you want to see and not see. Uou can also try
 a different one or try overriding the system prompt with
 `FILTER_OLLAMA_SYSTEM_PROMPT`. If acars-processor isn't able to pull a JSON
 object from the response, it'll log what it got from the model at a
-`DEBUG` level for troubleshooting.
+`DEBUG` level for troubleshooting. If your performance isn't great,
+reduce `FILTER_OLLAMA_MAX_PREDICTION_TOKENS` and/or increase
+`ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER` as well as review your Ollama
+configuration for improvements (such as number of parallel requests)
 
 ### Receivers
 
@@ -106,9 +109,6 @@ object from the response, it'll log what it got from the model at a
 in the variable.
 
 \*\*\* The headers should be in the format `key=value,otherkey=value`
-
-\*\*\*\* Yes or no question works best. Example:
-"Does this contain what looks like a bespoke message from one person to another?"
 
 #### Webhooks
 
