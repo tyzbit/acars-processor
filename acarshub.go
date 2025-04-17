@@ -11,9 +11,16 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var OllamaMaxConcurrentRequests = 1
+
 func ReadACARSHubACARSMessages() {
 	var achan = make(chan ACARSMessage, 1000)
-	go HandleACARSJSONMessages(achan)
+	if config.OllamaMaxConcurrentRequests != 0 {
+		OllamaMaxConcurrentRequests = config.OllamaMaxConcurrentRequests
+	}
+	for i := 0; i < OllamaMaxConcurrentRequests; i++ {
+		go HandleACARSJSONMessages(achan)
+	}
 
 	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
 	for {
@@ -53,7 +60,12 @@ func ReadACARSHubACARSMessages() {
 
 func ReadACARSHubVDLM2Messages() {
 	var vchan = make(chan VDLM2Message, 1000)
-	go HandleVDLM2JSONMessages(vchan)
+	if config.OllamaMaxConcurrentRequests != 0 {
+		OllamaMaxConcurrentRequests = config.OllamaMaxConcurrentRequests
+	}
+	for i := 0; i < OllamaMaxConcurrentRequests; i++ {
+		go HandleVDLM2JSONMessages(vchan)
+	}
 
 	address := fmt.Sprintf("%s:%d", config.ACARSHubVDLM2Host, config.ACARSHubVDLM2Port)
 	for {

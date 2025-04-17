@@ -66,6 +66,7 @@ variables for them.
 | FILTER_OLLAMA_FILTER_ON_FAILURE                  | If Ollama fails, should the message be filtered?                                                                                                        |
 | FILTER_OLLAMA_MAX_PREDICTION_TOKENS              | Maximum tokens to return for prediction. Don't go below about 40.                                                                                       |
 | FILTER_OLLAMA_MAX_RETRY_ATTEMPTS                 | Maximum number of times to retry calling Ollama PER MESSAGE                                                                                             |
+| FILTER_OLLAMA_MAX_CONCURRENT_REQUESTS            | Maximum number of requests to make to Ollama at once PER SUBSCRIBER (ACARS & VDLM2 FOR EXAMPLE).                                                        |
 | FILTER_OLLAMA_RETRY_DELAY                        | Seconds to wait between Ollama retries (exponential backoff)                                                                                            |
 | FILTER_OLLAMA_SYSTEM_PROMPT                      | By default, `acars-annotator` includes a system prompt that describes what the response should look like. This overrides that.                          |
 | FILTER_OPENAI_PROMPT                             | **REQUIRED TO USE** Criteria to evaluate the message, sent to OpenAI \*\*\*\*                                                                           |
