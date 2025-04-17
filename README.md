@@ -79,16 +79,15 @@ Filters fail **CLOSED** which means if they fail, they do not filter the message
 
 OpenAI's gpt3.5 and higher do well with the system prompt. With Ollama,
 the model you choose will greatly impact the quality of the filtering.
-I recommend `gemma3:12b`. It uses about 13GB at runtime but is similar in
+I recommend `gemma3:4b`. It uses about 8GB at runtime but is similar in
 effectiveness to OpenAI's models.
 
-If you're not seeing great results out of your model, try another one or try
-overriding the system prompt with `FILTER_OLLAMA_SYSTEM_PROMPT`.
-If acars-processor isn't able to pull a JSON object from the response, it'll
-log it at a `DEBUG` level for troubleshooting.
-
-Also, if Ollama requests start taking an inconsistent amount of time, try
-increasing the parallelism.
+If you're not seeing great results out of your model, be verbose, explicit and
+include examples of what you want to see and not see. Uou can also try
+a different one or try overriding the system prompt with
+`FILTER_OLLAMA_SYSTEM_PROMPT`. If acars-processor isn't able to pull a JSON
+object from the response, it'll log what it got from the model at a
+`DEBUG` level for troubleshooting.
 
 ### Receivers
 
