@@ -4,6 +4,7 @@ package main
 type Config struct {
 	ACARSHubHost                                string  `env:"ACARSHUB_HOST"`
 	ACARSHubPort                                int     `env:"ACARSHUB_PORT"`
+	ACARSHubMaxConcurrentRequests               int     `env:"ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER"`
 	AnnotateACARS                               bool    `env:"ANNOTATE_ACARS"`
 	ACARSHubVDLM2Host                           string  `env:"ACARSHUB_VDLM2_HOST"`
 	ACARSHubVDLM2Port                           int     `env:"ACARSHUB_VDLM2_PORT"`
@@ -19,7 +20,6 @@ type Config struct {
 	OllamaUserPrompt                            string  `env:"FILTER_OLLAMA_PROMPT"`
 	OllamaMaxPredictionTokens                   int     `env:"FILTER_OLLAMA_MAX_PREDICTION_TOKENS"`
 	OllamaMaxRetryAttempts                      int     `env:"FILTER_OLLAMA_MAX_RETRY_ATTEMPTS"`
-	OllamaMaxConcurrentRequests                 int     `env:"FILTER_OLLAMA_MAX_CONCURRENT_REQUESTS"`
 	OllamaRetryDelaySeconds                     int     `env:"FILTER_OLLAMA_RETRY_DELAY"`
 	OllamaSystemPrompt                          string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
 	OllamaTimeout                               int     `env:"FILTER_OLLAMA_TIMEOUT"`
