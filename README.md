@@ -1,4 +1,4 @@
-# acars-annotator
+# acars-processor
 
 A simple daemon that listens to ACARS messages, hydrates them with additional
 data via external lookups and then submits the message to a specified receiver
@@ -32,7 +32,7 @@ variables for them.
 | ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER | Maximum number of requests to make to ACARSHub at once (per subscriber, i.e. 1 for ACARS & 1 for VDLM2) |
 | ACARSHUB_VDLM2_HOST                             | The hostname or IP to your acarshub instance for VDLM2                                                  |
 | ACARSHUB_PORT                                   | The VDLM2 port to connect to your acarshub instance on                                                  |
-| LOGLEVEL | debug, info, warn, error (default "info") |
+| LOGLEVEL                                        | debug, info, warn, error (default "info")                                                               |
 
 ### Annotators
 
@@ -68,11 +68,11 @@ variables for them.
 | FILTER_OLLAMA_MAX_PREDICTION_TOKENS              | Maximum tokens to return for prediction. Don't go below about 40.                                                                                       |
 | FILTER_OLLAMA_MAX_RETRY_ATTEMPTS                 | Maximum number of times to retry calling Ollama PER MESSAGE                                                                                             |
 | FILTER_OLLAMA_RETRY_DELAY                        | Seconds to wait between Ollama retries (exponential backoff)                                                                                            |
-| FILTER_OLLAMA_SYSTEM_PROMPT                      | By default, `acars-annotator` includes a system prompt that describes what the response should look like. This overrides that.                          |
+| FILTER_OLLAMA_SYSTEM_PROMPT                      | By default, `acars-processor` includes a system prompt that describes what the response should look like. This overrides that.                          |
 | FILTER_OPENAI_PROMPT                             | **REQUIRED TO USE** Criteria to evaluate the message, sent to OpenAI \*\*\*\*                                                                           |
 | FILTER_OPENAI_APIKEY                             | **REQUIRED TO USE** API key for OpenAI, required for functionality                                                                                      |
 | FILTER_OPENAI_MODEL                              | Override the default model (`gpt-4o` by default), see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
-| FILTER_OPENAI_SYSTEM_PROMPT                      | By default, `acars-annotator` includes a system prompt that describes what the response should look like. This overrides that.                          |
+| FILTER_OPENAI_SYSTEM_PROMPT                      | By default, `acars-processor` includes a system prompt that describes what the response should look like. This overrides that.                          |
 
 Filters fail **CLOSED** which means if they fail, they do not filter the message.
 
