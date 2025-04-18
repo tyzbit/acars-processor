@@ -14,7 +14,7 @@ import (
 var ACARSHubMaxConcurrentRequests = 1
 
 func ReadACARSHubACARSMessages() {
-	var achan = make(chan ACARSMessage, 1000)
+	var achan = make(chan ACARSMessage, 1000000)
 	if config.ACARSHubMaxConcurrentRequests != 0 {
 		ACARSHubMaxConcurrentRequests = config.ACARSHubMaxConcurrentRequests
 	}
@@ -59,7 +59,7 @@ func ReadACARSHubACARSMessages() {
 }
 
 func ReadACARSHubVDLM2Messages() {
-	var vchan = make(chan VDLM2Message, 1000)
+	var vchan = make(chan VDLM2Message, 1000000)
 	if config.ACARSHubMaxConcurrentRequests != 0 {
 		ACARSHubMaxConcurrentRequests = config.ACARSHubMaxConcurrentRequests
 	}
