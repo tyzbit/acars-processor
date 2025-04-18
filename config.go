@@ -38,6 +38,8 @@ type Config struct {
 	FilterCriteriaAboveSignaldBm                float64 `env:"FILTER_CRITERIA_ABOVE_SIGNAL_DBM"`
 	FilterCriteriaBelowSignaldBm                float64 `env:"FILTER_CRITERIA_BELOW_SIGNAL_DBM"`
 	FilterCriteriaMatchStationID                string  `env:"FILTER_CRITERIA_MATCH_STATION_ID"`
+	FilterCriteriaFromTower                     bool    `env:"FILTER_CRITERIA_FROM_TOWER"`
+	FilterCriteriaFromAircraft                  bool    `env:"FILTER_CRITERIA_FROM_AIRCRAFT"`
 	FilterCriteriaMore                          bool    `env:"FILTER_CRITERIA_MORE"`
 	FilterCriteriaAboveDistanceNm               float64 `env:"FILTER_CRITERIA_ABOVE_DISTANCE_NM"`
 	FilterCriteriaBelowDistanceNm               float64 `env:"FILTER_CRITERIA_Below_DISTANCE_NM"`

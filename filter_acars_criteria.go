@@ -39,6 +39,14 @@ var (
 		"ASSStatus": func(m ACARSMessage) bool {
 			return config.FilterCriteriaMatchASSStatus == m.ASSStatus
 		},
+		"FromTower": func(m ACARSMessage) bool {
+			b, _ := regexp.Match("\\S+", []byte(m.FlightNumber))
+			return !b
+		},
+		"FromAircraft": func(m ACARSMessage) bool {
+			b, _ := regexp.Match("\\S+", []byte(m.FlightNumber))
+			return b
+		},
 		"More": func(m ACARSMessage) bool {
 			return true
 		},

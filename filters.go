@@ -37,6 +37,12 @@ func ConfigureFilters() {
 	if config.FilterCriteriaBelowDistanceNm != 0.0 {
 		enabledFilters = append(enabledFilters, "BelowMaximumSignal")
 	}
+	if config.FilterCriteriaFromTower {
+		enabledFilters = append(enabledFilters, "FromTower")
+	}
+	if config.FilterCriteriaFromAircraft {
+		enabledFilters = append(enabledFilters, "FromAircraft")
+	}
 	if config.FilterCriteriaMatchASSStatus != "" {
 		enabledFilters = append(enabledFilters, "MatchesASSStatus")
 	}

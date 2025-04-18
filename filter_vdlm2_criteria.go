@@ -37,6 +37,14 @@ var (
 		"BelowMaximumSignal": func(m VDLM2Message) bool {
 			return config.FilterCriteriaBelowSignaldBm >= m.VDL2.SignalLevel
 		},
+		"FromTower": func(m VDLM2Message) bool {
+			b, _ := regexp.Match("\\S+", []byte(m.VDL2.AVLC.ACARS.FlightNumber))
+			return !b
+		},
+		"FromAircraft": func(m VDLM2Message) bool {
+			b, _ := regexp.Match("\\S+", []byte(m.VDL2.AVLC.ACARS.FlightNumber))
+			return b
+		},
 		"More": func(m VDLM2Message) bool {
 			return !m.VDL2.AVLC.ACARS.More
 		},

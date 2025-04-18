@@ -59,6 +59,8 @@ variables for them.
 | FILTER_CRITERIA_MATCH_FREQUENCY                  | Message must have been received on this frequency                                                                                                       |
 | FILTER_CRITERIA_ABOVE_SIGNAL_DBM                 | Message must have signal above this                                                                                                                     |
 | FILTER_CRITERIA_MATCH_STATION_ID                 | Message must have come from this station                                                                                                                |
+| FILTER_CRITERIA_FROM_TOWER                       | Only messages from tower (Flight number is blank) station                                                                                               |
+| FILTER_CRITERIA_FROM_AIRCRAFT                    | Only messages from aircraft (Flight number is not blank) station                                                                                        |
 | FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM | Message must have at least this amount of consecutive words (English only at the moment)                                                                |
 | FILTER_OLLAMA_URL                                | **REQUIRED TO USE** Full URL to your ollama instance (<scheme>://<host>:<port>)                                                                         |
 | FILTER_OLLAMA_TIMEOUT                            | Max time to wait for results from Ollama in seconds (default 60)                                                                                        |
