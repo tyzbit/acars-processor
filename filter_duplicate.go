@@ -31,7 +31,7 @@ func FilterDuplicateACARS(m ACARSMessage) bool {
 			break
 		}
 	}
-	if len(RecentACARSMessages) > 0 {
+	if len(RecentACARSMessages) == RecentMessageMax {
 		// Remove the oldest message
 		RecentACARSMessages = RecentACARSMessages[1:]
 	}
@@ -53,7 +53,7 @@ func FilterDuplicateVDLM2(m VDLM2Message) bool {
 			break
 		}
 	}
-	if len(RecentVDLM2Messages) > 0 {
+	if len(RecentVDLM2Messages) == RecentMessageMax {
 		// Remove the oldest message
 		RecentVDLM2Messages = RecentVDLM2Messages[1:]
 	}
