@@ -11,15 +11,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var ACARSHubMaxConcurrentRequests = 1
+var (
+	ACARSHubMaxConcurrentRequests = 1
+	ACARSMessageQueue             = make(chan ACARSMessage, 10000)
+	VDLM2MessageQueue             = make(chan VDLM2Message, 10000)
+)
 
 func ReadACARSHubACARSMessages() {
-	var achan = make(chan ACARSMessage, 10000)
 	if config.ACARSHubMaxConcurrentRequests != 0 {
 		ACARSHubMaxConcurrentRequests = config.ACARSHubMaxConcurrentRequests
 	}
-	for i := 0; i < ACARSHubMaxConcurrentRequests; i++ {
-		go HandleACARSJSONMessages(achan)
+	for range ACARSHubMaxConcurrentRequests {
+		go HandleACARSJSONMessages(ACARSMessageQueue)
 	}
 
 	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
@@ -46,8 +49,8 @@ func ReadACARSHubACARSMessages() {
 				log.Errorf("json message did not match expected structure, we got: %+v", next)
 				continue
 			} else {
-				log.Debugf("new acars message content (%d already in queue): %+v", len(achan), next)
-				achan <- next
+				log.Debugf("new acars message content (%d already in queue): %+v", len(ACARSMessageQueue), next)
+				ACARSMessageQueue <- next
 				continue
 			}
 		}
@@ -59,12 +62,11 @@ func ReadACARSHubACARSMessages() {
 }
 
 func ReadACARSHubVDLM2Messages() {
-	var vchan = make(chan VDLM2Message, 10000)
 	if config.ACARSHubMaxConcurrentRequests != 0 {
 		ACARSHubMaxConcurrentRequests = config.ACARSHubMaxConcurrentRequests
 	}
-	for i := 0; i < ACARSHubMaxConcurrentRequests; i++ {
-		go HandleVDLM2JSONMessages(vchan)
+	for range ACARSHubMaxConcurrentRequests {
+		go HandleVDLM2JSONMessages(VDLM2MessageQueue)
 	}
 
 	address := fmt.Sprintf("%s:%d", config.ACARSHubVDLM2Host, config.ACARSHubVDLM2Port)
@@ -91,8 +93,8 @@ func ReadACARSHubVDLM2Messages() {
 				log.Errorf("json message did not match expected structure, we got: %+v", next)
 				continue
 			} else {
-				log.Debugf("new vdlm2 message content (%d already in queue): %+v", len(vchan), next)
-				vchan <- next
+				log.Debugf("new vdlm2 message content (%d already in queue): %+v", len(VDLM2MessageQueue), next)
+				VDLM2MessageQueue <- next
 				continue
 			}
 		}
@@ -116,8 +118,8 @@ func SubscribeToACARSHub() {
 
 // Reads messages in the channel from ReadACARSHubVDLM2Messages, annotates and
 // sends off to configured receivers
-func HandleACARSJSONMessages(achan chan ACARSMessage) {
-	for message := range achan {
+func HandleACARSJSONMessages(ACARSMessageQueue chan ACARSMessage) {
+	for message := range ACARSMessageQueue {
 		annotations := map[string]any{}
 		ok, filters := ACARSCriteriaFilter{}.Filter(message)
 		if !ok {
@@ -145,8 +147,8 @@ func HandleACARSJSONMessages(achan chan ACARSMessage) {
 
 // Reads messages in the channel from ReadACARSHubACARSMessages, annotates and
 // sends off to configured receivers
-func HandleVDLM2JSONMessages(vchan chan VDLM2Message) {
-	for message := range vchan {
+func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
+	for message := range VDLM2MessageQueue {
 		annotations := map[string]any{}
 		ok, filters := VDLM2CriteriaFilter{}.Filter(message)
 		if !ok {
