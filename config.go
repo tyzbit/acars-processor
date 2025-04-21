@@ -53,5 +53,15 @@ type Config struct {
 	WebhookURL                                    string  `env:"WEBHOOK_URL"`
 	WebhookMethod                                 string  `env:"WEBHOOK_METHOD"`
 	WebhookHeaders                                string  `env:"WEBHOOK_HEADERS"`
+	OllamaFilterMaxPredictionTokens               int     `env:"FILTER_OLLAMA_MAX_PREDICTION_TOKENS"`
+	OllamaFilterMaxRetryAttempts                  int     `env:"FILTER_OLLAMA_MAX_RETRY_ATTEMPTS"`
+	OllamaFilterRetryDelaySeconds                 int     `env:"FILTER_OLLAMA_RETRY_DELAY"`
+	OllamaFilterSystemPrompt                      string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
+	OllamaFilterTimeout                           int     `env:"FILTER_OLLAMA_TIMEOUT"`
+	OllamaAnnotatorMaxPredictionTokens            int     `env:"OLLAMA_ANNOTATOR_MAX_PREDICTION_TOKENS"`
+	OllamaAnnotatorMaxRetryAttempts               int     `env:"OLLAMA_ANNOTATOR_MAX_RETRY_ATTEMPTS"`
+	OllamaAnnotatorRetryDelaySeconds              int     `env:"OLLAMA_ANNOTATOR_RETRY_DELAY"`
+	OllamaAnnotatorSystemPrompt                   string  `env:"OLLAMA_ANNOTATOR_SYSTEM_PROMPT"`
+	OllamaAnnotatorTimeout                        int     `env:"OLLAMA_ANNOTATOR_TIMEOUT"`
 	DiscordWebhookURL                             string  `env:"DISCORD_WEBHOOK_URL"`
 }
