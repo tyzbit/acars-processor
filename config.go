@@ -21,6 +21,7 @@ type Config struct {
 	OllamaAnnotatorURL                 string `env:"OLLAMA_ANNOTATOR_URL"`
 	OllamaAnnotatorSelectedFields      string `env:"OLLAMA_ANNOTATOR_SELECTED_FIELDS"`
 	OllamaAnnotatorUserPrompt          string `env:"OLLAMA_ANNOTATOR_PROMPT"`
+	OllamaAnnotatorFilterWithQuestion  bool   `env:"OLLAMA_ANNOTATOR_FILTER_WITH_QUESTION"`
 	OllamaAnnotatorMaxPredictionTokens int    `env:"OLLAMA_ANNOTATOR_MAX_PREDICTION_TOKENS"`
 	OllamaAnnotatorMaxRetryAttempts    int    `env:"OLLAMA_ANNOTATOR_MAX_RETRY_ATTEMPTS"`
 	OllamaAnnotatorRetryDelaySeconds   int    `env:"OLLAMA_ANNOTATOR_RETRY_DELAY"`

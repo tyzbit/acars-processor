@@ -175,11 +175,15 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
 				annotations = MergeMaps(result, annotations)
 			}
 		}
-		for _, r := range enabledReceivers {
-			log.Debugf("sending vdlm2 event to reciever %s: %+v", r.Name(), annotations)
-			err := r.SubmitACARSAnnotations(annotations)
-			if err != nil {
-				log.Errorf("error submitting to %s, err: %v", r.Name(), err)
+		if len(annotations) == 0 {
+			log.Info("no annotations were produced, not calling any receivers")
+		} else {
+			for _, r := range enabledReceivers {
+				log.Debugf("sending vdlm2 event to reciever %s: %+v", r.Name(), annotations)
+				err := r.SubmitACARSAnnotations(annotations)
+				if err != nil {
+					log.Errorf("error submitting to %s, err: %v", r.Name(), err)
+				}
 			}
 		}
 	}

@@ -16,11 +16,11 @@ func ConfigureAnnotators() {
 		enabledACARSAnnotators = append(enabledACARSAnnotators, ADSBHandlerAnnotator{})
 	}
 	if config.TAR1090URL != "" {
-		log.Info("TAR1090 annotator enabled")
+		log.Info("TAR1090 VDLM2 annotator enabled")
 		enabledACARSAnnotators = append(enabledACARSAnnotators, Tar1090Handler{})
 	}
-	if config.OllamaAnnotatorURL != "" {
-		log.Info("Ollama annotator enabled")
+	if config.OllamaAnnotatorURL != "" && config.ACARSHubHost != "" {
+		log.Info("Ollama ACARS annotator enabled")
 		enabledACARSAnnotators = append(enabledACARSAnnotators, OllamaHandler{})
 	}
 	if len(enabledACARSAnnotators) == 0 {
@@ -31,6 +31,14 @@ func ConfigureAnnotators() {
 	if config.AnnotateVDLM2 {
 		log.Info("VDLM2 annotator enabled")
 		enabledVDLM2Annotators = append(enabledVDLM2Annotators, VDLM2HandlerAnnotator{})
+	}
+	if config.TAR1090URL != "" {
+		log.Info("TAR1090 VDLM2 annotator enabled")
+		enabledVDLM2Annotators = append(enabledVDLM2Annotators, Tar1090Handler{})
+	}
+	if config.OllamaAnnotatorURL != "" && config.ACARSHubVDLM2Host != "" {
+		log.Info("Ollama VDLM2 annotator enabled")
+		enabledVDLM2Annotators = append(enabledVDLM2Annotators, OllamaHandler{})
 	}
 	if len(enabledVDLM2Annotators) == 0 {
 		log.Info("no vdlm2 annotators are enabled")
