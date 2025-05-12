@@ -2,27 +2,40 @@ package main
 
 // Set via ENV variables or a .env file
 type Config struct {
-	ACARSHubHost                                  string  `env:"ACARSHUB_HOST"`
-	ACARSHubPort                                  int     `env:"ACARSHUB_PORT"`
-	ACARSHubMaxConcurrentRequests                 int     `env:"ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER"`
-	AnnotateACARS                                 bool    `env:"ANNOTATE_ACARS"`
-	ACARSHubVDLM2Host                             string  `env:"ACARSHUB_VDLM2_HOST"`
-	ACARSHubVDLM2Port                             int     `env:"ACARSHUB_VDLM2_PORT"`
-	AnnotateVDLM2                                 bool    `env:"ANNOTATE_VDLM2"`
-	TAR1090URL                                    string  `env:"TAR1090_URL"`
-	TAR1090ReferenceGeolocation                   string  `env:"TAR1090_REFERENCE_GEOLOCATION"`
-	ACARSAnnotatorSelectedFields                  string  `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
-	ADSBExchangeAPIKey                            string  `env:"ADBSEXCHANGE_APIKEY"`
-	ADSBExchangeReferenceGeolocation              string  `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
+	// General
+	LogLevel string `env:"LOGLEVEL"`
+	// Annotators
+	ACARSHubHost                       string `env:"ACARSHUB_HOST"`
+	ACARSHubPort                       int    `env:"ACARSHUB_PORT"`
+	ACARSHubMaxConcurrentRequests      int    `env:"ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER"`
+	AnnotateACARS                      bool   `env:"ANNOTATE_ACARS"`
+	ACARSHubVDLM2Host                  string `env:"ACARSHUB_VDLM2_HOST"`
+	ACARSHubVDLM2Port                  int    `env:"ACARSHUB_VDLM2_PORT"`
+	AnnotateVDLM2                      bool   `env:"ANNOTATE_VDLM2"`
+	TAR1090URL                         string `env:"TAR1090_URL"`
+	TAR1090ReferenceGeolocation        string `env:"TAR1090_REFERENCE_GEOLOCATION"`
+	ACARSAnnotatorSelectedFields       string `env:"ACARS_ANNOTATOR_SELECTED_FIELDS"`
+	ADSBExchangeAPIKey                 string `env:"ADBSEXCHANGE_APIKEY"`
+	ADSBExchangeReferenceGeolocation   string `env:"ADBSEXCHANGE_REFERENCE_GEOLOCATION"`
+	OllamaAnnotatorModel               string `env:"OLLAMA_ANNOTATOR_MODEL"`
+	OllamaAnnotatorURL                 string `env:"OLLAMA_ANNOTATOR_URL"`
+	OllamaAnnotatorSelectedFields      string `env:"OLLAMA_ANNOTATOR_SELECTED_FIELDS"`
+	OllamaAnnotatorUserPrompt          string `env:"OLLAMA_ANNOTATOR_PROMPT"`
+	OllamaAnnotatorMaxPredictionTokens int    `env:"OLLAMA_ANNOTATOR_MAX_PREDICTION_TOKENS"`
+	OllamaAnnotatorMaxRetryAttempts    int    `env:"OLLAMA_ANNOTATOR_MAX_RETRY_ATTEMPTS"`
+	OllamaAnnotatorRetryDelaySeconds   int    `env:"OLLAMA_ANNOTATOR_RETRY_DELAY"`
+	OllamaAnnotatorSystemPrompt        string `env:"OLLAMA_ANNOTATOR_SYSTEM_PROMPT"`
+	OllamaAnnotatorTimeout             int    `env:"OLLAMA_ANNOTATOR_TIMEOUT"`
+	// Filters
 	OllamaFilterOnFailure                         bool    `env:"FILTER_OLLAMA_FILTER_ON_FAILURE"`
-	OllamaModel                                   string  `env:"FILTER_OLLAMA_MODEL"`
-	OllamaURL                                     string  `env:"FILTER_OLLAMA_URL"`
-	OllamaUserPrompt                              string  `env:"FILTER_OLLAMA_PROMPT"`
-	OllamaMaxPredictionTokens                     int     `env:"FILTER_OLLAMA_MAX_PREDICTION_TOKENS"`
-	OllamaMaxRetryAttempts                        int     `env:"FILTER_OLLAMA_MAX_RETRY_ATTEMPTS"`
-	OllamaRetryDelaySeconds                       int     `env:"FILTER_OLLAMA_RETRY_DELAY"`
-	OllamaSystemPrompt                            string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
-	OllamaTimeout                                 int     `env:"FILTER_OLLAMA_TIMEOUT"`
+	OllamaFilterModel                             string  `env:"FILTER_OLLAMA_MODEL"`
+	OllamaFilterURL                               string  `env:"FILTER_OLLAMA_URL"`
+	OllamaFilterUserPrompt                        string  `env:"FILTER_OLLAMA_PROMPT"`
+	OllamaFilterMaxPredictionTokens               int     `env:"FILTER_OLLAMA_MAX_PREDICTION_TOKENS"`
+	OllamaFilterMaxRetryAttempts                  int     `env:"FILTER_OLLAMA_MAX_RETRY_ATTEMPTS"`
+	OllamaFilterRetryDelaySeconds                 int     `env:"FILTER_OLLAMA_RETRY_DELAY"`
+	OllamaFilterSystemPrompt                      string  `env:"FILTER_OLLAMA_SYSTEM_PROMPT"`
+	OllamaFilterTimeout                           int     `env:"FILTER_OLLAMA_TIMEOUT"`
 	OpenAIAPIKey                                  string  `env:"FILTER_OPENAI_APIKEY"`
 	OpenAIModel                                   string  `env:"FILTER_OPENAI_MODEL"`
 	OpenAIUserPrompt                              string  `env:"FILTER_OPENAI_PROMPT"`
@@ -47,11 +60,11 @@ type Config struct {
 	FilterCriteriaDictionaryPhraseLengthMinimum   int64   `env:"FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM"`
 	FilterCriteriaACARSDuplicateMessageSimilarity float64 `env:"FILTER_CRITERIA_ACARS_DUPLICATE_MESSAGE_SIMILARITY"`
 	FilterCriteriaVDLM2DuplicateMessageSimilarity float64 `env:"FILTER_CRITERIA_VDLM2_DUPLICATE_MESSAGE_SIMILARITY"`
-	LogLevel                                      string  `env:"LOGLEVEL"`
-	NewRelicLicenseKey                            string  `env:"NEW_RELIC_LICENSE_KEY"`
-	NewRelicLicenseCustomEventType                string  `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
-	WebhookURL                                    string  `env:"WEBHOOK_URL"`
-	WebhookMethod                                 string  `env:"WEBHOOK_METHOD"`
-	WebhookHeaders                                string  `env:"WEBHOOK_HEADERS"`
-	DiscordWebhookURL                             string  `env:"DISCORD_WEBHOOK_URL"`
+	// Receivers
+	NewRelicLicenseKey             string `env:"NEW_RELIC_LICENSE_KEY"`
+	NewRelicLicenseCustomEventType string `env:"NEW_RELIC_CUSTOM_EVENT_TYPE"`
+	WebhookURL                     string `env:"WEBHOOK_URL"`
+	WebhookMethod                  string `env:"WEBHOOK_METHOD"`
+	WebhookHeaders                 string `env:"WEBHOOK_HEADERS"`
+	DiscordWebhookURL              string `env:"DISCORD_WEBHOOK_URL"`
 }

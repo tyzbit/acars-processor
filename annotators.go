@@ -19,6 +19,10 @@ func ConfigureAnnotators() {
 		log.Info("TAR1090 annotator enabled")
 		enabledACARSAnnotators = append(enabledACARSAnnotators, Tar1090Handler{})
 	}
+	if config.OllamaAnnotatorURL != "" {
+		log.Info("Ollama annotator enabled")
+		enabledACARSAnnotators = append(enabledACARSAnnotators, OllamaHandler{})
+	}
 	if len(enabledACARSAnnotators) == 0 {
 		log.Warn("no acars annotators are enabled")
 	}
