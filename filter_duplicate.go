@@ -1,6 +1,8 @@
 package main
 
 import (
+	"regexp"
+
 	"github.com/adrg/strutil"
 	"github.com/adrg/strutil/metrics"
 	log "github.com/sirupsen/logrus"
@@ -16,18 +18,26 @@ var (
 	RecentVDLM2Messages []VDLM2Message
 )
 
+// Compares message to a buffer of previous messages and compares
+// using Hamming distance. If similarity above configured setting,
+// filter out the message.
 func FilterDuplicateACARS(m ACARSMessage) bool {
-	allowMessage := true
-	if len(RecentACARSMessages) < RecentMessageMax {
-		RecentACARSMessages = append(RecentACARSMessages, m)
+	// Don't filter if 0 similarity or unset
+	if config.FilterCriteriaACARSDuplicateMessageSimilarity == 0.0 {
+		return true
 	}
+	if regexp.MustCompile(`^\s*$`).MatchString(m.MessageText) {
+		log.Debug("empty message, filtering as duplicate")
+		return false
+	}
+	allowMessage := true
 	for _, c := range RecentACARSMessages {
 		similarity := strutil.Similarity(m.MessageText, c.MessageText, metrics.NewHamming())
 		if similarity > config.FilterCriteriaACARSDuplicateMessageSimilarity {
 			// Message is too similar, filter it out
 			allowMessage = false
-			log.Debugf("message is %f percent similar to a previous message, filtering",
-				similarity*100)
+			log.Debugf("message is %d percent similar to a previous message, filtering",
+				int(similarity*100))
 			break
 		}
 	}
@@ -35,21 +45,30 @@ func FilterDuplicateACARS(m ACARSMessage) bool {
 		// Remove the oldest message
 		RecentACARSMessages = RecentACARSMessages[1:]
 	}
+	RecentACARSMessages = append(RecentACARSMessages, m)
 	return allowMessage
 }
 
+// Compares message to a buffer of previous messages and compares
+// using Hamming distance. If similarity above configured setting,
+// filter out the message.
 func FilterDuplicateVDLM2(m VDLM2Message) bool {
-	allowMessage := true
-	if len(RecentVDLM2Messages) < RecentMessageMax {
-		RecentVDLM2Messages = append(RecentVDLM2Messages, m)
+	// Don't filter if 0 similarity or unset
+	if config.FilterCriteriaVDLM2DuplicateMessageSimilarity == 0.0 {
+		return true
 	}
+	if regexp.MustCompile(`^\s*$`).MatchString(m.VDL2.AVLC.ACARS.MessageText) {
+		log.Debug("empty message, filtering as duplicate")
+		return false
+	}
+	allowMessage := true
 	for _, c := range RecentVDLM2Messages {
 		similarity := strutil.Similarity(m.VDL2.AVLC.ACARS.MessageText, c.VDL2.AVLC.ACARS.MessageText, metrics.NewHamming())
 		if similarity > config.FilterCriteriaVDLM2DuplicateMessageSimilarity {
 			// Message is too similar, filter it out
 			allowMessage = false
-			log.Debugf("message is %f percent similar to a previous message, filtering",
-				similarity*100)
+			log.Debugf("message is %d percent similar to a previous message, filtering",
+				int(similarity*100))
 			break
 		}
 	}
@@ -57,5 +76,6 @@ func FilterDuplicateVDLM2(m VDLM2Message) bool {
 		// Remove the oldest message
 		RecentVDLM2Messages = RecentVDLM2Messages[1:]
 	}
+	RecentVDLM2Messages = append(RecentVDLM2Messages, m)
 	return allowMessage
 }

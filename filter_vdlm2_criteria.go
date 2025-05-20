@@ -48,6 +48,9 @@ var (
 		"More": func(m VDLM2Message) bool {
 			return !m.VDL2.AVLC.ACARS.More
 		},
+		"MessageSimilarity": func(m VDLM2Message) bool {
+			return FilterDuplicateVDLM2(m)
+		},
 		"ConsecutiveDictionaryWordCount": func(m VDLM2Message) bool {
 			return config.FilterCriteriaDictionaryPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.VDL2.AVLC.ACARS.MessageText)
 		},

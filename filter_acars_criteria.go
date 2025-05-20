@@ -50,6 +50,9 @@ var (
 		"More": func(m ACARSMessage) bool {
 			return true
 		},
+		"MessageSimilarity": func(m ACARSMessage) bool {
+			return FilterDuplicateACARS(m)
+		},
 		"ConsecutiveDictionaryWordCount": func(m ACARSMessage) bool {
 			return config.FilterCriteriaDictionaryPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.MessageText)
 		},
