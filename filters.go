@@ -10,58 +10,58 @@ import (
 func ConfigureFilters() {
 	// -------------------------------------------------------------------------
 	// Add filters based on what's enabled
-	if config.FilterCriteriaMatchTailCode != "" {
+	if config.Filters.Generic.TailCode != "" {
 		enabledFilters = append(enabledFilters, "MatchesTailCode")
 	}
-	if config.FilterCriteriaHasText {
+	if config.Filters.Generic.HasText {
 		enabledFilters = append(enabledFilters, "HasText")
 	}
-	if config.FilterCriteriaMatchFlightNumber != "" {
+	if config.Filters.Generic.FlightNumber != "" {
 		enabledFilters = append(enabledFilters, "MatchesFlightNumber")
 	}
-	if config.FilterCriteriaMatchFrequency != 0.0 {
+	if config.Filters.Generic.Frequency != 0.0 {
 		enabledFilters = append(enabledFilters, "MatchesFrequency")
 	}
-	if config.FilterCriteriaMatchStationID != "" {
+	if config.Filters.Generic.StationID != "" {
 		enabledFilters = append(enabledFilters, "MatchesStationID")
 	}
-	if config.FilterCriteriaAboveSignaldBm != 0.0 {
+	if config.Filters.Generic.AboveSignaldBm != 0.0 {
 		enabledFilters = append(enabledFilters, "AboveMinimumSignal")
 	}
-	if config.FilterCriteriaBelowSignaldBm != 0.0 {
+	if config.Filters.Generic.BelowSignaldBm != 0.0 {
 		enabledFilters = append(enabledFilters, "BelowMaximumSignal")
 	}
-	if config.FilterCriteriaAboveDistanceNm != 0.0 {
+	if config.Filters.Generic.AboveDistanceNm != 0.0 {
 		enabledFilters = append(enabledFilters, "AboveMinimumSignal")
 	}
-	if config.FilterCriteriaBelowDistanceNm != 0.0 {
+	if config.Filters.Generic.BelowDistanceNm != 0.0 {
 		enabledFilters = append(enabledFilters, "BelowMaximumSignal")
 	}
-	if config.FilterCriteriaFromTower {
+	if config.Filters.Generic.FromTower {
 		enabledFilters = append(enabledFilters, "FromTower")
 	}
-	if config.FilterCriteriaFromAircraft {
+	if config.Filters.Generic.FromAircraft {
 		enabledFilters = append(enabledFilters, "FromAircraft")
 	}
-	if config.FilterCriteriaMatchASSStatus != "" {
+	if config.Filters.Generic.ASSStatus != "" {
 		enabledFilters = append(enabledFilters, "MatchesASSStatus")
 	}
-	if config.FilterCriteriaMore {
+	if config.Filters.Generic.More {
 		enabledFilters = append(enabledFilters, "More")
 	}
-	if config.FilterCriteriaEmergency {
+	if config.Filters.Generic.Emergency {
 		enabledFilters = append(enabledFilters, "Emergency")
 	}
-	if config.FilterCriteriaDictionaryPhraseLengthMinimum > 0 {
-		enabledFilters = append(enabledFilters, "ConsecutiveDictionaryWordCount")
+	if config.Filters.Generic.DictionaryPhraseLengthMinimum > 0 {
+		enabledFilters = append(enabledFilters, "DictionaryPhraseLengthMinimum")
 	}
-	if config.OpenAIAPIKey != "" {
+	if config.Filters.OpenAI.APIKey != "" {
 		enabledFilters = append(enabledFilters, "OpenAIPromptFilter")
 	}
-	if config.OllamaFilterURL != "" {
+	if config.Filters.Ollama.URL != "" {
 		enabledFilters = append(enabledFilters, "OllamaPromptFilter")
 	}
-	if config.FilterCriteriaACARSDuplicateMessageSimilarity != 0.0 || config.FilterCriteriaVDLM2DuplicateMessageSimilarity != 0.0 {
+	if config.Filters.ACARS.DuplicateMessageSimilarity != 0.0 || config.Filters.VDLM2.DuplicateMessageSimilarity != 0.0 {
 		enabledFilters = append(enabledFilters, "MessageSimilarity")
 	}
 	log.Infof("enabled filters: %s", strings.Join(enabledFilters, ","))

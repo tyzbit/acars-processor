@@ -12,7 +12,7 @@ var (
 	TAR1090FilterFunctions = map[string]func(tar Tar1090AircraftJSON) bool{
 		"MatchesTailCode": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.FilterCriteriaMatchTailCode == NormalizeAircraftRegistration(aircraft.Registration) {
+				if config.Filters.Generic.TailCode == NormalizeAircraftRegistration(aircraft.Registration) {
 					result = true
 					break
 				}
@@ -21,7 +21,7 @@ var (
 		},
 		"MatchesFlightNumber": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.FilterCriteriaMatchFlightNumber == aircraft.AircraftTailCode {
+				if config.Filters.Generic.FlightNumber == aircraft.AircraftTailCode {
 					result = true
 					break
 				}
@@ -30,7 +30,7 @@ var (
 		},
 		"AboveMinimumSignal": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.FilterCriteriaAboveSignaldBm <= aircraft.RSSISignalPowerdBm {
+				if config.Filters.Generic.AboveSignaldBm <= aircraft.RSSISignalPowerdBm {
 					result = true
 					break
 				}
@@ -39,7 +39,7 @@ var (
 		},
 		"BelowMaximumSignal": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.FilterCriteriaBelowSignaldBm >= aircraft.RSSISignalPowerdBm {
+				if config.Filters.Generic.BelowSignaldBm >= aircraft.RSSISignalPowerdBm {
 					result = true
 					break
 				}
@@ -48,7 +48,7 @@ var (
 		},
 		"AboveMinimumDistance": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.FilterCriteriaAboveDistanceNm <= aircraft.DistanceFromReceiverNm {
+				if config.Filters.Generic.AboveDistanceNm <= aircraft.DistanceFromReceiverNm {
 					result = true
 					break
 				}
@@ -57,7 +57,7 @@ var (
 		},
 		"BelowMaximumDistance": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.FilterCriteriaBelowDistanceNm >= aircraft.DistanceFromReceiverNm {
+				if config.Filters.Generic.BelowDistanceNm >= aircraft.DistanceFromReceiverNm {
 					result = true
 					break
 				}

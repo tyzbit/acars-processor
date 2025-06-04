@@ -92,12 +92,12 @@ func (a OllamaHandler) Name() string {
 }
 
 func (a OllamaHandler) SelectFields(annotation Annotation) Annotation {
-	if config.OllamaAnnotatorSelectedFields == "" {
+	if config.Annotators.Ollama.SelectedFields == "" {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if strings.Contains(config.OllamaAnnotatorSelectedFields, field) {
+		if strings.Contains(config.Annotators.Ollama.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}
@@ -118,11 +118,11 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		log.Debug("message was blank, not annotating with ollama")
 		return
 	}
-	if config.OllamaAnnotatorModel == "" || config.OllamaAnnotatorUserPrompt == "" {
+	if config.Annotators.Ollama.Model == "" || config.Annotators.Ollama.UserPrompt == "" {
 		log.Warn("OllamaAnnotator model and prompt are required to use the ollama annotator")
 		return
 	}
-	url, err := url.Parse(config.OllamaAnnotatorURL)
+	url, err := url.Parse(config.Annotators.Ollama.URL)
 	if err != nil {
 		log.Errorf("OllamaAnnotator url could not be parsed: %s", err)
 		return
@@ -133,20 +133,20 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		return
 	}
 
-	if config.OllamaAnnotatorMaxPredictionTokens != 0 {
-		OllamaAnnotatorMaxPredictionTokens = config.OllamaAnnotatorMaxPredictionTokens
+	if config.Annotators.Ollama.MaxPredictionTokens != 0 {
+		OllamaAnnotatorMaxPredictionTokens = config.Annotators.Ollama.MaxPredictionTokens
 	}
-	if config.OllamaAnnotatorSystemPrompt != "" {
-		OllamaAnnotatorFirstInstructions = config.OllamaAnnotatorSystemPrompt
+	if config.Annotators.Ollama.SystemPrompt != "" {
+		OllamaAnnotatorFirstInstructions = config.Annotators.Ollama.SystemPrompt
 	}
-	if config.OllamaAnnotatorTimeout != 0 {
-		OllamaAnnotatorTimeout = config.OllamaAnnotatorTimeout
+	if config.Annotators.Ollama.Timeout != 0 {
+		OllamaAnnotatorTimeout = config.Annotators.Ollama.Timeout
 	}
-	if config.OllamaAnnotatorMaxRetryAttempts != 0 {
-		OllamaAnnotatorMaxRetryAttempts = config.OllamaAnnotatorMaxRetryAttempts
+	if config.Annotators.Ollama.MaxRetryAttempts != 0 {
+		OllamaAnnotatorMaxRetryAttempts = config.Annotators.Ollama.MaxRetryAttempts
 	}
-	if config.OllamaAnnotatorRetryDelaySeconds != 0 {
-		OllamaAnnotatorRetryDelaySeconds = config.OllamaAnnotatorRetryDelaySeconds
+	if config.Annotators.Ollama.MaxRetryDelaySeconds != 0 {
+		OllamaAnnotatorRetryDelaySeconds = config.Annotators.Ollama.MaxRetryDelaySeconds
 	}
 
 	stream := false
@@ -157,9 +157,9 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 	}
 
 	req := &api.GenerateRequest{
-		Model:  config.OllamaAnnotatorModel,
+		Model:  config.Annotators.Ollama.Model,
 		Format: requestedFormatJson,
-		System: OllamaAnnotatorFirstInstructions + config.OllamaAnnotatorUserPrompt +
+		System: OllamaAnnotatorFirstInstructions + config.Annotators.Ollama.UserPrompt +
 			OllamaAnnotatorFinalInstructions,
 		Stream: &stream,
 		Prompt: `Here is the message to evaluate:\n` + m,
@@ -197,7 +197,7 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaAnnotatorTimeout)*time.Second)
 	defer cancel()
-	log.Debugf("calling OllamaAnnotator, model %s", config.OllamaAnnotatorModel)
+	log.Debugf("calling OllamaAnnotator, model %s", config.Annotators.Ollama.Model)
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
@@ -215,7 +215,7 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		}),
 	)
 
-	if config.OllamaAnnotatorFilterWithQuestion {
+	if config.Annotators.Ollama.FilterWithQuestion {
 		if !r.Question {
 			log.Info("ollama annotation response did not qualify according to " +
 				"user requirements, not returning any output")
@@ -225,6 +225,7 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 	if r.ProcessedText == "" && r.EditActions == "" {
 		log.Info("ollama annotator response was empty")
 	} else {
+		// Please update config example values if changed
 		annotation = Annotation{
 			"ollamaProcessedText": r.ProcessedText,
 			"ollamaEditActions":   r.EditActions,

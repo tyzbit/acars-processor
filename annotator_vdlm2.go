@@ -16,12 +16,12 @@ func (v VDLM2HandlerAnnotator) Name() string {
 }
 
 func (v VDLM2HandlerAnnotator) SelectFields(annotation Annotation) Annotation {
-	if config.VDLM2AnnotatorSelectedFields == "" {
+	if config.Annotators.VDLM2.SelectedFields == "" {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if strings.Contains(config.VDLM2AnnotatorSelectedFields, field) {
+		if strings.Contains(config.Annotators.VDLM2.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}
@@ -93,6 +93,7 @@ func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 	if !cut {
 		tailcode = m.VDL2.AVLC.ACARS.Registration
 	}
+	// Please update config example values if changed
 	annotation = Annotation{
 		"vdlm2AppName":               m.VDL2.App.Name,
 		"vdlm2AppVersion":            m.VDL2.App.Version,

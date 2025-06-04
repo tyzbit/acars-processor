@@ -23,7 +23,7 @@ func (n NewRelicHandlerReciever) Name() string {
 func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error) {
 	// Create a new harvester for sending telemetry data.
 	harvester, err := telemetry.NewHarvester(
-		telemetry.ConfigAPIKey(config.NewRelicLicenseKey),
+		telemetry.ConfigAPIKey(config.Receivers.NewRelic.APIKey),
 	)
 	if err != nil {
 		log.Error("Error creating harvester:", err)
@@ -31,8 +31,8 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 
 	// Allow overriding the custom event type if set
 	eventType := ACARSCustomEventType
-	if config.NewRelicLicenseCustomEventType != "" {
-		eventType = config.NewRelicLicenseCustomEventType
+	if config.Receivers.NewRelic.CustomEventType != "" {
+		eventType = config.Receivers.NewRelic.CustomEventType
 	}
 
 	event := telemetry.Event{

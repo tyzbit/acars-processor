@@ -1,33 +1,28 @@
 package main
 
 import (
+	"flag"
 	"os"
 	"os/signal"
 	"strings"
 	"syscall"
 
-	cfg "github.com/golobby/config/v3"
-	"github.com/golobby/config/v3/pkg/feeder"
+	"github.com/ghodss/yaml"
 	log "github.com/sirupsen/logrus"
+	// "gopkg.in/yaml.v3"
 )
 
 var (
 	config                 = Config{}
+	configFilePath         = "config.yaml"
+	schemaFilePath         = "schema.json"
 	enabledACARSAnnotators = []ACARSAnnotator{}
 	enabledVDLM2Annotators = []VDLM2Annotator{}
 	enabledReceivers       = []Receiver{}
 	enabledFilters         = []string{}
 )
 
-// Set up Config, logging
-func init() {
-	// Read from .env and override from the local environment
-	dotEnvFeeder := feeder.DotEnv{Path: ".env"}
-	envFeeder := feeder.Env{}
-
-	_ = cfg.New().AddFeeder(dotEnvFeeder).AddStruct(&config).Feed()
-	_ = cfg.New().AddFeeder(envFeeder).AddStruct(&config).Feed()
-
+func ConfigureLogging() {
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp: true,
 	})
@@ -47,6 +42,25 @@ func init() {
 }
 
 func main() {
+	var generateSchema bool
+	// flags declaration using flag package
+	flag.StringVar(&configFilePath, "c", configFilePath, "Config file path.")
+	flag.BoolVar(&generateSchema, "s", false, "Generate schema.json, then exit.")
+	flag.Parse()
+
+	// Generate schema only and then exit
+	if generateSchema {
+		GenerateSchema(schemaFilePath)
+		return
+	}
+
+	// Load config file, if present
+	cb := ReadFile(configFilePath)
+	if err := yaml.Unmarshal(cb, &config); err != nil {
+		log.Fatalf("unable to load config from %s", configFilePath)
+	}
+
+	ConfigureLogging()
 	ConfigureAnnotators()
 	ConfigureReceivers()
 	ConfigureFilters()

@@ -1,4 +1,5 @@
 .env
-.vscode
+config.yaml
 __debug*
 .DS_Store
+.vscode/launch.json
