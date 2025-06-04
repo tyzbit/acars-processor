@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	OllamaAnnotatorFirstInstructions = `You are an expert at  precisely
+	OllamaAnnotatorFirstInstructions = `You are an expert at precisely
 	processing text according to instructions. You will be provided 
 	instructions and then a communication message. You may also be asked a
 	question about the message.
