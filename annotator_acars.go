@@ -16,12 +16,12 @@ func (a ACARSHandlerAnnotator) Name() string {
 }
 
 func (a ACARSHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
-	if config.ACARSAnnotatorSelectedFields == "" {
+	if config.Annotators.ACARS.SelectedFields == "" {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if strings.Contains(config.ACARSAnnotatorSelectedFields, field) {
+		if strings.Contains(config.Annotators.ACARS.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}
@@ -62,6 +62,7 @@ func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation 
 	if !cut {
 		tailcode = m.AircraftTailCode
 	}
+	// Please update config example values if changed
 	annotation = Annotation{
 		"acarsFrequencyMHz":     m.FrequencyMHz,
 		"acarsChannel":          m.Channel,

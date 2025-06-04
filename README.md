@@ -1,93 +1,64 @@
 # acars-processor
 
-A simple daemon that listens to ACARS messages, hydrates them with additional
-data via external lookups and then submits the message to a specified receiver
-such as a webhook.
+A simple daemon that, in order:
 
-Enable annotators and receivers by filling in the required environment
-variables for them.
+1.  Listens to ACARS/VDLM2 messages from ACARSHub
+2.  Filters them according to various criteria from various providers
+3.  Hydrates them with additional data via external lookups from various
+    providers
+4.  Submits the message to a specified receiver such as a Discord webhook
+    or others.
+
+Configuration is done with `config.yaml` and there is a schema to help you
+fill it out. See below.
+
+## Available filters
+
+See the configuration section, but at a high level:
+
+- ACARS and VDLM2: Just message similarity at the moment. Many more in `Generic`
+- Generic: Filter on aspects of the message such as if an emergency was
+  specified or if the message has additional message text.
+- Ollama: Provide a yes/no or affirmative/negative prompt and Ollama will
+  evalutate the message and decide if it should be filtered.
+- OpenAI: Provide a yes/no or affirmative/negative prompt and OpenAI will
+  evalutate the message and decide if it should be filtered.
+
+### A Note on Filters
+
+Filters fail **CLOSED** by default which means if they fail (only when something
+goes wrong), **by default they do not filter the message**.
 
 ## Available annotators
 
 - ACARS: This will add key/value fields for all data in the original ACARS
   message
+
 - VDLM2: Same as above but for VDLM2 messages
-- ADS-B Exchange (Only SingleAircraftPositionByRegistration at the moment)
+
+- ADS-B Exchange: Adds geolocation information for the transmitter of the
+  message and optionally calculates distance to a configurable geolocation.
+
 - Tar1090: Adds a lot of information from a tar1090 instance including location.
   It's advised to use one running in the same geographical location as the
   ACARS/VDLM2 receiver.
 
+- Ollama: Uses Ollama and it will return a processed response based on your
+  instructions. You can also ask a question about the message, which can be used
+  to annotate and filter in one step. This is likely not as effective as just
+  using the Ollama filter itself.
+
 ## Available receivers
 
-- New Relic
-- Discord
-- Custom Webhook - See below for usage
+- New Relic: Sends custom events to New Relic
+- Discord: Calls a Discord webhook to post messages in a channel.
+- Custom Webhook: Calls a webhook however you want - See below for usage
 
 ### General Configuration
 
-| Environment Variable                            | Value                                                                                                   |
-| ----------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| ACARSHUB_HOST                                   | The hostname or IP to your acarshub instance                                                            |
-| ACARSHUB_PORT                                   | The ACARS port to connect to your acarshub instance on                                                  |
-| ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER | Maximum number of requests to make to ACARSHub at once (per subscriber, i.e. 1 for ACARS & 1 for VDLM2) |
-| ACARSHUB_VDLM2_HOST                             | The hostname or IP to your acarshub instance for VDLM2                                                  |
-| ACARSHUB_VDLM2_PORT                             | The VDLM2 port to connect to your acarshub instance on                                                  |
-| LOGLEVEL                                        | debug, info, warn, error (default "info")                                                               |
-
-### Annotators
-
-| Environment Variable                   | Value                                                                                                                          |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| ANNOTATE_ACARS                         | Include the original ACARS message, "true" or "false"                                                                          |
-| ANNOTATE_VDLM2                         | Include the original VDLM2 message, "true" or "false"                                                                          |
-| ADBSEXCHANGE_APIKEY                    | **REQUIRED TO USE** Your API Key to adb-s exchange (lite tier is fine)                                                         |
-| ADBSEXCHANGE_REFERENCE_GEOLOCATION     | A geolocation to calulate distance from (ex: "0.1,-0.1") \*                                                                    |
-| TAR1090_URL                            | **REQUIRED TO USE** URL to a tar1090 instance                                                                                  |
-| TAR1090_REFERENCE_GEOLOCATION          | Geolocation to allow the annotator to provide distance metrics \*                                                              |
-| OLLAMA_ANNOTATOR_URL                   | **REQUIRED TO USE** Full URL to your ollama instance (<scheme>://<host>:<port>)                                                |
-| OLLAMA_ANNOTATOR_TIMEOUT               | Max time to wait for results from OllamaFilter in seconds (default 60)                                                         |
-| OLLAMA_ANNOTATOR_MODEL                 | **REQUIRED TO USE** The model to use; ex: "llama3.2"                                                                           |
-| OLLAMA_ANNOTATOR_PROMPT                | **REQUIRED TO USE** Criteria for the model to evaluate the message against                                                     |
-| OLLAMA_ANNOTATOR_MAX_PREDICTION_TOKENS | Maximum tokens to return for prediction. Don't go below about 40.                                                              |
-| OLLAMA_ANNOTATOR_MAX_RETRY_ATTEMPTS    | Maximum number of times to retry calling OllamaFilter PER MESSAGE                                                              |
-| OLLAMA_ANNOTATOR_RETRY_DELAY           | Seconds to wait between OllamaFilter retries (exponential backoff)                                                             |
-| OLLAMA_ANNOTATOR_SYSTEM_PROMPT         | By default, `acars-processor` includes a system prompt that describes what the response should look like. This overrides that. |
-
-### Filters
-
-| Environment Variable                               | Value                                                                                                                                                   |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ACARS_ANNOTATOR_SELECTED_FIELDS                    | If this is set, receivers will only receive fields present in this variable from ACARS annotator \*\*                                                   |
-| VDLM2_ANNOTATOR_SELECTED_FIELDS                    | If this is set, receivers will only receive fields present in this variable from VDLM2 annotator \*\*                                                   |
-| ADSB_ANNOTATOR_SELECTED_FIELDS                     | If this is set, receivers will only receive fields present in this variable from TAR1090 annotator \*\*                                                 |
-| TAR1090_ANNOTATOR_SELECTED_FIELDS                  | If this is set, receivers will only receive fields present in this variable \*\*                                                                        |
-| OLLAMA_ANNOTATOR_SELECTED_FIELDS                   | If this is set, receivers will only receive fields present in this variable \*\*                                                                        |
-| FILTER_CRITERIA_HAS_TEXT                           | Message must have text                                                                                                                                  |
-| FILTER_CRITERIA_MATCH_TAIL_CODE                    | Message must match tail code                                                                                                                            |
-| FILTER_CRITERIA_MATCH_FLIGHT_NUMBER                | Message must match flight number                                                                                                                        |
-| FILTER_CRITERIA_MATCH_FREQUENCY                    | Message must have been received on this frequency                                                                                                       |
-| FILTER_CRITERIA_ABOVE_SIGNAL_DBM                   | Message must have signal above this                                                                                                                     |
-| FILTER_CRITERIA_MATCH_STATION_ID                   | Message must have come from this station                                                                                                                |
-| FILTER_CRITERIA_FROM_TOWER                         | Only messages from tower (Flight number is blank) station                                                                                               |
-| FILTER_CRITERIA_FROM_AIRCRAFT                      | Only messages from aircraft (Flight number is not blank) station                                                                                        |
-| FILTER_CRITERIA_ACARS_DUPLICATE_MESSAGE_SIMILARITY | Filter ACARS messages that are this percent similar (ex: 0.90 for 90% similar)                                                                          |
-| FILTER_CRITERIA_VDLM2_DUPLICATE_MESSAGE_SIMILARITY | Filter VDLM2 messages that are this percent similar (ex: 0.90 for 90% similar)                                                                          |
-| FILTER_CRITERIA_DICTIONARY_PHRASE_LENGTH_MINIMUM   | Message must have at least this amount of consecutive words (English only at the moment)                                                                |
-| FILTER_OLLAMA_URL                                  | **REQUIRED TO USE** Full URL to your ollama instance (<scheme>://<host>:<port>)                                                                         |
-| FILTER_OLLAMA_TIMEOUT                              | Max time to wait for results from OllamaFilter in seconds (default 60)                                                                                  |
-| FILTER_OLLAMA_MODEL                                | **REQUIRED TO USE** The model to use; ex: "llama3.2"                                                                                                    |
-| FILTER_OLLAMA_PROMPT                               | **REQUIRED TO USE** Criteria for the model to evaluate the message against                                                                              |
-| FILTER_OLLAMA_FILTER_ON_FAILURE                    | If OllamaFilter fails, should the message be filtered?                                                                                                  |
-| FILTER_OLLAMA_MAX_PREDICTION_TOKENS                | Maximum tokens to return for prediction. Don't go below about 40.                                                                                       |
-| FILTER_OLLAMA_MAX_RETRY_ATTEMPTS                   | Maximum number of times to retry calling OllamaFilter PER MESSAGE                                                                                       |
-| FILTER_OLLAMA_RETRY_DELAY                          | Seconds to wait between OllamaFilter retries (exponential backoff)                                                                                      |
-| FILTER_OLLAMA_SYSTEM_PROMPT                        | By default, `acars-processor` includes a system prompt that describes what the response should look like. This overrides that.                          |
-| FILTER_OPENAI_PROMPT                               | **REQUIRED TO USE** Criteria to evaluate the message, sent to OpenAI                                                                                    |
-| FILTER_OPENAI_APIKEY                               | **REQUIRED TO USE** API key for OpenAI, required for functionality                                                                                      |
-| FILTER_OPENAI_MODEL                                | Override the default model (`gpt-4o` by default), see [here](https://pkg.go.dev/github.com/openai/openai-go@v0.1.0-alpha.62#ChatModel) for your options |
-| FILTER_OPENAI_SYSTEM_PROMPT                        | By default, `acars-processor` includes a system prompt that describes what the response should look like. This overrides that.                          |
-
-Filters fail **CLOSED** which means if they fail, they do not filter the message.
+Check `config_example.yaml` for all possible settings and illustrative values.
+You can duplicate it to `config.yaml` and edit it or copy it but only keep the
+first line. This will let you auto-complete the file if your editor supports it.
 
 ### A Note on Using Large Language Models for Filters
 
@@ -97,7 +68,7 @@ I recommend `gemma3:4b`. It uses about 8GB at runtime but is similar in
 effectiveness to OpenAI's models.
 
 If you're not seeing great results out of your model, be verbose, explicit and
-include examples of what you want to see and not see. Uou can also try
+include examples of what you want to see and not see. You can also try
 a different one or try overriding the system prompt with
 `FILTER_OLLAMA_SYSTEM_PROMPT`. If acars-processor isn't able to pull a JSON
 object from the response, it'll log what it got from the model at a
@@ -105,23 +76,6 @@ object from the response, it'll log what it got from the model at a
 reduce `FILTER_OLLAMA_MAX_PREDICTION_TOKENS` and/or increase
 `ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER` as well as review your OllamaFilter
 configuration for improvements (such as number of parallel requests)
-
-### Receivers
-
-| Environment Variable  | Value                                                                      |
-| --------------------- | -------------------------------------------------------------------------- |
-| DISCORD_WEBHOOK_URL   | **REQUIRED TO USE** URL to a Discord webhook to post messages in a channel |
-| NEW_RELIC_LICENSE_KEY | **REQUIRED TO USE** Your New Relic Infra license key (ex: 123456NRAL)      |
-| WEBHOOK_URL           | **REQUIRED TO USE** URL to your custom webhook                             |
-| WEBHOOK_METHOD        | **REQUIRED TO USE** GET, POST, etc                                         |
-| WEBHOOK_HEADERS       | Headers to send along with the webhook request \*\*\*                      |
-
-\* If none provided, "0,0" is used.
-
-\*\* Use whatever separator you want, the field just has to be present somewhere
-in the variable.
-
-\*\*\* The headers should be in the format `key=value,otherkey=value`
 
 #### Webhooks
 
@@ -131,19 +85,18 @@ and add the fields and values that you need with
 An example is provided which shows a very simple webhook payload
 that uses annotations from the ACARS annotator.
 
-#### Example .env
+# Contributing
 
-```env
-ACARSHUB_HOST=192.168.0.100
-ACARSHUB_PORT=15550
-ACARSHUB_VDLM2_PORT=15555
-ANNOTATE_ACARS=true
-ANNOTATE_VDLM2=true
-LOGLEVEL=debug
-WEBHOOK_URL=http://webhook
-WEBHOOK_METHOD=POST
-TAR1090_URL=http://tar1090
-TAR1090_REFERENCE_GEOLOCATION=34.1340549,-118.3264889
-ACARS_ANNOTATOR_SELECTED_FIELDS=acarsAircraftTailCode,acarsExtraURL,acarsFlightNumber,acarsFrequencyMHz,acarsMessageText
-VDLM_ANNOTATOR_SELECTED_FIELDS=acarsAircraftTailCode,acarsExtraURL,acarsFlightNumber,vdlm2FrequencyHz,acarsMessageText
-```
+First off, thanks for your interest! All contributions are welcome. Here's
+some info to help you get a good start:
+
+- Check go.mod for which Go version we're using. As of this writing, that's 1.24
+- Install the pre-commit hook by installing
+  [pre-commit](https://pre-commit.com/#install) and then running
+  `pre-commit install` in the root directory of the repo.
+- If you use VSCode, there's already an example launch config for debugging.
+- Although large language model use is strongly discouraged, it is not forbidden
+  (but this could change at any time). You will not be given special leniency
+  for counterfeit code that must be tediously tweaked after you make your PR
+  due to inept AI. Weigh the efficacy of your tools against the new, additional
+  work they make for you by using them.

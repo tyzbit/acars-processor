@@ -18,14 +18,14 @@ var (
 )
 
 func ReadACARSHubACARSMessages() {
-	if config.ACARSHubMaxConcurrentRequests != 0 {
-		ACARSHubMaxConcurrentRequests = config.ACARSHubMaxConcurrentRequests
+	if config.ACARSHub.MaxConcurrentRequests != 0 {
+		ACARSHubMaxConcurrentRequests = config.ACARSHub.MaxConcurrentRequests
 	}
 	for range ACARSHubMaxConcurrentRequests {
 		go HandleACARSJSONMessages(ACARSMessageQueue)
 	}
 
-	address := fmt.Sprintf("%s:%d", config.ACARSHubHost, config.ACARSHubPort)
+	address := fmt.Sprintf("%s:%d", config.ACARSHub.ACARS.Host, config.ACARSHub.ACARS.Port)
 	for {
 		log.Debugf("connecting to %s acars json port", address)
 		s, err := net.Dial("tcp", address)
@@ -62,14 +62,14 @@ func ReadACARSHubACARSMessages() {
 }
 
 func ReadACARSHubVDLM2Messages() {
-	if config.ACARSHubMaxConcurrentRequests != 0 {
-		ACARSHubMaxConcurrentRequests = config.ACARSHubMaxConcurrentRequests
+	if config.ACARSHub.MaxConcurrentRequests != 0 {
+		ACARSHubMaxConcurrentRequests = config.ACARSHub.MaxConcurrentRequests
 	}
 	for range ACARSHubMaxConcurrentRequests {
 		go HandleVDLM2JSONMessages(VDLM2MessageQueue)
 	}
 
-	address := fmt.Sprintf("%s:%d", config.ACARSHubVDLM2Host, config.ACARSHubVDLM2Port)
+	address := fmt.Sprintf("%s:%d", config.ACARSHub.VDLM2.Host, config.ACARSHub.VDLM2.Port)
 	for {
 		log.Debugf("connecting to %s vdlm2 json port", address)
 		s, err := net.Dial("tcp", address)
@@ -108,16 +108,16 @@ func ReadACARSHubVDLM2Messages() {
 // Connects to ACARS and starts listening to messages
 func SubscribeToACARSHub() {
 	launched := false
-	if config.ACARSHubHost != "" && config.ACARSHubPort != 0 {
+	if config.ACARSHub.ACARS.Host != "" && config.ACARSHub.VDLM2.Port != 0 {
 		go ReadACARSHubACARSMessages()
 		launched = true
 	}
-	if config.ACARSHubVDLM2Host != "" && config.ACARSHubVDLM2Port != 0 {
+	if config.ACARSHub.VDLM2.Host != "" && config.ACARSHub.VDLM2.Port != 0 {
 		go ReadACARSHubVDLM2Messages()
 		launched = true
 	}
 	if !launched {
-		log.Warn("no acarshub subscribes set, please update configuration")
+		log.Warnf("no acarshub subscribers set, please check configuration (%s)", configFilePath)
 	} else {
 		log.Debug("launched acarshub subscribers")
 	}

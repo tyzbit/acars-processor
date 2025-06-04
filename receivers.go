@@ -4,15 +4,15 @@ import log "github.com/sirupsen/logrus"
 
 func ConfigureReceivers() {
 	// Add receivers based on what's enabled
-	if config.WebhookURL != "" {
+	if config.Receivers.Webhook.URL != "" {
 		log.Info("Webhook receiver enabled")
 		enabledReceivers = append(enabledReceivers, WebhookHandlerReciever{})
 	}
-	if config.NewRelicLicenseKey != "" {
+	if config.Receivers.NewRelic.APIKey != "" {
 		log.Info("New Relic reciever enabled")
 		enabledReceivers = append(enabledReceivers, NewRelicHandlerReciever{})
 	}
-	if config.DiscordWebhookURL != "" {
+	if config.Receivers.DiscordWebhook.URL != "" {
 		log.Info("Discord reciever enabled")
 		enabledReceivers = append(enabledReceivers, DiscordHandlerReciever{})
 	}

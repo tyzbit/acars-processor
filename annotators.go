@@ -4,22 +4,22 @@ import log "github.com/sirupsen/logrus"
 
 func ConfigureAnnotators() {
 	// ACARS-type messages
-	if config.AnnotateACARS {
+	if config.Annotators.ACARS.Enabled {
 		log.Info("ACARS annotator enabled")
 		enabledACARSAnnotators = append(enabledACARSAnnotators, ACARSHandlerAnnotator{})
 	}
-	if config.ADSBExchangeAPIKey != "" {
+	if config.Annotators.ADSBExchange.APIKey != "" {
 		log.Info("ADSB annotator enabled")
-		if config.ADSBExchangeAPIKey == "" {
+		if config.Annotators.ADSBExchange.APIKey == "" {
 			log.Error("ADSB API key not set")
 		}
 		enabledACARSAnnotators = append(enabledACARSAnnotators, ADSBHandlerAnnotator{})
 	}
-	if config.TAR1090URL != "" {
+	if config.Annotators.Tar1090.URL != "" {
 		log.Info("TAR1090 VDLM2 annotator enabled")
 		enabledACARSAnnotators = append(enabledACARSAnnotators, Tar1090Handler{})
 	}
-	if config.OllamaAnnotatorURL != "" && config.ACARSHubHost != "" {
+	if config.Annotators.Ollama.URL != "" && config.ACARSHub.ACARS.Host != "" {
 		log.Info("Ollama ACARS annotator enabled")
 		enabledACARSAnnotators = append(enabledACARSAnnotators, OllamaHandler{})
 	}
@@ -28,15 +28,15 @@ func ConfigureAnnotators() {
 	}
 
 	// VDLM2-type messages
-	if config.AnnotateVDLM2 {
+	if config.Annotators.VDLM2.Enabled {
 		log.Info("VDLM2 annotator enabled")
 		enabledVDLM2Annotators = append(enabledVDLM2Annotators, VDLM2HandlerAnnotator{})
 	}
-	if config.TAR1090URL != "" {
+	if config.Annotators.Tar1090.URL != "" {
 		log.Info("TAR1090 VDLM2 annotator enabled")
 		enabledVDLM2Annotators = append(enabledVDLM2Annotators, Tar1090Handler{})
 	}
-	if config.OllamaAnnotatorURL != "" && config.ACARSHubVDLM2Host != "" {
+	if config.Annotators.Ollama.URL != "" && config.ACARSHub.VDLM2.Host != "" {
 		log.Info("Ollama VDLM2 annotator enabled")
 		enabledVDLM2Annotators = append(enabledVDLM2Annotators, OllamaHandler{})
 	}

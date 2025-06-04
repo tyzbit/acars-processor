@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"io"
 	"net/http"
-	"strings"
 	"text/template"
 
 	log "github.com/sirupsen/logrus"
@@ -33,16 +32,12 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 		return
 	}
 
-	h, err := http.NewRequest(config.WebhookMethod, config.WebhookURL, &b)
+	h, err := http.NewRequest(config.Receivers.Webhook.Method, config.Receivers.Webhook.URL, &b)
 	if err != nil {
 		return err
 	}
-	for _, header := range strings.Split(config.WebhookHeaders, ",") {
-		if header != "" {
-			key := strings.Split(header, "=")[0]
-			value := strings.Split(header, "=")[1]
-			h.Header.Add(key, value)
-		}
+	for _, header := range config.Receivers.Webhook.Headers {
+		h.Header.Add(header.Name, header.Value)
 	}
 
 	c := http.Client{}

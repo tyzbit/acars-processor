@@ -19,23 +19,23 @@ var (
 			return re.MatchString(m.VDL2.AVLC.ACARS.MessageText)
 		},
 		"MatchesTailCode": func(m VDLM2Message) bool {
-			return config.FilterCriteriaMatchTailCode == m.VDL2.AVLC.ACARS.Registration
+			return config.Filters.Generic.TailCode == m.VDL2.AVLC.ACARS.Registration
 		},
 		"MatchesFlightNumber": func(m VDLM2Message) bool {
-			return config.FilterCriteriaMatchFlightNumber == m.VDL2.AVLC.ACARS.FlightNumber
+			return config.Filters.Generic.FlightNumber == m.VDL2.AVLC.ACARS.FlightNumber
 		},
 		"MatchesFrequency": func(m VDLM2Message) bool {
-			return config.FilterCriteriaMatchFrequency == float64(m.VDL2.FrequencyHz)
+			return config.Filters.Generic.Frequency == float64(m.VDL2.FrequencyHz)
 		},
 		"MatchesStationID": func(m VDLM2Message) bool {
-			return config.FilterCriteriaMatchStationID == m.VDL2.AVLC.Source.Address ||
-				config.FilterCriteriaMatchStationID == m.VDL2.AVLC.Destination.Address
+			return config.Filters.Generic.StationID == m.VDL2.AVLC.Source.Address ||
+				config.Filters.Generic.StationID == m.VDL2.AVLC.Destination.Address
 		},
 		"AboveMinimumSignal": func(m VDLM2Message) bool {
-			return config.FilterCriteriaAboveSignaldBm <= m.VDL2.SignalLevel
+			return config.Filters.Generic.AboveSignaldBm <= m.VDL2.SignalLevel
 		},
 		"BelowMaximumSignal": func(m VDLM2Message) bool {
-			return config.FilterCriteriaBelowSignaldBm >= m.VDL2.SignalLevel
+			return config.Filters.Generic.BelowSignaldBm >= m.VDL2.SignalLevel
 		},
 		"FromTower": func(m VDLM2Message) bool {
 			b, _ := regexp.Match("\\S+", []byte(m.VDL2.AVLC.ACARS.FlightNumber))
@@ -51,8 +51,8 @@ var (
 		"MessageSimilarity": func(m VDLM2Message) bool {
 			return FilterDuplicateVDLM2(m)
 		},
-		"ConsecutiveDictionaryWordCount": func(m VDLM2Message) bool {
-			return config.FilterCriteriaDictionaryPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.VDL2.AVLC.ACARS.MessageText)
+		"DictionaryPhraseLengthMinimum": func(m VDLM2Message) bool {
+			return int64(config.Filters.Generic.DictionaryPhraseLengthMinimum) <= LongestDictionaryWordPhraseLength(m.VDL2.AVLC.ACARS.MessageText)
 		},
 		"OpenAIPromptFilter": func(m VDLM2Message) bool {
 			return OpenAIFilter(m.VDL2.AVLC.ACARS.MessageText)

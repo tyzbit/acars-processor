@@ -19,25 +19,25 @@ var (
 			return re.MatchString(m.MessageText)
 		},
 		"MatchesTailCode": func(m ACARSMessage) bool {
-			return config.FilterCriteriaMatchTailCode == m.AircraftTailCode
+			return config.Filters.Generic.TailCode == m.AircraftTailCode
 		},
 		"MatchesFlightNumber": func(m ACARSMessage) bool {
-			return config.FilterCriteriaMatchFlightNumber == m.FlightNumber
+			return config.Filters.Generic.FlightNumber == m.FlightNumber
 		},
 		"MatchesFrequency": func(m ACARSMessage) bool {
-			return config.FilterCriteriaMatchFrequency == m.FrequencyMHz
+			return config.Filters.Generic.Frequency == m.FrequencyMHz
 		},
 		"MatchesStationID": func(m ACARSMessage) bool {
-			return config.FilterCriteriaMatchStationID == m.StationID
+			return config.Filters.Generic.StationID == m.StationID
 		},
 		"AboveMinimumSignal": func(m ACARSMessage) bool {
-			return config.FilterCriteriaAboveSignaldBm <= m.SignaldBm
+			return config.Filters.Generic.AboveSignaldBm <= m.SignaldBm
 		},
 		"BelowMaximumSignal": func(m ACARSMessage) bool {
-			return config.FilterCriteriaBelowSignaldBm >= m.SignaldBm
+			return config.Filters.Generic.BelowSignaldBm >= m.SignaldBm
 		},
 		"ASSStatus": func(m ACARSMessage) bool {
-			return config.FilterCriteriaMatchASSStatus == m.ASSStatus
+			return config.Filters.Generic.ASSStatus == m.ASSStatus
 		},
 		"FromTower": func(m ACARSMessage) bool {
 			b, _ := regexp.Match("\\S+", []byte(m.FlightNumber))
@@ -53,8 +53,8 @@ var (
 		"MessageSimilarity": func(m ACARSMessage) bool {
 			return FilterDuplicateACARS(m)
 		},
-		"ConsecutiveDictionaryWordCount": func(m ACARSMessage) bool {
-			return config.FilterCriteriaDictionaryPhraseLengthMinimum <= LongestDictionaryWordPhraseLength(m.MessageText)
+		"DictionaryPhraseLengthMinimum": func(m ACARSMessage) bool {
+			return int64(config.Filters.Generic.DictionaryPhraseLengthMinimum) <= LongestDictionaryWordPhraseLength(m.MessageText)
 		},
 		"OpenAIPromptFilter": func(m ACARSMessage) bool {
 			return OpenAIFilter(m.MessageText)

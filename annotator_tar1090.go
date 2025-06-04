@@ -20,13 +20,13 @@ func (a Tar1090Handler) Name() string {
 
 func (a Tar1090Handler) SelectFields(annotation Annotation) Annotation {
 	// If no fields are being selected, return annotation unchanged
-	if config.TAR1090AnnotatorSelectedFields == "" {
+	if config.Annotators.Tar1090.SelectedFields == "" {
 		return annotation
 	}
 	selectedFields := Annotation{}
-	if config.TAR1090AnnotatorSelectedFields != "" {
+	if config.Annotators.Tar1090.SelectedFields != "" {
 		for field, value := range annotation {
-			if strings.Contains(config.TAR1090AnnotatorSelectedFields, field) {
+			if strings.Contains(config.Annotators.Tar1090.SelectedFields, field) {
 				selectedFields[field] = value
 			}
 		}
@@ -102,7 +102,7 @@ type TISB struct {
 // Wrapper around the SingleAircraftQueryByRegistration API
 func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft TJSONAircraft, err error) {
 	reg = NormalizeAircraftRegistration(reg)
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/data/aircraft.json?_=%d/", config.TAR1090URL, time.Now().Unix()), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/data/aircraft.json?_=%d/", config.Annotators.Tar1090.URL, time.Now().Unix()), nil)
 	if err != nil {
 		return aircraft, err
 	}
@@ -138,11 +138,11 @@ func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft 
 
 // Interface function to satisfy ACARSHandler
 func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
-	if config.TAR1090ReferenceGeolocation == "" {
+	if config.Annotators.Tar1090.ReferenceGeolocation == "" {
 		log.Info("tar1090 enabled but geolocation not set, using '0,0'")
-		config.TAR1090ReferenceGeolocation = "0,0"
+		config.Annotators.Tar1090.ReferenceGeolocation = "0,0"
 	}
-	coords := strings.Split(config.TAR1090ReferenceGeolocation, ",")
+	coords := strings.Split(config.Annotators.Tar1090.ReferenceGeolocation, ",")
 	if len(coords) != 2 {
 		log.Warn("tar1090 geolocation coordinates are not in the format 'LAT,LON'")
 		return annotation
@@ -170,10 +170,11 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 		}
 		navmodes = navmodes + mode
 	}
+	// Please update config example values if changed
 	event := Annotation{
-		"tar1090OriginGeolocation":                           config.TAR1090ReferenceGeolocation,
-		"tar1090OriginGeolocationLatitude":                   olat,
-		"tar1090OriginGeolocationLongitude":                  olon,
+		"tar1090ReferenceGeolocation":                        config.Annotators.Tar1090.ReferenceGeolocation,
+		"tar1090ReferenceGeolocationLatitude":                olat,
+		"tar1090ReferenceGeolocationLongitude":               olon,
 		"tar1090AircraftEmergency":                           aircraftInfo.Emergency,
 		"tar1090AircraftGeolocation":                         aircraftInfo,
 		"tar1090AircraftLatitude":                            aircraftInfo.Latitude,
@@ -201,11 +202,11 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 
 // Interface function to satisfy ACARSHandler
 func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
-	if config.ADSBExchangeReferenceGeolocation == "" {
+	if config.Annotators.Tar1090.ReferenceGeolocation == "" {
 		log.Info("tar1090 enabled but geolocation not set, using '0,0'")
-		config.ADSBExchangeReferenceGeolocation = "0,0"
+		config.Annotators.Tar1090.ReferenceGeolocation = "0,0"
 	}
-	coords := strings.Split(config.ADSBExchangeReferenceGeolocation, ",")
+	coords := strings.Split(config.Annotators.Tar1090.ReferenceGeolocation, ",")
 	if len(coords) != 2 {
 		log.Warn("geolocation coordinates are not in the format 'LAT,LON'")
 		return annotation
@@ -235,9 +236,9 @@ func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotat
 		navmodes = navmodes + mode
 	}
 	event := Annotation{
-		"tar1090OriginGeolocation":                           config.TAR1090ReferenceGeolocation,
-		"tar1090OriginGeolocationLatitude":                   olat,
-		"tar1090OriginGeolocationLongitude":                  olon,
+		"tar1090ReferenceGeolocation":                        config.Annotators.Tar1090.ReferenceGeolocation,
+		"tar1090ReferenceGeolocationLatitude":                olat,
+		"tar1090ReferenceGeolocationLongitude":               olon,
 		"tar1090AircraftGeolocation":                         fmt.Sprintf("%f,%f", alat, alon),
 		"tar1090AircraftLatitude":                            alat,
 		"tar1090AircraftLongitude":                           alon,

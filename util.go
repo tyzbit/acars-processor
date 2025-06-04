@@ -33,7 +33,6 @@ func NormalizeAircraftRegistration(reg string) string {
 }
 
 func ReadFile(filePath string) []byte {
-	filePath = os.Getenv("HOME") + "/" + filePath
 	// Read the content of the file
 	content, err := os.ReadFile(filePath)
 	if err != nil {
@@ -46,11 +45,20 @@ func ReadFile(filePath string) []byte {
 }
 
 func WriteFile(filePath string, contents []byte) {
-	filePath = os.Getenv("HOME") + "/" + filePath
 	err := os.WriteFile(filePath, contents, 0644)
 	if err != nil {
 		log.Error("Error writing file: %w", err)
 	}
+}
+
+// Saves a file and returns true if the file changed
+func UpdateFile(filePath string, contents []byte) (changed bool) {
+	file := ReadFile(filePath)
+	err := os.WriteFile(filePath, contents, 0644)
+	if err != nil {
+		log.Error("Error writing file: %w", err)
+	}
+	return string(file) != string(contents)
 }
 
 func MergeMaps(m1, m2 map[string]any) map[string]any {

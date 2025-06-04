@@ -42,14 +42,14 @@ func OpenAIFilter(m string) bool {
 		return false
 	}
 	client := openai.NewClient(
-		option.WithAPIKey(config.OpenAIAPIKey),
+		option.WithAPIKey(config.Filters.OpenAI.APIKey),
 	)
-	if config.OpenAISystemPrompt != "" {
-		OpenAISystemPrompt = config.OpenAISystemPrompt
+	if config.Filters.OpenAI.SystemPrompt != "" {
+		OpenAISystemPrompt = config.Filters.OpenAI.SystemPrompt
 	}
 	openAIModel := openai.ChatModelGPT4o
-	if config.OpenAIModel != "" {
-		openAIModel = config.OpenAIModel
+	if config.Filters.OpenAI.Model != "" {
+		openAIModel = config.Filters.OpenAI.Model
 	}
 
 	log.Debugf("calling OpenAI model %s", openAIModel)
@@ -57,7 +57,7 @@ func OpenAIFilter(m string) bool {
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
 				openai.SystemMessage(OpenAISystemPrompt),
-				openai.SystemMessage(config.OpenAIUserPrompt),
+				openai.SystemMessage(config.Filters.OpenAI.UserPrompt),
 				openai.SystemMessage(OpenAIFinalInstructions),
 				openai.UserMessage(m),
 			}),
