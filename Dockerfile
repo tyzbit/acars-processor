@@ -8,10 +8,10 @@ COPY . ./
 RUN apk add \
     build-base \
     git \
-&&  go build -ldflags="-s -w"
+    &&  go build -ldflags="-s -w"
 
 FROM alpine
 
-COPY --from=build /acars-annotator /
+COPY --from=build /acars-processor /
 
-CMD ["/acars-annotator"]
+CMD ["/acars-processor"]
