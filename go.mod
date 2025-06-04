@@ -3,6 +3,8 @@ module github.com/tyzbit/acars-annotator
 go 1.24.0
 
 require (
+	github.com/adrg/strutil v0.3.1
+	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/golobby/config/v3 v3.4.2
 	github.com/jftuga/geodist v1.0.0
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.8.1
@@ -14,8 +16,6 @@ require (
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
-	github.com/adrg/strutil v0.3.1 // indirect
-	github.com/avast/retry-go v3.0.0+incompatible // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/golobby/cast v1.3.3 // indirect

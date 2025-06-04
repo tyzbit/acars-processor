@@ -15,14 +15,14 @@ import (
 )
 
 var (
-	OllamaFirstInstructions = `You are an AI that is an expert at logical 
+	OllamaFilterFirstInstructions = `You are an AI that is an expert at logical 
 	reasoning. You will be provided criteria and then a communication message. 
 	You will use your skills and any examples provided to evaluate determine 
 	if the message positively matches the provided criteria. 
 
 	Here's the criteria:
 	`
-	OllamaFinalInstructions = `
+	OllamaFilterFinalInstructions = `
 	If the message definitely matches the criteria, 
 	return 'true' in the 'message_matches_criteria' field.
 
@@ -32,39 +32,39 @@ var (
 	Provide a very short, high-level explanation as to the reasoning
 	for your decision in the "reasoning" field.
 	`
-	OllamaTimeout             = 120
-	OllamaMaxPredictionTokens = 512
-	OllamaMaxRetryAttempts    = 6
-	OllamaRetryDelaySeconds   = 5
+	OllamaFilterTimeout             = 120
+	OllamaFilterMaxPredictionTokens = 512
+	OllamaFilterMaxRetryAttempts    = 6
+	OllamaFilterRetryDelaySeconds   = 5
 )
 
-type OllamaResponse struct {
+type OllamaFilterResponse struct {
 	MessageMatchesCriteria bool   `json:"message_matches_criteria"`
 	Reasoning              string `json:"reasoning"`
 }
 
-type OllamaResponseFormat struct {
-	Type       string                                  `json:"type"`
-	Properties OllamaResponseFormatRequestedProperties `json:"properties"`
-	Required   []string                                `json:"required"`
+type OllamaFilterResponseFormat struct {
+	Type       string                                        `json:"type"`
+	Properties OllamaFilterResponseFormatRequestedProperties `json:"properties"`
+	Required   []string                                      `json:"required"`
 }
 
-type OllamaResponseFormatRequestedProperties struct {
-	MessageMatchesCriteria OllamaResponseFormatRequestedProperty `json:"message_matches_criteria"`
-	Reasoning              OllamaResponseFormatRequestedProperty `json:"reasoning"`
+type OllamaFilterResponseFormatRequestedProperties struct {
+	MessageMatchesCriteria OllamaFilterResponseFormatRequestedProperty `json:"message_matches_criteria"`
+	Reasoning              OllamaFilterResponseFormatRequestedProperty `json:"reasoning"`
 }
 
-type OllamaResponseFormatRequestedProperty struct {
+type OllamaFilterResponseFormatRequestedProperty struct {
 	Type string `json:"type"`
 }
 
-var OllamaResponseRequestedFormat = OllamaResponseFormat{
+var OllamaFilterResponseRequestedFormat = OllamaFilterResponseFormat{
 	Type: "object",
-	Properties: OllamaResponseFormatRequestedProperties{
-		MessageMatchesCriteria: OllamaResponseFormatRequestedProperty{
+	Properties: OllamaFilterResponseFormatRequestedProperties{
+		MessageMatchesCriteria: OllamaFilterResponseFormatRequestedProperty{
 			Type: "boolean",
 		},
-		Reasoning: OllamaResponseFormatRequestedProperty{
+		Reasoning: OllamaFilterResponseFormatRequestedProperty{
 			Type: "string",
 		},
 	},
@@ -78,60 +78,60 @@ func OllamaFilter(m string) bool {
 		log.Debug("message was blank, filtering without calling ollama")
 		return false
 	}
-	if config.OllamaModel == "" || config.OllamaUserPrompt == "" {
-		log.Warn("Ollama model and prompt are required to use the ollama filter")
+	if config.OllamaFilterModel == "" || config.OllamaFilterUserPrompt == "" {
+		log.Warn("OllamaFilter model and prompt are required to use the ollama filter")
 		return true
 	}
-	url, err := url.Parse(config.OllamaURL)
+	url, err := url.Parse(config.OllamaFilterURL)
 	if err != nil {
-		log.Errorf("Ollama url could not be parsed: %s", err)
+		log.Errorf("OllamaFilter url could not be parsed: %s", err)
 		return true
 	}
 	client := api.NewClient(url, &http.Client{})
 	if err != nil {
-		log.Errorf("error initializing Ollama: %s", err)
+		log.Errorf("error initializing OllamaFilter: %s", err)
 		return true
 	}
 
-	if config.OllamaMaxPredictionTokens != 0 {
-		OllamaMaxPredictionTokens = config.OllamaMaxPredictionTokens
+	if config.OllamaFilterMaxPredictionTokens != 0 {
+		OllamaFilterMaxPredictionTokens = config.OllamaFilterMaxPredictionTokens
 	}
-	if config.OllamaSystemPrompt != "" {
-		OllamaFirstInstructions = config.OllamaSystemPrompt
+	if config.OllamaFilterSystemPrompt != "" {
+		OllamaFilterFirstInstructions = config.OllamaFilterSystemPrompt
 	}
-	if config.OllamaTimeout != 0 {
-		OllamaTimeout = config.OllamaTimeout
+	if config.OllamaFilterTimeout != 0 {
+		OllamaFilterTimeout = config.OllamaFilterTimeout
 	}
-	if config.OllamaMaxRetryAttempts != 0 {
-		OllamaMaxRetryAttempts = config.OllamaMaxRetryAttempts
+	if config.OllamaFilterMaxRetryAttempts != 0 {
+		OllamaFilterMaxRetryAttempts = config.OllamaFilterMaxRetryAttempts
 	}
-	if config.OllamaRetryDelaySeconds != 0 {
-		OllamaRetryDelaySeconds = config.OllamaRetryDelaySeconds
+	if config.OllamaFilterRetryDelaySeconds != 0 {
+		OllamaFilterRetryDelaySeconds = config.OllamaFilterRetryDelaySeconds
 	}
 
 	stream := false
-	requestedFormatJson, err := json.Marshal(OllamaResponseRequestedFormat)
+	requestedFormatJson, err := json.Marshal(OllamaFilterResponseRequestedFormat)
 	if err != nil {
 		log.Errorf("error setting ollama response format: %s", err)
 		return true
 	}
 
 	req := &api.GenerateRequest{
-		Model:  config.OllamaModel,
+		Model:  config.OllamaFilterModel,
 		Format: requestedFormatJson,
-		System: OllamaFirstInstructions + config.OllamaUserPrompt +
-			OllamaFinalInstructions,
+		System: OllamaFilterFirstInstructions + config.OllamaFilterUserPrompt +
+			OllamaFilterFinalInstructions,
 		Stream: &stream,
 		Prompt: `Here is the message to evaluate:\n` + m,
 		Options: map[string]interface{}{
 			// Hopefully minimizes the model timing out
-			"num_predict": OllamaMaxPredictionTokens,
+			"num_predict": OllamaFilterMaxPredictionTokens,
 			// Make output deterministic
 			"temperature": 0,
 		},
 	}
 
-	var r OllamaResponse
+	var r OllamaFilterResponse
 	respFunc := func(resp api.GenerateResponse) error {
 		// Parse the JSON payload (hopefully)
 		rex := regexp.MustCompile(`\{[^{}]+\}`)
@@ -154,23 +154,23 @@ func OllamaFilter(m string) bool {
 		return nil
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaTimeout)*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaFilterTimeout)*time.Second)
 	defer cancel()
-	log.Debugf("calling Ollama, model %s", config.OllamaModel)
+	log.Debugf("calling OllamaFilter, model %s", config.OllamaFilterModel)
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
 			return &RetriableError{
-				Err:        fmt.Errorf("error using Ollama: %s", err),
-				RetryAfter: time.Duration(OllamaRetryDelaySeconds) * time.Second,
+				Err:        fmt.Errorf("error using OllamaFilter: %s", err),
+				RetryAfter: time.Duration(OllamaFilterRetryDelaySeconds) * time.Second,
 			}
 		}
 		return nil
 	},
-		retry.Attempts(uint(OllamaMaxRetryAttempts)),
+		retry.Attempts(uint(OllamaFilterMaxRetryAttempts)),
 		retry.DelayType(retry.BackOffDelay),
 		retry.OnRetry(func(n uint, err error) {
-			log.Errorf("Ollama attempt #%d failed: %v", n+1, err)
+			log.Errorf("OllamaFilter attempt #%d failed: %v", n+1, err)
 		}),
 	)
 
@@ -180,7 +180,7 @@ func OllamaFilter(m string) bool {
 	}
 
 	if err != nil {
-		log.Errorf("too many failures calling Ollama, giving up and %sing: %s", action[!config.OllamaFilterOnFailure], err)
+		log.Errorf("too many failures calling OllamaFilter, giving up and %sing: %s", action[!config.OllamaFilterOnFailure], err)
 		return !config.OllamaFilterOnFailure
 	}
 

@@ -107,13 +107,20 @@ func ReadACARSHubVDLM2Messages() {
 
 // Connects to ACARS and starts listening to messages
 func SubscribeToACARSHub() {
-	if config.AnnotateACARS {
+	launched := false
+	if config.ACARSHubHost != "" && config.ACARSHubPort != 0 {
 		go ReadACARSHubACARSMessages()
+		launched = true
 	}
-	if config.AnnotateVDLM2 {
+	if config.ACARSHubVDLM2Host != "" && config.ACARSHubVDLM2Port != 0 {
 		go ReadACARSHubVDLM2Messages()
+		launched = true
 	}
-	log.Debug("launched acarshub subscribers")
+	if !launched {
+		log.Warn("no acarshub subscribes set, please update configuration")
+	} else {
+		log.Debug("launched acarshub subscribers")
+	}
 }
 
 // Reads messages in the channel from ReadACARSHubVDLM2Messages, annotates and
@@ -135,11 +142,15 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan ACARSMessage) {
 				annotations = MergeMaps(result, annotations)
 			}
 		}
-		for _, r := range enabledReceivers {
-			log.Debugf("sending acars event to reciever %s: %+v", r.Name(), annotations)
-			err := r.SubmitACARSAnnotations(annotations)
-			if err != nil {
-				log.Errorf("error submitting to %s, err: %v", r.Name(), err)
+		if len(annotations) == 0 {
+			log.Info("no annotations were produced, not calling any receivers")
+		} else {
+			for _, r := range enabledReceivers {
+				log.Debugf("sending acars event to reciever %s: %+v", r.Name(), annotations)
+				err := r.SubmitACARSAnnotations(annotations)
+				if err != nil {
+					log.Errorf("error submitting to %s, err: %v", r.Name(), err)
+				}
 			}
 		}
 	}
@@ -164,11 +175,15 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
 				annotations = MergeMaps(result, annotations)
 			}
 		}
-		for _, r := range enabledReceivers {
-			log.Debugf("sending vdlm2 event to reciever %s: %+v", r.Name(), annotations)
-			err := r.SubmitACARSAnnotations(annotations)
-			if err != nil {
-				log.Errorf("error submitting to %s, err: %v", r.Name(), err)
+		if len(annotations) == 0 {
+			log.Info("no annotations were produced, not calling any receivers")
+		} else {
+			for _, r := range enabledReceivers {
+				log.Debugf("sending vdlm2 event to reciever %s: %+v", r.Name(), annotations)
+				err := r.SubmitACARSAnnotations(annotations)
+				if err != nil {
+					log.Errorf("error submitting to %s, err: %v", r.Name(), err)
+				}
 			}
 		}
 	}

@@ -58,7 +58,7 @@ func ConfigureFilters() {
 	if config.OpenAIAPIKey != "" {
 		enabledFilters = append(enabledFilters, "OpenAIPromptFilter")
 	}
-	if config.OllamaURL != "" {
+	if config.OllamaFilterURL != "" {
 		enabledFilters = append(enabledFilters, "OllamaPromptFilter")
 	}
 	if config.FilterCriteriaACARSDuplicateMessageSimilarity != 0.0 || config.FilterCriteriaVDLM2DuplicateMessageSimilarity != 0.0 {
