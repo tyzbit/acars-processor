@@ -31,7 +31,7 @@ variables for them.
 | ACARSHUB_PORT                                   | The ACARS port to connect to your acarshub instance on                                                  |
 | ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER | Maximum number of requests to make to ACARSHub at once (per subscriber, i.e. 1 for ACARS & 1 for VDLM2) |
 | ACARSHUB_VDLM2_HOST                             | The hostname or IP to your acarshub instance for VDLM2                                                  |
-| ACARSHUB_PORT                                   | The VDLM2 port to connect to your acarshub instance on                                                  |
+| ACARSHUB_VDLM2_PORT                             | The VDLM2 port to connect to your acarshub instance on                                                  |
 | LOGLEVEL                                        | debug, info, warn, error (default "info")                                                               |
 
 ### Annotators
