@@ -60,6 +60,9 @@ Check `config_example.yaml` for all possible settings and illustrative values.
 You can duplicate it to `config.yaml` and edit it or copy it but only keep the
 first line. This will let you auto-complete the file if your editor supports it.
 
+You can use environment variables (`${apikey}`) and they will be substituted
+from the environment before the app starts.
+
 ### A Note on Using Large Language Models for Filters
 
 OpenAI's gpt3.5 and higher do well with the system prompt. With OllamaFilter,

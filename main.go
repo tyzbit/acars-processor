@@ -4,11 +4,7 @@ import (
 	"flag"
 	"os"
 	"os/signal"
-	"strings"
 	"syscall"
-
-	"github.com/ghodss/yaml"
-	log "github.com/sirupsen/logrus"
 	// "gopkg.in/yaml.v3"
 )
 
@@ -21,25 +17,6 @@ var (
 	enabledReceivers       = []Receiver{}
 	enabledFilters         = []string{}
 )
-
-func ConfigureLogging() {
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-	})
-	loglevel := strings.ToLower(config.LogLevel)
-	switch loglevel {
-	case "debug":
-		log.SetLevel(log.DebugLevel)
-	case "info":
-		log.SetLevel(log.InfoLevel)
-	case "warn":
-		log.SetLevel(log.WarnLevel)
-	case "error":
-		log.SetLevel(log.ErrorLevel)
-	default:
-		log.SetLevel(log.InfoLevel)
-	}
-}
 
 func main() {
 	var generateSchema bool
@@ -54,12 +31,7 @@ func main() {
 		return
 	}
 
-	// Load config file, if present
-	cb := ReadFile(configFilePath)
-	if err := yaml.Unmarshal(cb, &config); err != nil {
-		log.Fatalf("unable to load config from %s", configFilePath)
-	}
-
+	LoadConfig()
 	ConfigureLogging()
 	ConfigureAnnotators()
 	ConfigureReceivers()

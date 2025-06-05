@@ -1,5 +1,48 @@
 package main
 
+import (
+	"strings"
+
+	"github.com/ghodss/yaml"
+	log "github.com/sirupsen/logrus"
+	"gomodules.xyz/envsubst"
+)
+
+func ConfigureLogging() {
+	log.SetFormatter(&log.TextFormatter{
+		FullTimestamp: true,
+	})
+	loglevel := strings.ToLower(config.LogLevel)
+	switch loglevel {
+	case "debug":
+		log.SetLevel(log.DebugLevel)
+	case "info":
+		log.SetLevel(log.InfoLevel)
+	case "warn":
+		log.SetLevel(log.WarnLevel)
+	case "error":
+		log.SetLevel(log.ErrorLevel)
+	default:
+		log.SetLevel(log.InfoLevel)
+	}
+}
+
+func LoadConfig() {
+	// Load config file, if present
+	cb := ReadFile(configFilePath)
+
+	// Replace environment variables, if present
+	envEvalYaml, err := envsubst.EvalEnv(string(cb))
+	if err != nil {
+		log.Fatalf("there was a problem replacing environment variables: %s", err)
+	}
+
+	// Marshal the YAML config into the config struct
+	if err := yaml.Unmarshal([]byte(envEvalYaml), &config); err != nil {
+		log.Fatalf("unable to load config from %s, err: %s", configFilePath, err)
+	}
+}
+
 // Main configuration for acars-processor. Have fun!.
 type Config struct {
 	// Set logging verbosity.
