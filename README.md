@@ -61,7 +61,8 @@ You can duplicate it to `config.yaml` and edit it or copy it but only keep the
 first line. This will let you auto-complete the file if your editor supports it.
 
 You can use environment variables (`${apikey}`) and they will be substituted
-from the environment before the app starts.
+from the environment before the app starts. It's highly recommended to quote
+your values in case substitution fails so you don't chase misleading errors.
 
 ### A Note on Using Large Language Models for Filters
 
