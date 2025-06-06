@@ -146,11 +146,11 @@ type OllamaAnnotatorConfig struct {
 	// How long to wait before retrying the Ollama API.
 	MaxRetryDelaySeconds int `json:",omitempty" jsonschema:"example=5" default:"5"`
 	// How long to wait until giving up on any request to Ollama.
-	Timeout int `json:",omitempty" jsonschema:"example=5" default:"5"`
-	// Additional models to provide to the model. This is specific to each model, so no defaults are provided
+	Timeout int                   `json:",omitempty" jsonschema:"example=5" default:"5"`
 	Options []OllamaOptionsConfig `json:",omitempty"`
 }
 
+// Additional models to provide to the model. This is specific to each model, so no defaults are provided
 type OllamaOptionsConfig struct {
 	// Option name, specific to the model you are using.
 	Name string `json:"" jsonschema:"default=example_value" default:"example_value"`
@@ -233,8 +233,7 @@ type OllamaFilterConfig struct {
 	// How long to wait before retrying the Ollama API.
 	MaxRetryDelaySeconds int `json:",omitempty" jsonschema:"example=5" default:"5"`
 	// How long to wait until giving up on any request to Ollama.
-	Timeout int `json:",omitempty" jsonschema:"example=5" default:"5"`
-	// Additional models to provide to the model. This is specific to each model, so no defaults are provided
+	Timeout int                   `json:",omitempty" jsonschema:"example=5" default:"5"`
 	Options []OllamaOptionsConfig `json:",omitempty"`
 }
 
