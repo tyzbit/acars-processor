@@ -125,7 +125,7 @@ type Tar1090AnnotatorConfig struct {
 	SelectedFields string `jsonschema:"default=tar1090ReferenceGeolocation\\,tar1090ReferenceGeolocationLatitude\\,tar1090ReferenceGeolocationLongitude\\,tar1090AircraftEmergency\\,tar1090AircraftGeolocation\\,tar1090AircraftLatitude\\,tar1090AircraftLongitude\\,tar1090AircraftDistanceKm\\,tar1090AircraftDistanceMi\\,tar1090AircraftDistanceNm\\,tar1090AircraftDirectionDegrees\\,tar1090AircraftAltimeterBarometerFeet\\,tar1090AircraftAltimeterGeometricFeet\\,tar1090AircraftAltimeterBarometerRateFeetPerSecond\\,tar1090AircraftOwnerOperator\\,tar1090AircraftFlightNumber\\,tar1090AircraftHexCode\\,tar1090AircraftType\\,tar1090AircraftDescription\\,tar1090AircraftYearOfManufacture\\,tar1090AircraftADSBMessageCount\\,tar1090AircraftRSSIdBm\\,tar1090AircraftNavModes" default:"tar1090ReferenceGeolocation,tar1090ReferenceGeolocationLatitude,tar1090ReferenceGeolocationLongitude,tar1090AircraftEmergency,tar1090AircraftGeolocation,tar1090AircraftLatitude,tar1090AircraftLongitude,tar1090AircraftDistanceKm,tar1090AircraftDistanceMi,tar1090AircraftDistanceNm,tar1090AircraftDirectionDegrees,tar1090AircraftAltimeterBarometerFeet,tar1090AircraftAltimeterGeometricFeet,tar1090AircraftAltimeterBarometerRateFeetPerSecond,tar1090AircraftOwnerOperator,tar1090AircraftFlightNumber,tar1090AircraftHexCode,tar1090AircraftType,tar1090AircraftDescription,tar1090AircraftYearOfManufacture,tar1090AircraftADSBMessageCount,tar1090AircraftRSSIdBm,tar1090AircraftNavModes"`
 }
 
-type OllamaAnnotatorConfig struct {
+type OllamaCommonConfig struct {
 	// Model to use (you need to pull this in Ollama to use it).
 	Model string `jsonschema:"required,default=llama3.2" default:"llama3.2"`
 	// URL to the Ollama instance to use (include protocol and port).
@@ -134,10 +134,6 @@ type OllamaAnnotatorConfig struct {
 	UserPrompt string `jsonschema:"required,example=Is there prose in this message? If present\\, prose will be the last section of a message. Return any prose if found. Surround it with triple backticks." default:"Is there prose in this message? If present, prose will be the last section of a message. Return any prose if found. Surround it with triple backticks."`
 	// Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
 	SystemPrompt string `default:"Answer like a pirate"`
-	// Fields to provide to receivers from this annotator. Any separator will do.
-	SelectedFields string `jsonschema:"example=ollamaProcessedText\\,ollamaEditActions\\,ollamaQuestion" default:"ollamaProcessedText,ollamaEditActions,ollamaQuestion"`
-	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
-	FilterWithQuestion bool `jsonschema:"example=true" default:"true"`
 	// Maximum number of tokens to include in the answer. Lower values restrict response length but too low may clip the valid response short.
 	MaxPredictionTokens int `jsonschema:"example=512" default:"512"`
 	// Maximum number of retries to make against the Ollama URL.
@@ -146,8 +142,18 @@ type OllamaAnnotatorConfig struct {
 	MaxRetryDelaySeconds int `jsonschema:"example=5" default:"5"`
 	// How long to wait until giving up on any request to Ollama.
 	Timeout int `jsonschema:"example=5" default:"5"`
-	// Additional options to provide to the model. This is specific to each model, so no defaults are provided
+	// Whether to surround the returned message field with backticks.
 	Options []OllamaOptionsConfig
+}
+
+type OllamaAnnotatorConfig struct {
+	OllamaCommonConfig
+	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
+	FilterWithQuestion bool `jsonschema:"example=true" default:"true"`
+	// Fields to provide to receivers from this annotator. Any separator will do.
+	SelectedFields string `jsonschema:"example=ollamaProcessedText\\,ollamaEditActions\\,ollamaQuestion" default:"ollamaProcessedText,ollamaEditActions,ollamaQuestion"`
+	// Whether to surround the returned message field with backticks.
+	SurroundWithBackticks bool `jsonschema:"example=true" default:"true"`
 }
 
 type OllamaOptionsConfig struct {
@@ -214,6 +220,7 @@ type VDLM2FilterConfig struct {
 }
 
 type OllamaFilterConfig struct {
+	OllamaCommonConfig
 	// Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
 	FilterOnFailure bool `jsonschema:"example=true" default:"true"`
 	// Model to use (you need to pull this in Ollama to use it).
