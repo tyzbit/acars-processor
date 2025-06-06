@@ -29,11 +29,10 @@ var (
 
 	Here's the criteria:
 	`
-	// If you were asked a question, return true or false answering the
-	// question in the 'question' field. If you weren't asked a question,
-	// return true in the 'question' field.
 	OllamaAnnotatorFinalInstructions = `
-	Return true in the 'question' field.
+	If you were asked a question, return true or false answering the
+	question in the 'question' field. If you weren't asked a question,
+	return true in the 'question' field.
 
 	Note each action you took to process the text in 'edit_actions'.
 
