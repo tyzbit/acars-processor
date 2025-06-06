@@ -23,9 +23,9 @@ var (
 
 	You will consider the message and answer any questions that may have been
 	asked about it. You will use your skills and any examples or rules provided
-	to edit, select transform or otherwise process the text strictly according
-	to the directions given. Preserve the words from the original text exactly
-	unless specifically instructed otherwise.
+	to edit, select, transform or otherwise process the text strictly according
+	to the directions given. Only make additions or subtractions from the
+	original text exactly unless specifically instructed otherwise.
 
 	Here's the criteria:
 	`
