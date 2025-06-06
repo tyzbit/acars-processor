@@ -21,6 +21,9 @@ Annotators:
     MaxRetryAttempts: 5
     MaxRetryDelaySeconds: 5
     Model: llama3.2
+    Options:
+    - Name: num_predict
+      Value: 512
     SelectedFields: ollamaProcessedText,ollamaEditActions,ollamaQuestion
     SystemPrompt: Answer like a pirate
     Timeout: 5

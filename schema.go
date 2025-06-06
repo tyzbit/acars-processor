@@ -22,10 +22,16 @@ func GenerateSchema(schemaPath string) {
 	// Generate an example config
 	defaultConfig := &Config{}
 	// We need to do this to set an example value since Headers is a slice.
-	defaultConfig.Receivers.Webhook.Headers = append(defaultConfig.Receivers.Webhook.Headers, WebHookReceiverConfigHeaders{
+	// We need to do this to set an example value since Options is a slice.
+	defaultConfig.Receivers.Webhook.Headers = []WebHookReceiverConfigHeaders{{
 		Name:  "APIKey",
 		Value: "1234abcdef",
-	})
+	}}
+	// We need to do this to set an example value since Options is a slice.
+	defaultConfig.Annotators.Ollama.Options = []OllamaOptionsConfig{{
+		Name:  "num_predict",
+		Value: 512,
+	}}
 	// Set the values for defaultConfig to the defaults defined in the struct tags
 	defaults.SetDefaults(defaultConfig)
 	configYaml, err := yaml.Marshal(defaultConfig)
