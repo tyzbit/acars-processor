@@ -12,7 +12,7 @@ import (
 
 var (
 	configExample = "config_example.yaml"
-	schemaLine    = `# yaml-language-server: $schema=./schema.json
+	schemaLine    = `# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
 
 `
 )
