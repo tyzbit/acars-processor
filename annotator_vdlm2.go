@@ -93,6 +93,10 @@ func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 	if !cut {
 		tailcode = m.VDL2.AVLC.ACARS.Registration
 	}
+	text := m.VDL2.AVLC.ACARS.MessageText
+	if config.Annotators.ACARS.SurroundWithBackticks {
+		text = "```" + text + "```"
+	}
 	// Please update config example values if changed
 	annotation = Annotation{
 		"vdlm2AppName":               m.VDL2.App.Name,
@@ -135,7 +139,7 @@ func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsMessageFrom":           AircraftOrTower(m.VDL2.AVLC.ACARS.FlightNumber),
 		"acarsMessageNumber":         m.VDL2.AVLC.ACARS.MessageNumber,
 		"acarsMessageNumberSequence": m.VDL2.AVLC.ACARS.MessageNumberSequence,
-		"acarsMessageText":           m.VDL2.AVLC.ACARS.MessageText,
+		"acarsMessageText":           text,
 		"acarsExtraURL":              FlightAwareRoot + tailcode,
 		"acarsExtraPhotos":           FlightAwarePhotos + tailcode,
 	}

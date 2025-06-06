@@ -62,6 +62,10 @@ func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation 
 	if !cut {
 		tailcode = m.AircraftTailCode
 	}
+	text := m.MessageText
+	if config.Annotators.ACARS.SurroundWithBackticks {
+		text = "```" + text + "```"
+	}
 	// Please update config example values if changed
 	annotation = Annotation{
 		"acarsFrequencyMHz":     m.FrequencyMHz,
@@ -83,7 +87,7 @@ func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation 
 		"acarsAcknowledge":      m.Acknowledge,
 		"acarsAircraftTailCode": tailcode,
 		"acarsMessageFrom":      AircraftOrTower(m.FlightNumber),
-		"acarsMessageText":      m.MessageText,
+		"acarsMessageText":      text,
 		"acarsMessageNumber":    m.MessageNumber,
 		"acarsFlightNumber":     m.FlightNumber,
 		"acarsExtraURL":         FlightAwareRoot + tailcode,
