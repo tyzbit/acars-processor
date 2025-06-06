@@ -108,7 +108,7 @@ func ReadACARSHubVDLM2Messages() {
 // Connects to ACARS and starts listening to messages
 func SubscribeToACARSHub() {
 	launched := false
-	if config.ACARSHub.ACARS.Host != "" && config.ACARSHub.VDLM2.Port != 0 {
+	if config.ACARSHub.ACARS.Host != "" && config.ACARSHub.ACARS.Port != 0 {
 		go ReadACARSHubACARSMessages()
 		launched = true
 	}
