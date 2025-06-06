@@ -116,19 +116,19 @@ func OllamaFilter(m string) bool {
 		return true
 	}
 
+	opts := map[string]any{}
+	for _, opt := range config.Filters.Ollama.Options {
+		opts[opt.Name] = opt.Value
+	}
+
 	req := &api.GenerateRequest{
 		Model:  config.Filters.Ollama.Model,
 		Format: requestedFormatJson,
 		System: OllamaFilterFirstInstructions + config.Filters.Ollama.UserPrompt +
 			OllamaFilterFinalInstructions,
-		Stream: &stream,
-		Prompt: `Here is the message to evaluate:\n` + m,
-		Options: map[string]interface{}{
-			// Hopefully minimizes the model timing out
-			"num_predict": OllamaFilterMaxPredictionTokens,
-			// Make output deterministic
-			"temperature": 0,
-		},
+		Stream:  &stream,
+		Prompt:  `Here is the message to evaluate:\n` + m,
+		Options: opts,
 	}
 
 	var r OllamaFilterResponse
@@ -169,6 +169,7 @@ func OllamaFilter(m string) bool {
 	},
 		retry.Attempts(uint(OllamaFilterMaxRetryAttempts)),
 		retry.DelayType(retry.BackOffDelay),
+		retry.Delay(time.Second*time.Duration(config.Filters.Ollama.MaxRetryDelaySeconds)),
 		retry.OnRetry(func(n uint, err error) {
 			log.Errorf("OllamaFilter attempt #%d failed: %v", n+1, err)
 		}),

@@ -156,19 +156,19 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		return
 	}
 
+	opts := map[string]any{}
+	for _, opt := range config.Annotators.Ollama.Options {
+		opts[opt.Name] = opt.Value
+	}
+
 	req := &api.GenerateRequest{
 		Model:  config.Annotators.Ollama.Model,
 		Format: requestedFormatJson,
 		System: OllamaAnnotatorFirstInstructions + config.Annotators.Ollama.UserPrompt +
 			OllamaAnnotatorFinalInstructions,
-		Stream: &stream,
-		Prompt: `Here is the message to evaluate:\n` + m,
-		Options: map[string]interface{}{
-			// Hopefully minimizes the model timing out
-			"num_predict": OllamaAnnotatorMaxPredictionTokens,
-			// Make output deterministic
-			"temperature": 0,
-		},
+		Stream:  &stream,
+		Prompt:  `Here is the message to evaluate:\n` + m,
+		Options: opts,
 	}
 
 	var r OllamaAnnotatorResponse
@@ -202,14 +202,13 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
 			return &RetriableError{
-				Err:        fmt.Errorf("error using OllamaAnnotator: %s", err),
-				RetryAfter: time.Duration(OllamaAnnotatorRetryDelaySeconds) * time.Second,
-			}
+				Err: fmt.Errorf("error using OllamaAnnotator: %s", err)}
 		}
 		return nil
 	},
 		retry.Attempts(uint(OllamaAnnotatorMaxRetryAttempts)),
 		retry.DelayType(retry.BackOffDelay),
+		retry.Delay(time.Second*time.Duration(config.Annotators.Ollama.MaxRetryDelaySeconds)),
 		retry.OnRetry(func(n uint, err error) {
 			log.Errorf("OllamaAnnotator attempt #%d failed: %v", n+1, err)
 		}),

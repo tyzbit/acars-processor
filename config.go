@@ -147,6 +147,15 @@ type OllamaAnnotatorConfig struct {
 	MaxRetryDelaySeconds int `json:",omitempty" jsonschema:"example=5" default:"5"`
 	// How long to wait until giving up on any request to Ollama.
 	Timeout int `json:",omitempty" jsonschema:"example=5" default:"5"`
+	// Additional models to provide to the model. This is specific to each model, so no defaults are provided
+	Options []OllamaOptionsConfig `json:",omitempty"`
+}
+
+type OllamaOptionsConfig struct {
+	// Option name, specific to the model you are using.
+	Name string `json:"" jsonschema:"default=example_value" default:"example_value"`
+	// Value for this particular option, any value is allowed.
+	Value any `json:"" jsonschema:"default=0.1" default:"0.1"`
 }
 
 // Filter messages out before being processed.
@@ -225,6 +234,8 @@ type OllamaFilterConfig struct {
 	MaxRetryDelaySeconds int `json:",omitempty" jsonschema:"example=5" default:"5"`
 	// How long to wait until giving up on any request to Ollama.
 	Timeout int `json:",omitempty" jsonschema:"example=5" default:"5"`
+	// Additional models to provide to the model. This is specific to each model, so no defaults are provided
+	Options []OllamaOptionsConfig `json:",omitempty"`
 }
 
 // Use OpenAI to choose to filter messages based on plain-text criteria.
