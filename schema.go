@@ -20,8 +20,7 @@ var (
 func GenerateSchema(schemaPath string) {
 	updated := false
 	// Generate an example config
-	defaultConfig := &Config{}
-	// We need to do this to set an example value since Headers is a slice.
+	var defaultConfig Config
 	// We need to do this to set an example value since Options is a slice.
 	defaultConfig.Receivers.Webhook.Headers = []WebHookReceiverConfigHeaders{{
 		Name:  "APIKey",
@@ -32,8 +31,13 @@ func GenerateSchema(schemaPath string) {
 		Name:  "num_predict",
 		Value: 512,
 	}}
+	// We need to do this to set an example value since Options is a slice.
+	defaultConfig.Filters.Ollama.Options = []OllamaOptionsConfig{{
+		Name:  "num_predict",
+		Value: 512,
+	}}
 	// Set the values for defaultConfig to the defaults defined in the struct tags
-	defaults.SetDefaults(defaultConfig)
+	defaults.SetDefaults(&defaultConfig)
 	configYaml, err := yaml.Marshal(defaultConfig)
 	if err != nil {
 		log.Fatal("Error marshaling YAML:", err)
@@ -45,16 +49,16 @@ func GenerateSchema(schemaPath string) {
 		log.Info("Updated example config")
 	}
 
-	// First we generate the schema from the Config type
+	// First we generate the schema from the Config type with comments
 	r := new(jsonschema.Reflector)
-
-	// r.KeyNamer = strcase.SnakeCase
 	if err := r.AddGoComments("github.com/tyzbit/acars-processor",
-		"./",
-		jsonschema.WithFullComment()); err != nil {
+		"./config.go", jsonschema.WithFullComment()); err != nil {
 		log.Fatalf("unable to add comments to schema, %s", err)
 	}
-	schema := r.Reflect(defaultConfig)
+
+	// Now we generate the schema and save it
+	r.RequiredFromJSONSchemaTags = true
+	schema := r.Reflect(&Config{})
 	json, _ := schema.MarshalJSON()
 	if UpdateFile(fmt.Sprintf("./%s", schemaFilePath), json) {
 		updated = true

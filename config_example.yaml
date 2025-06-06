@@ -4,6 +4,7 @@ ACARSHub:
   ACARS:
     Host: acarshub
     Port: 15550
+  MaxConcurrentRequests: 0
   VDLM2:
     Host: acarshub
     Port: 15555
@@ -32,9 +33,11 @@ Annotators:
       section of a message. Return any prose if found. Surround it with triple backticks.
   Tar1090:
     ReferenceGeolocation: 35.6244416,139.7753782
+    SelectedFields: tar1090ReferenceGeolocation,tar1090ReferenceGeolocationLatitude,tar1090ReferenceGeolocationLongitude,tar1090AircraftEmergency,tar1090AircraftGeolocation,tar1090AircraftLatitude,tar1090AircraftLongitude,tar1090AircraftDistanceKm,tar1090AircraftDistanceMi,tar1090AircraftDistanceNm,tar1090AircraftDirectionDegrees,tar1090AircraftAltimeterBarometerFeet,tar1090AircraftAltimeterGeometricFeet,tar1090AircraftAltimeterBarometerRateFeetPerSecond,tar1090AircraftOwnerOperator,tar1090AircraftFlightNumber,tar1090AircraftHexCode,tar1090AircraftType,tar1090AircraftDescription,tar1090AircraftYearOfManufacture,tar1090AircraftADSBMessageCount,tar1090AircraftRSSIdBm,tar1090AircraftNavModes
     URL: http://tar1090/
   VDLM2:
     Enabled: true
+    SelectedFields: vdlm2AppName,vdlm2AppVersion,vdlm2AppProxied,vdlm2AppProxiedBy,vdlm2AppRouterVersion,vdlm2AppRouterUUID,vdlmCR,vdlmDestinationAddress,vdlmDestinationType,vdlmFrameType,vdlmSourceAddress,vdlmSourceType,vdlmSourceStatus,vdlmRSequence,vdlmSSequence,vdlmPoll,vdlm2BurstLengthOctets,vdlm2FrequencyHz,vdlm2Index,vdlm2FrequencySkew,vdlm2HDRBitsFixed,vdlm2NoiseLevel,vdlm2OctetsCorrectedByFEC,vdlm2SignalLeveldBm,vdlm2Station,vdlm2Timestamp,vdlm2TimestampMicroseconds,acarsErrorCode,acarsCRCOK,acarsMore,acarsAircraftTailCode,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsFlightNumber,acarsMessageFrom,acarsMessageNumber,acarsMessageNumberSequence,acarsMessageText,acarsExtraURL,acarsExtraPhotos
 Filters:
   ACARS:
     DuplicateMessageSimilarity: 0.9
@@ -60,6 +63,9 @@ Filters:
     MaxRetryAttempts: 5
     MaxRetryDelaySeconds: 5
     Model: llama3.2
+    Options:
+    - Name: num_predict
+      Value: 512
     SystemPrompt: Answer like a pirate
     Timeout: 5
     URL: http://ollama-service:11434
