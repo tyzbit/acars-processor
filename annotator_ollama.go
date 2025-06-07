@@ -46,9 +46,9 @@ var (
 )
 
 type OllamaAnnotatorResponse struct {
-	Question      bool     `json:"question"`
-	EditActions   []string `json:"edit_actions"`
-	ProcessedText string   `json:"processed_text"`
+	Question      bool   `json:"question"`
+	EditActions   string `json:"edit_actions"`
+	ProcessedText string `json:"processed_text"`
 }
 
 type OllamaAnnotatorResponseFormat struct {
@@ -224,14 +224,10 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 	if r.ProcessedText == "" && len(r.EditActions) == 0 {
 		log.Info("ollama annotator response was empty")
 	} else {
-		var actions string
-		for n, a := range r.EditActions {
-			actions = actions + fmt.Sprintf("%d: %s\n", n, a)
-		}
 		// Please update config example values if changed
 		annotation = Annotation{
 			"ollamaProcessedText": r.ProcessedText,
-			"ollamaEditActions":   actions,
+			"ollamaEditActions":   r.EditActions,
 			"ollamaQuestion":      r.Question,
 		}
 	}
