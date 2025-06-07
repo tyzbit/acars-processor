@@ -83,6 +83,7 @@ LogLevel: info
 Receivers:
   DiscordWebhook:
     FormatText: true
+    RequiredFields: null
     URL: https://discord.com/api/webhooks/1234321/unique_id1234
   NewRelic:
     APIKey: api_key

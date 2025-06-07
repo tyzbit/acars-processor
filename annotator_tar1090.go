@@ -151,7 +151,7 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 	olon, _ := strconv.ParseFloat(coords[1], 64)
 	origin := geodist.Coord{Lat: olat, Lon: olon}
 
-	aircraftInfo, err := a.SingleAircraftQueryByRegistration(m.AircraftTailCode.(string))
+	aircraftInfo, err := a.SingleAircraftQueryByRegistration(m.AircraftTailCode)
 	if err != nil {
 		log.Warnf("error getting aircraft position from tar1090: %v", err)
 		return annotation
@@ -215,7 +215,7 @@ func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotat
 	olon, _ := strconv.ParseFloat(coords[1], 64)
 	origin := geodist.Coord{Lat: olat, Lon: olon}
 
-	aircraftInfo, err := a.SingleAircraftQueryByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration.(string)))
+	aircraftInfo, err := a.SingleAircraftQueryByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 	if err != nil {
 		log.Warnf("error getting aircraft position: %v", err)
 		return annotation

@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"slices"
 	"sort"
 
 	log "github.com/sirupsen/logrus"
@@ -53,6 +54,16 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	sort.Strings(keys)
 
 	var content string
+	requiredFieldsPresent := true
+	for _, requiredField := range config.Receivers.DiscordWebhook.RequiredFields {
+		if !slices.Contains(keys, requiredField) {
+			requiredFieldsPresent = false
+		}
+	}
+	if !requiredFieldsPresent {
+		log.Info("one or more required fields not present, not calling discord")
+		return nil
+	}
 	for _, key := range keys {
 		textField, _ := regexp.MatchString(key, ".*Text")
 		if config.Receivers.DiscordWebhook.FormatText &&

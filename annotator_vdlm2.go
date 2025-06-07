@@ -61,7 +61,7 @@ type VDLM2Message struct {
 				Error                 bool   `json:"err"`
 				CRCOK                 bool   `json:"crc_ok"`
 				More                  bool   `json:"more"`
-				Registration          any    `json:"reg"`
+				Registration          string `json:"reg"`
 				Mode                  string `json:"mode"`
 				Label                 string `json:"label"`
 				BlockID               string `json:"blk_id"`

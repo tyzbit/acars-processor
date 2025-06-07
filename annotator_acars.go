@@ -52,7 +52,7 @@ type ACARSMessage struct {
 	Label            string `json:"label"`
 	BlockID          string `json:"block_id"`
 	Acknowledge      any    `json:"ack"`  // Can be bool or string
-	AircraftTailCode any    `json:"tail"` // Can be string or float
+	AircraftTailCode string `json:"tail"` // Can be string or float
 	MessageText      string `json:"text"`
 	MessageNumber    string `json:"msgno"`
 	FlightNumber     string `json:"flight"`

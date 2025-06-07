@@ -130,7 +130,7 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 	olon, _ := strconv.ParseFloat(coords[1], 64)
 	origin := geodist.Coord{Lat: olat, Lon: olon}
 
-	position, err := a.SingleAircraftPositionByRegistration(m.AircraftTailCode.(string))
+	position, err := a.SingleAircraftPositionByRegistration(m.AircraftTailCode)
 	if err != nil {
 		log.Warnf("error getting aircraft position: %v", err)
 	}
@@ -174,7 +174,7 @@ func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 	olon, _ := strconv.ParseFloat(coords[1], 64)
 	origin := geodist.Coord{Lat: olat, Lon: olon}
 
-	position, err := a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration.(string)))
+	position, err := a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 	if err != nil {
 		log.Warnf("error getting aircraft position from adsb exchange: %v", err)
 	}
