@@ -79,7 +79,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	// Hardcoded for now because most webhooks will be JSON
 	req.Header.Add("Content-Type", "application/json")
 
-	log.Info("calling discord webhook")
+	log.Info("calling discord receiver")
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

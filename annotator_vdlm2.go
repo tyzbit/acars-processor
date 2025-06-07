@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type VDLM2Annotator interface {
 	Name() string
@@ -58,7 +61,7 @@ type VDLM2Message struct {
 				Error                 bool   `json:"err"`
 				CRCOK                 bool   `json:"crc_ok"`
 				More                  bool   `json:"more"`
-				Registration          string `json:"reg"`
+				Registration          any    `json:"reg"`
 				Mode                  string `json:"mode"`
 				Label                 string `json:"label"`
 				BlockID               string `json:"blk_id"`
@@ -89,10 +92,7 @@ type VDLM2Message struct {
 // Although this is the ACARS annotator, we must support ACARS and VLM2
 // message types
 func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
-	tailcode, cut := strings.CutPrefix(m.VDL2.AVLC.ACARS.Registration, ".")
-	if !cut {
-		tailcode = m.VDL2.AVLC.ACARS.Registration
-	}
+	tailcode, _ := strings.CutPrefix(fmt.Sprintf("%s", m.VDL2.AVLC.ACARS.Registration), ".")
 	text := m.VDL2.AVLC.ACARS.MessageText
 	// Please update config example values if changed
 	annotation = Annotation{

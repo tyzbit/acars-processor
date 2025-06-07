@@ -1,6 +1,9 @@
 package main
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type ACARSAnnotator interface {
 	Name() string
@@ -48,8 +51,8 @@ type ACARSMessage struct {
 	Mode             string `json:"mode"`
 	Label            string `json:"label"`
 	BlockID          string `json:"block_id"`
-	Acknowledge      any    `json:"ack"` // Can be bool or string
-	AircraftTailCode string `json:"tail"`
+	Acknowledge      any    `json:"ack"`  // Can be bool or string
+	AircraftTailCode any    `json:"tail"` // Can be string or float
 	MessageText      string `json:"text"`
 	MessageNumber    string `json:"msgno"`
 	FlightNumber     string `json:"flight"`
@@ -58,10 +61,7 @@ type ACARSMessage struct {
 // Interface function to satisfy ACARSHandler
 func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	// Chop off leading periods
-	tailcode, cut := strings.CutPrefix(m.AircraftTailCode, ".")
-	if !cut {
-		tailcode = m.AircraftTailCode
-	}
+	tailcode, _ := strings.CutPrefix(fmt.Sprintf("%s", m.AircraftTailCode), ".")
 	text := m.MessageText
 	// Please update config example values if changed
 	annotation = Annotation{
