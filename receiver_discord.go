@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"sort"
 
 	log "github.com/sirupsen/logrus"
@@ -53,7 +54,9 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 	var content string
 	for _, key := range keys {
-		if config.Receivers.DiscordWebhook.FormatText && key != "" {
+		textField, _ := regexp.MatchString(a[key].(string), ".*Text")
+		if config.Receivers.DiscordWebhook.FormatText &&
+			key != "" && textField {
 			key = "```" + key + "```"
 		}
 		content = fmt.Sprintf("%s\n**%s**: %v", content, key, a[key])
