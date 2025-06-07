@@ -98,8 +98,6 @@ type ACARSAnnotatorConfig struct {
 	Enabled bool `jsonschema:"required,default=true" default:"true"`
 	// Fields to provide to receivers from this annotator. Any separator will do.
 	SelectedFields string `jsonschema:"example=acarsFrequencyMHz\\,acarsChannel\\,acarsErrorCode\\,acarsSignaldBm\\,acarsTimestamp\\,acarsAppName\\,acarsAppVersion\\,acarsAppProxied\\,acarsAppProxiedBy\\,acarsAppRouterVersion\\,acarsAppRouterUUID\\,acarsStationID\\,acarsASSStatus\\,acarsMode\\,acarsLabel\\,acarsBlockID\\,acarsAcknowledge\\,acarsAircraftTailCode\\,acarsMessageFrom\\,acarsMessageText\\,acarsMessageNumber\\,acarsFlightNumber\\,acarsExtraURL\\,acarsExtraPhotos" default:"acarsFrequencyMHz,acarsChannel,acarsErrorCode,acarsSignaldBm,acarsTimestamp,acarsAppName,acarsAppVersion,acarsAppProxied,acarsAppProxiedBy,acarsAppRouterVersion,acarsAppRouterUUID,acarsStationID,acarsASSStatus,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsAircraftTailCode,acarsMessageFrom,acarsMessageText,acarsMessageNumber,acarsFlightNumber,acarsExtraURL,acarsExtraPhotos"`
-	// Whether to surround the returned message field with backticks.
-	SurroundWithBackticks bool `jsonschema:"example=true" default:"true"`
 }
 
 type VDLM2AnnotatorConfig struct {
@@ -107,8 +105,6 @@ type VDLM2AnnotatorConfig struct {
 	Enabled bool `jsonschema:"required,default=true" default:"true"`
 	// Fields to provide to receivers from this annotator. Any separator will do.
 	SelectedFields string `jsonschema:"example=vdlm2AppName\\,vdlm2AppVersion\\,vdlm2AppProxied\\,vdlm2AppProxiedBy\\,vdlm2AppRouterVersion\\,vdlm2AppRouterUUID\\,vdlmCR\\,vdlmDestinationAddress\\,vdlmDestinationType\\,vdlmFrameType\\,vdlmSourceAddress\\,vdlmSourceType\\,vdlmSourceStatus\\,vdlmRSequence\\,vdlmSSequence\\,vdlmPoll\\,vdlm2BurstLengthOctets\\,vdlm2FrequencyHz\\,vdlm2Index\\,vdlm2FrequencySkew\\,vdlm2HDRBitsFixed\\,vdlm2NoiseLevel\\,vdlm2OctetsCorrectedByFEC\\,vdlm2SignalLeveldBm\\,vdlm2Station\\,vdlm2Timestamp\\,vdlm2TimestampMicroseconds\\,acarsErrorCode\\,acarsCRCOK\\,acarsMore\\,acarsAircraftTailCode\\,acarsMode\\,acarsLabel\\,acarsBlockID\\,acarsAcknowledge\\,acarsFlightNumber\\,acarsMessageFrom\\,acarsMessageNumber\\,acarsMessageNumberSequence\\,acarsMessageText\\,acarsExtraURL\\,acarsExtraPhotos" default:"vdlm2AppName,vdlm2AppVersion,vdlm2AppProxied,vdlm2AppProxiedBy,vdlm2AppRouterVersion,vdlm2AppRouterUUID,vdlmCR,vdlmDestinationAddress,vdlmDestinationType,vdlmFrameType,vdlmSourceAddress,vdlmSourceType,vdlmSourceStatus,vdlmRSequence,vdlmSSequence,vdlmPoll,vdlm2BurstLengthOctets,vdlm2FrequencyHz,vdlm2Index,vdlm2FrequencySkew,vdlm2HDRBitsFixed,vdlm2NoiseLevel,vdlm2OctetsCorrectedByFEC,vdlm2SignalLeveldBm,vdlm2Station,vdlm2Timestamp,vdlm2TimestampMicroseconds,acarsErrorCode,acarsCRCOK,acarsMore,acarsAircraftTailCode,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsFlightNumber,acarsMessageFrom,acarsMessageNumber,acarsMessageNumberSequence,acarsMessageText,acarsExtraURL,acarsExtraPhotos"`
-	// Whether to surround the returned message field with backticks.
-	SurroundWithBackticks bool `jsonschema:"example=true" default:"true"`
 }
 
 type ADSBExchangeAnnotatorConfig struct {
@@ -156,8 +152,6 @@ type OllamaAnnotatorConfig struct {
 	FilterWithQuestion bool `jsonschema:"example=true" default:"true"`
 	// Fields to provide to receivers from this annotator. Any separator will do.
 	SelectedFields string `jsonschema:"example=ollamaProcessedText\\,ollamaEditActions\\,ollamaQuestion" default:"ollamaProcessedText,ollamaEditActions,ollamaQuestion"`
-	// Whether to surround the returned message field with backticks.
-	SurroundWithBackticks bool `jsonschema:"example=true" default:"true"`
 }
 
 type OllamaOptionsConfig struct {

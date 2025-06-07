@@ -224,9 +224,6 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		log.Info("ollama annotator response was empty")
 	} else {
 		text := r.ProcessedText
-		if config.Annotators.Ollama.SurroundWithBackticks {
-			text = "```" + text + "```"
-		}
 		// Please update config example values if changed
 		annotation = Annotation{
 			"ollamaProcessedText": text,

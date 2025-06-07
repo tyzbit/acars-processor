@@ -63,9 +63,6 @@ func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation 
 		tailcode = m.AircraftTailCode
 	}
 	text := m.MessageText
-	if config.Annotators.ACARS.SurroundWithBackticks {
-		text = "```" + text + "```"
-	}
 	// Please update config example values if changed
 	annotation = Annotation{
 		"acarsFrequencyMHz":     m.FrequencyMHz,

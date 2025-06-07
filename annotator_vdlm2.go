@@ -94,9 +94,6 @@ func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		tailcode = m.VDL2.AVLC.ACARS.Registration
 	}
 	text := m.VDL2.AVLC.ACARS.MessageText
-	if config.Annotators.ACARS.SurroundWithBackticks {
-		text = "```" + text + "```"
-	}
 	// Please update config example values if changed
 	annotation = Annotation{
 		"vdlm2AppName":               m.VDL2.App.Name,
