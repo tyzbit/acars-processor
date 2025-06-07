@@ -53,6 +53,9 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 	var content string
 	for _, key := range keys {
+		if config.Receivers.DiscordWebhook.FormatText && key != "" {
+			key = "```" + key + "```"
+		}
 		content = fmt.Sprintf("%s\n**%s**: %v", content, key, a[key])
 	}
 
@@ -88,27 +91,5 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	if response := string(body); response != "" {
 		log.Debugf("discord api returned: %s", response)
 	}
-
-	// embed := discord.NewEmbed("ACARS Message", "Description", FlightAwareRoot+m.AircraftTailCode)
-	// embed.Content = m.MessageText
-
-	// distance := strconv.FormatFloat(m.Annotations[0].Annotation["adsbAircraftDistanceMi"].(float64), 'f', 2, 64) +
-	// 	" mi"
-	// embed.SetAuthor("ACARS Message", "", "")
-	// //Creates a new field and adds it to the embed
-	// //boolean represents whether the field is inline or not
-	// embed.AddField("Flight Number", m.FlightNumber, false)
-	// embed.AddField("Signal Strength", fmt.Sprintf("%f", m.SignaldBm), true)
-	// embed.AddField("Distance", distance, true)
-
-	// //Sets image of embed
-	// embed.AddField("Aircraft photo", JetPhotosRoot+m.AircraftTailCode, true)
-
-	// //Sets color of embed given hexcode
-	// // embed.SetColor("#F1B379")
-
-	// log.Debugf("payload to Discord webhook: %+v", embed)
-	// //Send embed to given webhook
-	// err := embed.SendToWebhook(config.DiscordWebhookURL)
 	return err
 }

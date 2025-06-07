@@ -12,6 +12,7 @@ Annotators:
   ACARS:
     Enabled: true
     SelectedFields: acarsFrequencyMHz,acarsChannel,acarsErrorCode,acarsSignaldBm,acarsTimestamp,acarsAppName,acarsAppVersion,acarsAppProxied,acarsAppProxiedBy,acarsAppRouterVersion,acarsAppRouterUUID,acarsStationID,acarsASSStatus,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsAircraftTailCode,acarsMessageFrom,acarsMessageText,acarsMessageNumber,acarsFlightNumber,acarsExtraURL,acarsExtraPhotos
+    SurroundWithBackticks: true
   ADSBExchange:
     APIKey: example_key
     ReferenceGeolocation: 35.6244416,139.7753782
@@ -26,6 +27,7 @@ Annotators:
     - Name: num_predict
       Value: 512
     SelectedFields: ollamaProcessedText,ollamaEditActions,ollamaQuestion
+    SurroundWithBackticks: true
     SystemPrompt: Answer like a pirate
     Timeout: 5
     URL: http://ollama-service:11434
@@ -38,6 +40,7 @@ Annotators:
   VDLM2:
     Enabled: true
     SelectedFields: vdlm2AppName,vdlm2AppVersion,vdlm2AppProxied,vdlm2AppProxiedBy,vdlm2AppRouterVersion,vdlm2AppRouterUUID,vdlmCR,vdlmDestinationAddress,vdlmDestinationType,vdlmFrameType,vdlmSourceAddress,vdlmSourceType,vdlmSourceStatus,vdlmRSequence,vdlmSSequence,vdlmPoll,vdlm2BurstLengthOctets,vdlm2FrequencyHz,vdlm2Index,vdlm2FrequencySkew,vdlm2HDRBitsFixed,vdlm2NoiseLevel,vdlm2OctetsCorrectedByFEC,vdlm2SignalLeveldBm,vdlm2Station,vdlm2Timestamp,vdlm2TimestampMicroseconds,acarsErrorCode,acarsCRCOK,acarsMore,acarsAircraftTailCode,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsFlightNumber,acarsMessageFrom,acarsMessageNumber,acarsMessageNumberSequence,acarsMessageText,acarsExtraURL,acarsExtraPhotos
+    SurroundWithBackticks: true
 Filters:
   ACARS:
     DuplicateMessageSimilarity: 0.9
@@ -82,6 +85,7 @@ Filters:
 LogLevel: info
 Receivers:
   DiscordWebhook:
+    FormatText: true
     URL: https://discord.com/api/webhooks/1234321/unique_id1234
   NewRelic:
     APIKey: api_key

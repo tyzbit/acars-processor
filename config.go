@@ -288,6 +288,8 @@ type WebHookReceiverConfig struct {
 type DiscordWebhookReceiverConfig struct {
 	// Full URL to the Discord webhook for a channel (edit a channel in the Discord UI for the option to create a webhook).
 	URL string `jsonschema:"required" default:"https://discord.com/api/webhooks/1234321/unique_id1234"`
+	// Surround fields with message content with backticks so they are monospaced and stand out.
+	FormatText bool `jsonschema:"default=true" default:"true"`
 }
 
 type WebHookReceiverConfigHeaders struct {
