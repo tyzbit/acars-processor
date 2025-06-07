@@ -56,7 +56,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	var content string
 	requiredFieldsPresent := true
 	for _, requiredField := range config.Receivers.DiscordWebhook.RequiredFields {
-		if !slices.Contains(keys, requiredField) {
+		if !slices.Contains(keys, requiredField) && a[requiredField] != "" {
 			requiredFieldsPresent = false
 		}
 	}
