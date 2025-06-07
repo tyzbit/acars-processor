@@ -54,7 +54,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 	var content string
 	for _, key := range keys {
-		textField, _ := regexp.MatchString(a[key].(string), ".*Text")
+		textField, _ := regexp.MatchString(key, ".*Text")
 		if config.Receivers.DiscordWebhook.FormatText &&
 			key != "" && textField {
 			key = "```" + key + "```"
