@@ -21,17 +21,18 @@ var (
 	instructions and then a communication message. You may also be asked a
 	question about the message.
 
-	You will consider the message and answer any questions that may have been
-	asked about it. You will use your skills and any examples or rules provided
-	to edit, select, transform or otherwise process the text strictly according
-	to the directions given. Only make additions or subtractions from the
-	original text exactly unless specifically instructed otherwise.
+	You will answer any questions that may have been asked about the message.
+	You will use your skills and any examples or rules provided to edit, select,
+	transform or otherwise process the text strictly according to the directions
+	given. Only make additions or subtractions from the original text. Do not
+	replace or transform words such as to modify case unless specifically
+	instructed to.
 
 	Here's the criteria:
 	`
 	OllamaAnnotatorFinalInstructions = `
-	If you were asked a question, return true or false answering the
-	question in the 'question' field. If you weren't asked a question,
+	If you were asked a question, return true or false corresponding to the
+	answer in the 'question' field. If you weren't asked a question,
 	return true in the 'question' field.
 
 	Note each action you took to process the text in 'edit_actions'.
@@ -45,9 +46,9 @@ var (
 )
 
 type OllamaAnnotatorResponse struct {
-	Question      bool   `json:"question"`
-	EditActions   string `json:"edit_actions"`
-	ProcessedText string `json:"processed_text"`
+	Question      bool     `json:"question"`
+	EditActions   []string `json:"edit_actions"`
+	ProcessedText string   `json:"processed_text"`
 }
 
 type OllamaAnnotatorResponseFormat struct {
@@ -220,13 +221,16 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 			return annotation
 		}
 	}
-	if r.ProcessedText == "" && r.EditActions == "" {
+	if r.ProcessedText == "" && len(r.EditActions) == 0 {
 		log.Info("ollama annotator response was empty")
 	} else {
-		text := r.ProcessedText
+		var actions string
+		for n, a := range r.EditActions {
+			actions = actions + fmt.Sprintf("%d: %s\n", n, a)
+		}
 		// Please update config example values if changed
 		annotation = Annotation{
-			"ollamaProcessedText": text,
+			"ollamaProcessedText": r.ProcessedText,
 			"ollamaEditActions":   r.EditActions,
 			"ollamaQuestion":      r.Question,
 		}
