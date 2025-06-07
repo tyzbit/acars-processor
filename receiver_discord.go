@@ -65,12 +65,14 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		return nil
 	}
 	for _, key := range keys {
-		textField, _ := regexp.MatchString(key, ".*Text")
+		r, _ := regexp.Compile(".*Text")
+		textField := r.MatchString(key)
+		v := a[key]
 		if config.Receivers.DiscordWebhook.FormatText &&
-			key != "" && textField {
-			key = "```" + key + "```"
+			v != "" && textField {
+			v = fmt.Sprintf("```%s```", v)
 		}
-		content = fmt.Sprintf("%s\n**%s**: %v", content, key, a[key])
+		content = fmt.Sprintf("%s\n**%s**: %v", content, key, v)
 	}
 
 	message := DiscordWebhookMessage{
