@@ -231,7 +231,7 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		// Please update config example values if changed
 		annotation = Annotation{
 			"ollamaProcessedText": r.ProcessedText,
-			"ollamaEditActions":   r.EditActions,
+			"ollamaEditActions":   actions,
 			"ollamaQuestion":      r.Question,
 		}
 	}
