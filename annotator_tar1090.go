@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -20,15 +21,13 @@ func (a Tar1090Handler) Name() string {
 
 func (a Tar1090Handler) SelectFields(annotation Annotation) Annotation {
 	// If no fields are being selected, return annotation unchanged
-	if config.Annotators.Tar1090.SelectedFields == "" {
+	if config.Annotators.Tar1090.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
-	if config.Annotators.Tar1090.SelectedFields != "" {
-		for field, value := range annotation {
-			if strings.Contains(config.Annotators.Tar1090.SelectedFields, field) {
-				selectedFields[field] = value
-			}
+	for field, value := range annotation {
+		if slices.Contains(config.Annotators.Tar1090.SelectedFields, field) {
+			selectedFields[field] = value
 		}
 	}
 	return selectedFields

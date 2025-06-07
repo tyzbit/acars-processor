@@ -1,2 +1,8 @@
 # yaml-language-server: $schema=./schema.json
 
+Annotators:
+  ACARS:
+    Enabled: true
+    SelectedFields: 
+      - acarsFrequencyMHz
+    

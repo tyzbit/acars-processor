@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -22,15 +23,13 @@ func (a ADSBHandlerAnnotator) Name() string {
 
 func (a ADSBHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
 	// If no fields are being selected, return annotation unchanged
-	if config.Annotators.ADSBExchange.SelectedFields == "" {
+	if config.Annotators.ADSBExchange.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
-	if config.Annotators.ADSBExchange.SelectedFields != "" {
-		for field, value := range annotation {
-			if strings.Contains(config.Annotators.ADSBExchange.SelectedFields, field) {
-				selectedFields[field] = value
-			}
+	for field, value := range annotation {
+		if slices.Contains(config.Annotators.ADSBExchange.SelectedFields, field) {
+			selectedFields[field] = value
 		}
 	}
 	return selectedFields

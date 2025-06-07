@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -19,12 +20,12 @@ func (v VDLM2HandlerAnnotator) Name() string {
 }
 
 func (v VDLM2HandlerAnnotator) SelectFields(annotation Annotation) Annotation {
-	if config.Annotators.VDLM2.SelectedFields == "" {
+	if config.Annotators.VDLM2.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if strings.Contains(config.Annotators.VDLM2.SelectedFields, field) {
+		if slices.Contains(config.Annotators.VDLM2.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}

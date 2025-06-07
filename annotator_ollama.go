@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strings"
+	"slices"
 	"time"
 
 	"github.com/avast/retry-go"
@@ -92,12 +92,12 @@ func (a OllamaHandler) Name() string {
 }
 
 func (a OllamaHandler) SelectFields(annotation Annotation) Annotation {
-	if config.Annotators.Ollama.SelectedFields == "" {
+	if config.Annotators.Ollama.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if strings.Contains(config.Annotators.Ollama.SelectedFields, field) {
+		if slices.Contains(config.Annotators.Ollama.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}

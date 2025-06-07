@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 )
 
@@ -19,12 +20,12 @@ func (a ACARSHandlerAnnotator) Name() string {
 }
 
 func (a ACARSHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
-	if config.Annotators.ACARS.SelectedFields == "" {
+	if config.Annotators.ACARS.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if strings.Contains(config.Annotators.ACARS.SelectedFields, field) {
+		if slices.Contains(config.Annotators.ACARS.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}

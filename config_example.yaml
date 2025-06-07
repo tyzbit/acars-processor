@@ -11,74 +11,73 @@ ACARSHub:
 Annotators:
   ACARS:
     Enabled: true
-    SelectedFields: acarsFrequencyMHz,acarsChannel,acarsErrorCode,acarsSignaldBm,acarsTimestamp,acarsAppName,acarsAppVersion,acarsAppProxied,acarsAppProxiedBy,acarsAppRouterVersion,acarsAppRouterUUID,acarsStationID,acarsASSStatus,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsAircraftTailCode,acarsMessageFrom,acarsMessageText,acarsMessageNumber,acarsFlightNumber,acarsExtraURL,acarsExtraPhotos
+    SelectedFields: null
   ADSBExchange:
     APIKey: example_key
     ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields: adsbOriginGeolocation,adsbOriginGeolocationLatitude,adsbOriginGeolocationLongitude,adsbAircraftGeolocation,adsbAircraftLatitude,adsbAircraftLongitude,adsbAircraftDistanceKm,adsbAircraftDistanceMi
+    SelectedFields: null
   Ollama:
-    FilterWithQuestion: true
-    MaxPredictionTokens: 512
-    MaxRetryAttempts: 5
-    MaxRetryDelaySeconds: 5
+    FilterWithQuestion: false
+    MaxPredictionTokens: 0
+    MaxRetryAttempts: 0
+    MaxRetryDelaySeconds: 0
     Model: llama3.2
     Options:
     - Name: num_predict
       Value: 512
-    SelectedFields: ollamaProcessedText,ollamaEditActions,ollamaQuestion
+    SelectedFields: null
     SystemPrompt: Answer like a pirate
-    Timeout: 5
+    Timeout: 0
     URL: http://ollama-service:11434
-    UserPrompt: Is there prose in this message? If present, prose will be the last
-      section of a message. Return any prose if found. Surround it with triple backticks.
+    UserPrompt: ""
   Tar1090:
     ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields: tar1090ReferenceGeolocation,tar1090ReferenceGeolocationLatitude,tar1090ReferenceGeolocationLongitude,tar1090AircraftEmergency,tar1090AircraftGeolocation,tar1090AircraftLatitude,tar1090AircraftLongitude,tar1090AircraftDistanceKm,tar1090AircraftDistanceMi,tar1090AircraftDistanceNm,tar1090AircraftDirectionDegrees,tar1090AircraftAltimeterBarometerFeet,tar1090AircraftAltimeterGeometricFeet,tar1090AircraftAltimeterBarometerRateFeetPerSecond,tar1090AircraftOwnerOperator,tar1090AircraftFlightNumber,tar1090AircraftHexCode,tar1090AircraftType,tar1090AircraftDescription,tar1090AircraftYearOfManufacture,tar1090AircraftADSBMessageCount,tar1090AircraftRSSIdBm,tar1090AircraftNavModes
+    SelectedFields: null
     URL: http://tar1090/
   VDLM2:
     Enabled: true
-    SelectedFields: vdlm2AppName,vdlm2AppVersion,vdlm2AppProxied,vdlm2AppProxiedBy,vdlm2AppRouterVersion,vdlm2AppRouterUUID,vdlmCR,vdlmDestinationAddress,vdlmDestinationType,vdlmFrameType,vdlmSourceAddress,vdlmSourceType,vdlmSourceStatus,vdlmRSequence,vdlmSSequence,vdlmPoll,vdlm2BurstLengthOctets,vdlm2FrequencyHz,vdlm2Index,vdlm2FrequencySkew,vdlm2HDRBitsFixed,vdlm2NoiseLevel,vdlm2OctetsCorrectedByFEC,vdlm2SignalLeveldBm,vdlm2Station,vdlm2Timestamp,vdlm2TimestampMicroseconds,acarsErrorCode,acarsCRCOK,acarsMore,acarsAircraftTailCode,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsFlightNumber,acarsMessageFrom,acarsMessageNumber,acarsMessageNumberSequence,acarsMessageText,acarsExtraURL,acarsExtraPhotos
+    SelectedFields: null
 Filters:
   ACARS:
-    DuplicateMessageSimilarity: 0.9
+    DuplicateMessageSimilarity: 0
   Generic:
-    ASSStatus: anything
-    AboveDistanceNm: 15.5
-    AboveSignaldBm: -9.9
-    BelowDistanceNm: 15.5
-    BelowSignaldBm: -9.9
-    DictionaryPhraseLengthMinimum: 5
-    Emergency: true
+    ASSStatus: ""
+    AboveDistanceNm: 0
+    AboveSignaldBm: 0
+    BelowDistanceNm: 0
+    BelowSignaldBm: 0
+    DictionaryPhraseLengthMinimum: 0
+    Emergency: false
     FlightNumber: "1234"
-    Frequency: 136.95
-    FromAircraft: true
-    FromTower: true
-    HasText: true
-    More: true
-    StationID: N12346
+    Frequency: 0
+    FromAircraft: false
+    FromTower: false
+    HasText: false
+    More: false
+    StationID: ""
     TailCode: "1234"
   Ollama:
-    FilterOnFailure: true
+    FilterOnFailure: false
     MaxPredictionTokens: 512
-    MaxRetryAttempts: 5
-    MaxRetryDelaySeconds: 5
+    MaxRetryAttempts: 0
+    MaxRetryDelaySeconds: 0
     Model: llama3.2
     Options:
     - Name: num_predict
       Value: 512
     SystemPrompt: Answer like a pirate
-    Timeout: 5
+    Timeout: 0
     URL: http://ollama-service:11434
     UserPrompt: Is there prose in this message?
   OpenAI:
     APIKey: example_key
     Model: gpt-4o
     SystemPrompt: Answer like a pirate
-    Timeout: 5
+    Timeout: 0
     UserPrompt: Does this message talk about coffee makers or lavatories (shortand
       LAV is sometimes used)?
   VDLM2:
-    DuplicateMessageSimilarity: 0.9
+    DuplicateMessageSimilarity: 0
 LogLevel: info
 Receivers:
   DiscordWebhook:
@@ -87,7 +86,7 @@ Receivers:
     URL: https://discord.com/api/webhooks/1234321/unique_id1234
   NewRelic:
     APIKey: api_key
-    CustomEventType: CustomACARS
+    CustomEventType: ""
   Webhook:
     Headers:
     - Name: APIKey
