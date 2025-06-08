@@ -37,6 +37,7 @@ Annotators:
   VDLM2:
     Enabled: true
     SelectedFields: null
+ColorOutput: true
 Filters:
   ACARS:
     DuplicateMessageSimilarity: 0

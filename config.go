@@ -11,6 +11,7 @@ import (
 func ConfigureLogging() {
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp: true,
+		ForceColors:   config.ColorOutput,
 	})
 	loglevel := strings.ToLower(config.LogLevel)
 	switch loglevel {
@@ -47,6 +48,8 @@ func LoadConfig() {
 type Config struct {
 	// Set logging verbosity.
 	LogLevel string `jsonschema:"default=info" default:"info"`
+	// Force whether or not color output is used
+	ColorOutput bool `jsonschema:"default=true" default:"true"`
 	// ACARSHub connection settings.
 	ACARSHub ACARSHubConfig
 	// Services that receive raw ACARS/VDLM2 messages and return more information, usually after a lookup or additional processing.
