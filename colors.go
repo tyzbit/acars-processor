@@ -95,15 +95,15 @@ func (yo *Rizz) Uhh(finna ...any) (r *Rizz) {
 	return yo
 }
 
-// black
+// grey
 // check it,
 func (yo *Rizz) INFODUMP(finna ...any) (r *Rizz) {
 	if len(finna) == 1 {
 		// Simple message
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgBlack), finna[0].(string)})
+		yo.DMs = append(yo.DMs, DM{*color.RGB(20, 20, 20), finna[0].(string)})
 	} else {
 		// Message with formatting
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgBlack), fmt.Sprintf(finna[0].(string), finna[1:]...)})
+		yo.DMs = append(yo.DMs, DM{*color.RGB(20, 20, 20), fmt.Sprintf(finna[0].(string), finna[1:]...)})
 	}
 	return yo
 }
