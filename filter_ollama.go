@@ -172,7 +172,7 @@ func OllamaFilter(m string) bool {
 		retry.DelayType(retry.BackOffDelay),
 		retry.Delay(time.Second*time.Duration(config.Filters.Ollama.MaxRetryDelaySeconds)),
 		retry.OnRetry(func(n uint, err error) {
-			log.Error(yo().Uhh("OllamaFilter attempt #%d failed: %v").FRFR(), n+1, err)
+			log.Error(yo().Uhh("OllamaFilter attempt #%d failed: %v", n+1, err).FRFR())
 		}),
 	)
 

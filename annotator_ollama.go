@@ -210,7 +210,7 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 		retry.DelayType(retry.BackOffDelay),
 		retry.Delay(time.Second*time.Duration(config.Annotators.Ollama.MaxRetryDelaySeconds)),
 		retry.OnRetry(func(n uint, err error) {
-			log.Error(yo().Uhh("OllamaAnnotator attempt #%d failed: %v").FRFR(), n+1, err)
+			log.Error(yo().Uhh("OllamaAnnotator attempt #%d failed: %v", n+1, err).FRFR())
 		}),
 	)
 
