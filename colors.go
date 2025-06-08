@@ -10,8 +10,7 @@ import (
 // Shorthand for colorizing output
 // Increases overall program rizz
 type Rizz struct {
-	ForceColors bool
-	DMs         []DM
+	DMs []DM
 }
 
 type DM struct {
@@ -22,12 +21,16 @@ type DM struct {
 // execute the chain
 // no cap
 func (yo *Rizz) FRFR() (s string) {
-	color.NoColor = !config.ColorOutput
 	if len(yo.DMs) == 0 {
 		log.Error("No DMs cuz")
 		return ""
 	}
 	for _, dm := range yo.DMs {
+		if !config.ColorOutput {
+			dm.Color.DisableColor()
+		} else {
+			dm.Color.EnableColor()
+		}
 		s = s + dm.Color.Sprint(dm.Message) + color.New(color.Reset).Sprint("")
 	}
 	return s
