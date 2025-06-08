@@ -46,7 +46,7 @@ func GenerateSchema(schemaPath string) {
 	configYaml = append([]byte(schemaLine), configYaml...)
 	if UpdateFile(configExample, configYaml) {
 		updated = true
-		log.Info("Updated example config")
+		log.Info(yo().Bet("Updated example config").FRFR())
 	}
 
 	// First we generate the schema from the Config type with comments
@@ -62,10 +62,10 @@ func GenerateSchema(schemaPath string) {
 	json, _ := schema.MarshalJSON()
 	if UpdateFile(fmt.Sprintf("./%s", schemaFilePath), json) {
 		updated = true
-		log.Infof("Updated schema at %s", schemaFilePath)
+		log.Info(yo().Bet("Updated schema at %s", schemaFilePath).FRFR())
 	}
 	if updated {
-		log.Info("Files were updated, so exiting with status of 100")
+		log.Info(yo().Hmm("Files were updated, so exiting with status of 100").FRFR())
 		os.Exit(100)
 	}
 }

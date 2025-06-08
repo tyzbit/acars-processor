@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"regexp"
 
+	"github.com/fatih/color"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 	log "github.com/sirupsen/logrus"
@@ -38,7 +39,7 @@ type OpenAIResponse struct {
 func OpenAIFilter(m string) bool {
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
-		log.Info("message was blank, filtering without calling OpenAI")
+		log.Info(yo().FYI("message was blank, filtering without calling OpenAI").FRFR())
 		return false
 	}
 	client := openai.NewClient(
@@ -52,7 +53,7 @@ func OpenAIFilter(m string) bool {
 		openAIModel = config.Filters.OpenAI.Model
 	}
 
-	log.Debugf("calling OpenAI model %s", openAIModel)
+	log.Debug(yo().INFODUMP("calling OpenAI model ").Hmm(openAIModel).FRFR())
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
@@ -66,7 +67,7 @@ func OpenAIFilter(m string) bool {
 			Temperature: openai.Float(0),
 		})
 	if err != nil {
-		log.Errorf("error using OpenAI: %s", err)
+		log.Error(yo().Uhh("error using OpenAI: %s", err).FRFR())
 		return true
 	}
 
@@ -78,7 +79,7 @@ func OpenAIFilter(m string) bool {
 	// Find the last json payload in case the model reasons about
 	// one in the middle of thinking
 	if len(matches) == 0 {
-		log.Errorf("did not find a json object in response: %s",
+		log.Error(yo().Uhh("did not find a json object in response: %s").FRFR(),
 			chatCompletion.Choices[0].Message.Content)
 		return true
 	}
@@ -88,15 +89,27 @@ func OpenAIFilter(m string) bool {
 	err = json.Unmarshal([]byte(content), &r)
 
 	if err != nil {
-		log.Warnf("error unmarshaling response from OpenAI: %s", err)
-		log.Debugf("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content)
+		log.Warn(yo().Uhh("error unmarshaling response from OpenAI: %s", err).FRFR())
+		log.Debug(yo().INFODUMP("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content))
 		return true
 	}
 	decision := r.MessageMatches == "true" || r.MessageMatches == true
-	action := map[bool]string{
-		true:  "allow",
-		false: "filter",
+	action := map[bool]DM{
+		true: {
+			Color:   *color.New(color.FgCyan),
+			Message: "allow",
+		},
+		false: {
+			Color:   *color.New(color.FgYellow),
+			Message: "filter",
+		},
 	}
-	log.Infof("openai decision: %s, message ending in: %s, reasoning: %s", action[decision], Last20Characters(m), r.Reasoning)
+	log.Info(
+		yo().FYI("openai decision: ").
+			GlowUp(action[decision]).
+			FYI("message ending in: ").
+			INFODUMP(Last20Characters(m)).
+			FYI(", reasoning:").
+			INFODUMP(r.Reasoning).FRFR())
 	return decision
 }

@@ -9,6 +9,7 @@ import (
 
 var (
 	config                 = Config{}
+	yo                     = func() *Rizz { return new(Rizz) }
 	configFilePath         = "config.yaml"
 	schemaFilePath         = "schema.json"
 	enabledACARSAnnotators = []ACARSAnnotator{}

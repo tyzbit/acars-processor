@@ -61,7 +61,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		}
 	}
 	if !requiredFieldsPresent {
-		log.Info("one or more required fields not present, not calling discord")
+		log.Info(yo().FYI("one or more required fields not present, not calling discord").FRFR())
 		return nil
 	}
 	for _, key := range keys {
@@ -92,7 +92,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	// Hardcoded for now because most webhooks will be JSON
 	req.Header.Add("Content-Type", "application/json")
 
-	log.Info("calling discord receiver")
+	log.Info(yo().FYI("calling discord receiver").FRFR())
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -105,7 +105,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	}
 
 	if response := string(body); response != "" {
-		log.Debugf("discord api returned: %s", response)
+		log.Debug(yo().INFODUMP("discord api returned: %s", response))
 	}
 	return err
 }

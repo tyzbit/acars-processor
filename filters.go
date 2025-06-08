@@ -64,5 +64,6 @@ func ConfigureFilters() {
 	if config.Filters.ACARS.DuplicateMessageSimilarity != 0.0 || config.Filters.VDLM2.DuplicateMessageSimilarity != 0.0 {
 		enabledFilters = append(enabledFilters, "MessageSimilarity")
 	}
-	log.Infof("enabled filters: %s", strings.Join(enabledFilters, ","))
+	log.Info(
+		yo().FYI("enabled filters: ").Hmm(strings.Join(enabledFilters, ",")).FRFR())
 }

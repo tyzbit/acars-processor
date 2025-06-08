@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/avast/retry-go"
+	"github.com/fatih/color"
 	api "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
 )
@@ -75,21 +76,21 @@ var OllamaFilterResponseRequestedFormat = OllamaFilterResponseFormat{
 func OllamaFilter(m string) bool {
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
-		log.Debug("message was blank, filtering without calling ollama")
+		log.Debug(yo().FYI("message was blank, filtering without calling ollama").FRFR())
 		return false
 	}
 	if config.Filters.Ollama.Model == "" || config.Filters.Ollama.UserPrompt == "" {
-		log.Warn("OllamaFilter model and prompt are required to use the ollama filter")
+		log.Warn(yo().Uhh("OllamaFilter model and prompt are required to use the ollama filter").FRFR())
 		return true
 	}
 	url, err := url.Parse(config.Filters.Ollama.URL)
 	if err != nil {
-		log.Errorf("OllamaFilter url could not be parsed: %s", err)
+		log.Error(yo().Uhh("OllamaFilter url could not be parsed: %s", err).FRFR())
 		return true
 	}
 	client := api.NewClient(url, &http.Client{})
 	if err != nil {
-		log.Errorf("error initializing OllamaFilter: %s", err)
+		log.Error(yo().Uhh("error initializing OllamaFilter: %s", err).FRFR())
 		return true
 	}
 
@@ -112,7 +113,7 @@ func OllamaFilter(m string) bool {
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaFilterResponseRequestedFormat)
 	if err != nil {
-		log.Errorf("error setting ollama response format: %s", err)
+		log.Error(yo().Uhh("error setting ollama response format: %s", err).FRFR())
 		return true
 	}
 
@@ -156,7 +157,7 @@ func OllamaFilter(m string) bool {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaFilterTimeout)*time.Second)
 	defer cancel()
-	log.Debugf("calling OllamaFilter, model %s", config.Filters.Ollama.Model)
+	log.Debug(yo().FYI("calling OllamaFilter, model ").Hmm(config.Filters.Ollama.Model).FRFR())
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
@@ -171,20 +172,35 @@ func OllamaFilter(m string) bool {
 		retry.DelayType(retry.BackOffDelay),
 		retry.Delay(time.Second*time.Duration(config.Filters.Ollama.MaxRetryDelaySeconds)),
 		retry.OnRetry(func(n uint, err error) {
-			log.Errorf("OllamaFilter attempt #%d failed: %v", n+1, err)
+			log.Error(yo().Uhh("OllamaFilter attempt #%d failed: %v").FRFR(), n+1, err)
 		}),
 	)
 
-	action := map[bool]string{
-		true:  "allow",
-		false: "filter",
+	action := map[bool]DM{
+		true: {
+			Color:   *color.New(color.FgCyan),
+			Message: "allow",
+		},
+		false: {
+			Color:   *color.New(color.FgYellow),
+			Message: "filter",
+		},
 	}
 
 	if err != nil {
-		log.Errorf("too many failures calling OllamaFilter, giving up and %sing: %s", action[!config.Filters.Ollama.FilterOnFailure], err)
+		log.Error(
+			yo().Uhh("too many failures calling OllamaFilter, giving up and ").
+				GlowUp(action[!config.Filters.Ollama.FilterOnFailure]).
+				FYI("ing: %s", err).FRFR())
 		return !config.Filters.Ollama.FilterOnFailure
 	}
 
-	log.Infof("ollama decision: %s, message ending in: %s, reasoning: %s", action[r.MessageMatchesCriteria], Last20Characters(m), r.Reasoning)
+	log.Info(
+		yo().FYI("ollama decision: ").
+			GlowUp(action[r.MessageMatchesCriteria]).
+			FYI(" for message ending in \"").
+			INFODUMP(Last20Characters(m)).
+			FYI("\", reasoning: ").
+			BTW(r.Reasoning).FRFR())
 	return r.MessageMatchesCriteria
 }

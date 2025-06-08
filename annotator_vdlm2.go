@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 )
@@ -93,7 +92,7 @@ type VDLM2Message struct {
 // Although this is the ACARS annotator, we must support ACARS and VLM2
 // message types
 func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
-	tailcode, _ := strings.CutPrefix(fmt.Sprintf("%s", m.VDL2.AVLC.ACARS.Registration), ".")
+	tailcode, _ := strings.CutPrefix(m.VDL2.AVLC.ACARS.Registration, ".")
 	text := m.VDL2.AVLC.ACARS.MessageText
 	// Please update config example values if changed
 	annotation = Annotation{

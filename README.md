@@ -104,3 +104,13 @@ some info to help you get a good start:
   for counterfeit code that must be tediously tweaked after you make your PR
   due to inept AI. Weigh the efficacy of your tools against the new, additional
   work they make for you by using them.
+- Colors should follow the general guide below to help with accessibility.
+
+| Type of event                    | Recommended color | Example message                                      |
+| -------------------------------- | ----------------- | ---------------------------------------------------- |
+| Success                          | Green             | Connected successfully                               |
+| Information                      | White             | 10 filters enabled                                   |
+| Unusual, but all is OK           | Cyan              | No info back from annotators                         |
+| Unusual, might need looking into | Yellow            | No receivers configured                              |
+| Verbose, raw output              | Black             | "++86501,N8867Q,B7378MAX,250608,WN0393...."          |
+| Sidenote or additional info      | Bold & Italic     | "Filtering due to excessive use of exclamations!!!!" |

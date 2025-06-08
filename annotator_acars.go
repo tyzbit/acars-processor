@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"slices"
 	"strings"
 )
@@ -62,7 +61,7 @@ type ACARSMessage struct {
 // Interface function to satisfy ACARSHandler
 func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	// Chop off leading periods
-	tailcode, _ := strings.CutPrefix(fmt.Sprintf("%s", m.AircraftTailCode), ".")
+	tailcode, _ := strings.CutPrefix(m.AircraftTailCode, ".")
 	text := m.MessageText
 	// Please update config example values if changed
 	annotation = Annotation{

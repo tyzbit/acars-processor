@@ -27,7 +27,7 @@ func FilterDuplicateACARS(m ACARSMessage) bool {
 		return true
 	}
 	if regexp.MustCompile(`^\s*$`).MatchString(m.MessageText) {
-		log.Debug("empty message, filtering as duplicate")
+		log.Debug(yo().INFODUMP("empty message, filtering as duplicate").FRFR())
 		return false
 	}
 	allowMessage := true
@@ -36,8 +36,8 @@ func FilterDuplicateACARS(m ACARSMessage) bool {
 		if similarity > config.Filters.ACARS.DuplicateMessageSimilarity {
 			// Message is too similar, filter it out
 			allowMessage = false
-			log.Debugf("message is %d percent similar to a previous message, filtering",
-				int(similarity*100))
+			log.Debug(yo().INFODUMP("message is %d percent similar to a previous message, filtering",
+				int(similarity*100)))
 			break
 		}
 	}
@@ -58,7 +58,7 @@ func FilterDuplicateVDLM2(m VDLM2Message) bool {
 		return true
 	}
 	if regexp.MustCompile(`^\s*$`).MatchString(m.VDL2.AVLC.ACARS.MessageText) {
-		log.Debug("empty message, filtering as duplicate")
+		log.Debug(yo().INFODUMP("empty message, filtering as duplicate").FRFR())
 		return false
 	}
 	allowMessage := true
@@ -67,8 +67,8 @@ func FilterDuplicateVDLM2(m VDLM2Message) bool {
 		if similarity > config.Filters.VDLM2.DuplicateMessageSimilarity {
 			// Message is too similar, filter it out
 			allowMessage = false
-			log.Debugf("message is %d percent similar to a previous message, filtering",
-				int(similarity*100))
+			log.Debug(yo().INFODUMP("message is %d percent similar to a previous message, filtering",
+				int(similarity*100)))
 			break
 		}
 	}

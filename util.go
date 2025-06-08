@@ -37,7 +37,7 @@ func ReadFile(filePath string) []byte {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Errorf("Error reading the file: %v", err)
+			log.Error(yo().Uhh("Error reading the file: %v", err).FRFR())
 			os.Exit(1)
 		}
 	}

@@ -94,7 +94,7 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 	req.Header.Add(adsbapikeyheader, config.Annotators.ADSBExchange.APIKey)
 	client := &http.Client{}
 
-	log.Debug("making call to ads-b exchange")
+	log.Debug(yo().INFODUMP("making call to ads-b exchange").FRFR())
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Error(err)
@@ -107,7 +107,7 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 	}
 
 	if (&ac != &SingleAircraftPosition{}) {
-		log.Debug("returning data from ads-b")
+		log.Debug(yo().INFODUMP("returning data from ads-b").FRFR())
 		return ac, nil
 	} else {
 		return ac, errors.New("unable to parse returned aircraft position")
@@ -117,12 +117,12 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 // Interface function to satisfy ACARSHandler
 func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	if config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
-		log.Info("adsb enabled but geolocation not set, using '0,0'")
+		log.Info(yo().Hmm("adsb enabled but geolocation not set, using '0,0'").FRFR())
 		config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
 	if len(coords) != 2 {
-		log.Warn("geolocation coordinates are not in the format 'LAT,LON'")
+		log.Warn(yo().Uhh("geolocation coordinates are not in the format 'LAT,LON'").FRFR())
 		return annotation
 	}
 	olat, _ := strconv.ParseFloat(coords[0], 64)
@@ -131,10 +131,10 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 
 	position, err := a.SingleAircraftPositionByRegistration(m.AircraftTailCode)
 	if err != nil {
-		log.Warnf("error getting aircraft position: %v", err)
+		log.Warn(yo().Uhh("error getting aircraft position: %v", err).FRFR())
 	}
 	if len(position.Aircraft) == 0 {
-		log.Warnf("no aircraft were returned from ADS-B API, response message was: %s", position.Message)
+		log.Warn(yo().Uhh("no aircraft were returned from ADS-B API, response message was: %s", position.Message).FRFR())
 		return annotation
 	}
 
@@ -142,7 +142,7 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 	aircraft := geodist.Coord{Lat: alat, Lon: alon}
 	mi, km, err := geodist.VincentyDistance(origin, aircraft)
 	if err != nil {
-		log.Warnf("error calculating distance: %s", err)
+		log.Warn(yo().Uhh("error calculating distance: %s", err).FRFR())
 	}
 	event := Annotation{
 		"adsbOriginGeolocation":          config.Annotators.ADSBExchange.ReferenceGeolocation,
@@ -161,12 +161,12 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 // Interface function to satisfy ACARSHandler
 func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	if config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
-		log.Info("adsb exchange enabled but geolocation not set, using '0,0'")
+		log.Info(yo().Hmm("adsb exchange enabled but geolocation not set, using '0,0'").FRFR())
 		config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
 	if len(coords) != 2 {
-		log.Warn("adsb exchange geolocation coordinates are not in the format 'LAT,LON'")
+		log.Warn(yo().Uhh("adsb exchange geolocation coordinates are not in the format 'LAT,LON'").FRFR())
 		return annotation
 	}
 	olat, _ := strconv.ParseFloat(coords[0], 64)
@@ -175,10 +175,10 @@ func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 
 	position, err := a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 	if err != nil {
-		log.Warnf("error getting aircraft position from adsb exchange: %v", err)
+		log.Warn(yo().Uhh("error getting aircraft position from adsb exchange: %v", err).FRFR())
 	}
 	if len(position.Aircraft) == 0 {
-		log.Warnf("no aircraft were returned from adsb exchange, response message was: %s", position.Message)
+		log.Warn(yo().Uhh("no aircraft were returned from adsb exchange, response message was: %s", position.Message).FRFR())
 		return annotation
 	}
 
@@ -186,7 +186,7 @@ func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 	aircraft := geodist.Coord{Lat: alat, Lon: alon}
 	mi, km, err := geodist.VincentyDistance(origin, aircraft)
 	if err != nil {
-		log.Warnf("error calculating distance: %s", err)
+		log.Warn(yo().Uhh("error calculating distance: %s", err).FRFR())
 	}
 	// Please update config example values if changed
 	event := Annotation{

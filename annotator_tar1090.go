@@ -107,7 +107,7 @@ func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft 
 	}
 	client := &http.Client{}
 
-	log.Debug("making call to tar1090")
+	log.Debug(yo().INFODUMP("making call to tar1090").FRFR())
 	resp, err := client.Do(req)
 	if err != nil {
 		return aircraft, err
@@ -124,11 +124,11 @@ func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft 
 		for _, aircraft := range tjson.Aircraft {
 			// Strip spaces and periods
 			if NormalizeAircraftRegistration(aircraft.Registration) == reg {
-				log.Debug("returning data from tar1090")
+				log.Debug(yo().INFODUMP("returning data from tar1090").FRFR())
 				return aircraft, nil
 			}
 		}
-		log.Debug("aircraft not found in tar1090 response")
+		log.Debug(yo().INFODUMP("aircraft not found in tar1090 response").FRFR())
 		return aircraft, errors.New("aircraft not found in tar1090 response")
 	} else {
 		return aircraft, errors.New("unable to parse returned aircraft position")
@@ -138,12 +138,12 @@ func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft 
 // Interface function to satisfy ACARSHandler
 func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	if config.Annotators.Tar1090.ReferenceGeolocation == "" {
-		log.Info("tar1090 enabled but geolocation not set, using '0,0'")
+		log.Info(yo().Hmm("tar1090 enabled but geolocation not set, using '0,0'").FRFR())
 		config.Annotators.Tar1090.ReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.Annotators.Tar1090.ReferenceGeolocation, ",")
 	if len(coords) != 2 {
-		log.Warn("tar1090 geolocation coordinates are not in the format 'LAT,LON'")
+		log.Warn(yo().Uhh("tar1090 geolocation coordinates are not in the format 'LAT,LON'").FRFR())
 		return annotation
 	}
 	olat, _ := strconv.ParseFloat(coords[0], 64)
@@ -152,14 +152,14 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 
 	aircraftInfo, err := a.SingleAircraftQueryByRegistration(m.AircraftTailCode)
 	if err != nil {
-		log.Warnf("error getting aircraft position from tar1090: %v", err)
+		log.Warn(yo().Uhh("error getting aircraft position from tar1090: %v", err).FRFR())
 		return annotation
 	}
 
 	aircraft := geodist.Coord{Lat: aircraftInfo.Latitude, Lon: aircraftInfo.Longitude}
 	mi, km, err := geodist.VincentyDistance(origin, aircraft)
 	if err != nil {
-		log.Warnf("error calculating distance: %s", err)
+		log.Warn(yo().Uhh("error calculating distance: %s", err).FRFR())
 	}
 
 	var navmodes string
@@ -202,12 +202,12 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 // Interface function to satisfy ACARSHandler
 func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	if config.Annotators.Tar1090.ReferenceGeolocation == "" {
-		log.Info("tar1090 enabled but geolocation not set, using '0,0'")
+		log.Info(yo().Hmm("tar1090 enabled but geolocation not set, using '0,0'").FRFR())
 		config.Annotators.Tar1090.ReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.Annotators.Tar1090.ReferenceGeolocation, ",")
 	if len(coords) != 2 {
-		log.Warn("geolocation coordinates are not in the format 'LAT,LON'")
+		log.Warn(yo().Uhh("geolocation coordinates are not in the format 'LAT,LON'").FRFR())
 		return annotation
 	}
 	olat, _ := strconv.ParseFloat(coords[0], 64)
@@ -216,7 +216,7 @@ func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotat
 
 	aircraftInfo, err := a.SingleAircraftQueryByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 	if err != nil {
-		log.Warnf("error getting aircraft position: %v", err)
+		log.Warn(yo().Uhh("error getting aircraft position: %v", err).FRFR())
 		return annotation
 	}
 
@@ -224,7 +224,7 @@ func (a Tar1090Handler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotat
 	aircraft := geodist.Coord{Lat: alat, Lon: alon}
 	mi, km, err := geodist.VincentyDistance(origin, aircraft)
 	if err != nil {
-		log.Warnf("error calculating distance: %s", err)
+		log.Warn(yo().Uhh("error calculating distance: %s", err).FRFR())
 	}
 
 	var navmodes string
