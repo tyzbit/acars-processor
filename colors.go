@@ -98,7 +98,7 @@ func (yo *Rizz) Uhh(finna ...any) (r *Rizz) {
 // grey
 // check it,
 func (yo *Rizz) INFODUMP(finna ...any) (r *Rizz) {
-	darkGrey := *color.RGB(100, 100, 100)
+	darkGrey := *color.RGB(80, 80, 80)
 	if len(finna) == 1 {
 		// Simple message
 		yo.DMs = append(yo.DMs, DM{darkGrey, finna[0].(string)})
