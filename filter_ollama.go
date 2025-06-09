@@ -191,7 +191,7 @@ func OllamaFilter(m string) bool {
 		log.Error(
 			yo().Uhh("too many failures calling OllamaFilter, giving up and ").
 				GlowUp(action[!config.Filters.Ollama.FilterOnFailure]).
-				FYI("ing: %s", err).FRFR())
+				Uhh("ing: %s", err).FRFR())
 		return !config.Filters.Ollama.FilterOnFailure
 	}
 
