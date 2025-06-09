@@ -13,7 +13,6 @@ import (
 var (
 	configExample = "config_example.yaml"
 	schemaLine    = `# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
-
 `
 )
 
@@ -51,8 +50,8 @@ func GenerateSchema(schemaPath string) {
 
 	// First we generate the schema from the Config type with comments
 	r := new(jsonschema.Reflector)
-	if err := r.AddGoComments("github.com/tyzbit/acars-processor",
-		"./config.go", jsonschema.WithFullComment()); err != nil {
+	err = r.AddGoComments("main", "./", jsonschema.WithFullComment())
+	if err != nil {
 		log.Fatalf("unable to add comments to schema, %s", err)
 	}
 

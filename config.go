@@ -100,7 +100,7 @@ type ACARSAnnotatorConfig struct {
 	// Should ACARS message data from ACARSHub be sent to receivers?
 	Enabled bool `jsonschema:"required,default=true" default:"true"`
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `jsonschema:"example=acarsFrequencyMHz" default:"acarsFrequencyMHz"`
+	SelectedFields []string `default:"acarsFrequencyMHz"`
 }
 
 type VDLM2AnnotatorConfig struct {
