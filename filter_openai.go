@@ -79,8 +79,8 @@ func OpenAIFilter(m string) bool {
 	// Find the last json payload in case the model reasons about
 	// one in the middle of thinking
 	if len(matches) == 0 {
-		log.Error(yo().Uhh("did not find a json object in response: %s").FRFR(),
-			chatCompletion.Choices[0].Message.Content)
+		log.Error(yo().Uhh("did not find a json object in response: %s",
+			chatCompletion.Choices[0].Message.Content).FRFR())
 		return true
 	}
 	start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
