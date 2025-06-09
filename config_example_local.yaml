@@ -1,8 +1,20 @@
 # yaml-language-server: $schema=./schema.json
 
+ColorOutput: true
+LogLevel: info
+ACARSHub:
+  ACARS:
+    Host: acarshub
+    Port: 15550
+  VDLM2:
+    Host: acarshub
+    Port: 15555
 Annotators:
   ACARS:
     Enabled: true
-    SelectedFields: 
-      - SelectedFields
-    
+  VDLM2:
+    Enabled: true
+Receivers:
+  DiscordWebhook:
+    URL: https://discord.com/api/webhooks/1234321/unique_id1234
+    FormatText: true
