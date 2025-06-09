@@ -47,7 +47,7 @@ func ReadFile(filePath string) []byte {
 func WriteFile(filePath string, contents []byte) {
 	err := os.WriteFile(filePath, contents, 0644)
 	if err != nil {
-		log.Error("Error writing file: %w", err)
+		log.Error(yo().Uhh("Error writing file: %w", err))
 	}
 }
 
@@ -56,7 +56,7 @@ func UpdateFile(filePath string, contents []byte) (changed bool) {
 	file := ReadFile(filePath)
 	err := os.WriteFile(filePath, contents, 0644)
 	if err != nil {
-		log.Error("Error writing file: %w", err)
+		log.Error(yo().Uhh("Error writing file: %w", err))
 	}
 	return string(file) != string(contents)
 }

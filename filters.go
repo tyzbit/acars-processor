@@ -55,10 +55,10 @@ func ConfigureFilters() {
 	if config.Filters.Generic.DictionaryPhraseLengthMinimum > 0 {
 		enabledFilters = append(enabledFilters, "DictionaryPhraseLengthMinimum")
 	}
-	if config.Filters.OpenAI.APIKey != "" {
+	if config.Filters.OpenAI.Enabled && config.Filters.OpenAI.APIKey != "" {
 		enabledFilters = append(enabledFilters, "OpenAIPromptFilter")
 	}
-	if config.Filters.Ollama.URL != "" {
+	if config.Filters.Ollama.Enabled && config.Filters.Ollama.URL != "" {
 		enabledFilters = append(enabledFilters, "OllamaPromptFilter")
 	}
 	if config.Filters.ACARS.DuplicateMessageSimilarity != 0.0 || config.Filters.VDLM2.DuplicateMessageSimilarity != 0.0 {

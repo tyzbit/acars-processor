@@ -22,7 +22,7 @@ type DM struct {
 // no cap
 func (yo *Rizz) FRFR() (s string) {
 	if len(yo.DMs) == 0 {
-		log.Error("No DMs cuz")
+		log.Error("no messages to print cuh")
 		return ""
 	}
 	for _, dm := range yo.DMs {

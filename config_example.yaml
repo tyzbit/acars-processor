@@ -10,26 +10,30 @@ ACARSHub:
 Annotators:
   ACARS:
     Enabled: true
-    SelectedFields: null
+    SelectedFields:
+    - acarsFrequencyMHz
   ADSBExchange:
     APIKey: example_key
+    Enabled: true
     ReferenceGeolocation: 35.6244416,139.7753782
     SelectedFields: null
   Ollama:
-    FilterWithQuestion: false
-    MaxPredictionTokens: 0
-    MaxRetryAttempts: 0
-    MaxRetryDelaySeconds: 0
+    Enabled: true
+    FilterWithQuestion: true
+    MaxPredictionTokens: 512
+    MaxRetryAttempts: 5
+    MaxRetryDelaySeconds: 5
     Model: llama3.2
     Options:
     - Name: num_predict
       Value: 512
     SelectedFields: null
     SystemPrompt: Answer like a pirate
-    Timeout: 0
+    Timeout: 5
     URL: http://ollama-service:11434
     UserPrompt: ""
   Tar1090:
+    Enabled: true
     ReferenceGeolocation: 35.6244416,139.7753782
     SelectedFields: null
     URL: http://tar1090/
@@ -39,55 +43,62 @@ Annotators:
 ColorOutput: true
 Filters:
   ACARS:
-    DuplicateMessageSimilarity: 0
+    DuplicateMessageSimilarity: 0.9
+    Enabled: true
   Generic:
-    ASSStatus: ""
-    AboveDistanceNm: 0
-    AboveSignaldBm: 0
-    BelowDistanceNm: 0
-    BelowSignaldBm: 0
-    DictionaryPhraseLengthMinimum: 0
-    Emergency: false
+    ASSStatus: anything
+    AboveDistanceNm: 15.5
+    AboveSignaldBm: -9.9
+    BelowDistanceNm: 15.5
+    BelowSignaldBm: -9.9
+    DictionaryPhraseLengthMinimum: 5
+    Emergency: true
     FlightNumber: "1234"
-    Frequency: 0
-    FromAircraft: false
-    FromTower: false
-    HasText: false
-    More: false
-    StationID: ""
+    Frequency: 136.95
+    FromAircraft: true
+    FromTower: true
+    HasText: true
+    More: true
+    StationID: N12346
     TailCode: "1234"
   Ollama:
-    FilterOnFailure: false
+    Enabled: true
+    FilterOnFailure: true
     MaxPredictionTokens: 512
-    MaxRetryAttempts: 0
-    MaxRetryDelaySeconds: 0
+    MaxRetryAttempts: 5
+    MaxRetryDelaySeconds: 5
     Model: llama3.2
     Options:
     - Name: num_predict
       Value: 512
     SystemPrompt: Answer like a pirate
-    Timeout: 0
+    Timeout: 5
     URL: http://ollama-service:11434
-    UserPrompt: Is there prose in this message?
+    UserPrompt: ""
   OpenAI:
     APIKey: example_key
+    Enabled: true
     Model: gpt-4o
     SystemPrompt: Answer like a pirate
-    Timeout: 0
+    Timeout: 5
     UserPrompt: Does this message talk about coffee makers or lavatories (shortand
       LAV is sometimes used)?
   VDLM2:
-    DuplicateMessageSimilarity: 0
+    DuplicateMessageSimilarity: 0.9
+    Enabled: true
 LogLevel: info
 Receivers:
   DiscordWebhook:
+    Enabled: true
     FormatText: true
     RequiredFields: null
     URL: https://discord.com/api/webhooks/1234321/unique_id1234
   NewRelic:
     APIKey: api_key
-    CustomEventType: ""
+    CustomEventType: CustomACARS
+    Enabled: true
   Webhook:
+    Enabled: true
     Headers:
     - Name: APIKey
       Value: 1234abcdef

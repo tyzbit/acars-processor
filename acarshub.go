@@ -76,7 +76,7 @@ func ReadACARSHubVDLM2Messages() {
 
 	address := fmt.Sprintf("%s:%d", config.ACARSHub.VDLM2.Host, config.ACARSHub.VDLM2.Port)
 	for {
-		log.Debug(yo().INFODUMP("connecting to ").Hmm(config.ACARSHub.VDLM2.Host).INFODUMP(" on acars json port ").Hmm(fmt.Sprint(config.ACARSHub.VDLM2.Port)).FRFR())
+		log.Debug(yo().INFODUMP("connecting to ").Hmm(config.ACARSHub.VDLM2.Host).INFODUMP(" on vdlm2 json port ").Hmm(fmt.Sprint(config.ACARSHub.VDLM2.Port)).FRFR())
 		s, err := net.Dial("tcp", address)
 		if err != nil {
 			log.Error(yo().Uhh("error connecting to vdlm2 json: %v", err).FRFR())

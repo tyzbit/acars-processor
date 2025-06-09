@@ -26,7 +26,7 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 		telemetry.ConfigAPIKey(config.Receivers.NewRelic.APIKey),
 	)
 	if err != nil {
-		log.Error("Error creating harvester:", err)
+		log.Error(yo().Uhh("Error creating harvester:", err))
 	}
 
 	// Allow overriding the custom event type if set
