@@ -24,8 +24,6 @@ Annotators:
     Enabled: true
   Tar1090:
     URL: http://tar1090
-    SelectedFields:
-      - tar1090AircraftDistanceMi
   Ollama:
     Model: llama3.2
     URL: http://ollama-service:11434

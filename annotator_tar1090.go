@@ -137,12 +137,13 @@ func (a Tar1090Handler) SingleAircraftQueryByRegistration(reg string) (aircraft 
 
 // Interface function to satisfy ACARSHandler
 func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
+	enabled := config.Annotators.Tar1090.Enabled
 	if config.Annotators.Tar1090.ReferenceGeolocation == "" {
 		log.Info(yo().Hmm("tar1090 enabled but geolocation not set, using '0,0'").FRFR())
 		config.Annotators.Tar1090.ReferenceGeolocation = "0,0"
 	}
 	coords := strings.Split(config.Annotators.Tar1090.ReferenceGeolocation, ",")
-	if len(coords) != 2 {
+	if enabled && len(coords) != 2 {
 		log.Warn(yo().Uhh("tar1090 geolocation coordinates are not in the format 'LAT,LON'").FRFR())
 		return annotation
 	}
@@ -150,10 +151,14 @@ func (a Tar1090Handler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotat
 	olon, _ := strconv.ParseFloat(coords[1], 64)
 	origin := geodist.Coord{Lat: olat, Lon: olon}
 
-	aircraftInfo, err := a.SingleAircraftQueryByRegistration(m.AircraftTailCode)
-	if err != nil {
-		log.Warn(yo().Uhh("error getting aircraft position from tar1090: %v", err).FRFR())
-		return annotation
+	aircraftInfo := TJSONAircraft{}
+	var err error
+	if enabled {
+		aircraftInfo, err = a.SingleAircraftQueryByRegistration(m.AircraftTailCode)
+		if err != nil {
+			log.Warn(yo().Uhh("error getting aircraft position from tar1090: %v", err).FRFR())
+			return annotation
+		}
 	}
 
 	aircraft := geodist.Coord{Lat: aircraftInfo.Latitude, Lon: aircraftInfo.Longitude}

@@ -52,7 +52,7 @@ func ReadACARSHubACARSMessages() {
 				)
 				continue
 			} else {
-				log.Info(yo().FYI("new acars message content ").
+				log.Debug(yo().FYI("new acars message content ").
 					Hmm(fmt.Sprintf("(%d already in queue)", len(ACARSMessageQueue))).
 					FYI(": ").INFODUMP(fmt.Sprintf("%+v", next)).FRFR())
 				ACARSMessageQueue <- next
@@ -98,7 +98,7 @@ func ReadACARSHubVDLM2Messages() {
 				log.Error(yo().Uhh("json message did not match expected structure, we got: %+v", next).FRFR())
 				continue
 			} else {
-				log.Info(yo().FYI("new acars message content ").
+				log.Debug(yo().FYI("new vdlm2 message content ").
 					Hmm(fmt.Sprintf("(%d already in queue)", len(VDLM2MessageQueue))).
 					FYI(": ").INFODUMP(fmt.Sprintf("%+v", next)).FRFR())
 				VDLM2MessageQueue <- next
@@ -154,9 +154,10 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan ACARSMessage) {
 			log.Info(yo().Uhh("no annotations were produced, not calling any receivers").FRFR())
 		} else {
 			for _, r := range enabledReceivers {
-				log.Debug(yo().INFODUMP("sending acars event to reciever").
-					BTW(r.Name()).
-					INFODUMP(": %+v", annotations).FRFR(),
+				log.Debug(yo().FYI("sending acars event to reciever ").
+					Hmm(r.Name()).
+					FYI(": ").
+					INFODUMP("%+v", annotations).FRFR(),
 				)
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {

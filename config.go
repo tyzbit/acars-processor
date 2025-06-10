@@ -107,13 +107,13 @@ type ModuleCommonConfig struct {
 type ACARSAnnotatorConfig struct {
 	ModuleCommonConfig
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `jsonschema:"example=acarsFrequencyMHz,example=acarsChannel,example=acarsErrorCode,example=acarsSignaldBm,example=acarsTimestamp,example=acarsAppName,example=acarsAppVersion,example=acarsAppProxied,example=acarsAppProxiedBy,example=acarsAppRouterVersion,example=acarsAppRouterUUID,example=acarsStationID,example=acarsASSStatus,example=acarsMode,example=acarsLabel,example=acarsBlockID,example=acarsAcknowledge,example=acarsAircraftTailCode,example=acarsMessageFrom,example=acarsMessageText,example=acarsMessageNumber,example=acarsFlightNumber,example=acarsExtraURL,example=acarsExtraPhotos" default:"[acarsFrequencyMHz]"`
+	SelectedFields []string `default:"[acarsFrequencyMHz,acarsChannel,acarsErrorCode,acarsSignaldBm,acarsTimestamp,acarsAppName,acarsAppVersion,acarsAppProxied,acarsAppProxiedBy,acarsAppRouterVersion,acarsAppRouterUUID,acarsStationID,acarsASSStatus,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsAircraftTailCode,acarsMessageFrom,acarsMessageText,acarsMessageNumber,acarsFlightNumber,acarsExtraURL,acarsExtraPhotos]"`
 }
 
 type VDLM2AnnotatorConfig struct {
 	ModuleCommonConfig
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `jsonschema:"example=vdlm2AppName,example=vdlm2AppVersion,example=vdlm2AppProxied,example=vdlm2AppProxiedBy,example=vdlm2AppRouterVersion,example=vdlm2AppRouterUUID,example=vdlmCR,example=vdlmDestinationAddress,example=vdlmDestinationType,example=vdlmFrameType,example=vdlmSourceAddress,example=vdlmSourceType,example=vdlmSourceStatus,example=vdlmRSequence,example=vdlmSSequence,example=vdlmPoll,example=vdlm2BurstLengthOctets,example=vdlm2FrequencyHz,example=vdlm2Index,example=vdlm2FrequencySkew,example=vdlm2HDRBitsFixed,example=vdlm2NoiseLevel,example=vdlm2OctetsCorrectedByFEC,example=vdlm2SignalLeveldBm,example=vdlm2Station,example=vdlm2Timestamp,example=vdlm2TimestampMicroseconds,example=acarsErrorCode,example=acarsCRCOK,example=acarsMore,example=acarsAircraftTailCode,example=acarsMode,example=acarsLabel,example=acarsBlockID,example=acarsAcknowledge,example=acarsFlightNumber,example=acarsMessageFrom,example=acarsMessageNumber,example=acarsMessageNumberSequence,example=acarsMessageText,example=acarsExtraURL,example=acarsExtraPhotos" default:"vdlm2AppName"`
+	SelectedFields []string `default:"[vdlm2AppName,vdlm2AppVersion,vdlm2AppProxied,vdlm2AppProxiedBy,vdlm2AppRouterVersion,vdlm2AppRouterUUID,vdlmCR,vdlmDestinationAddress,vdlmDestinationType,vdlmFrameType,vdlmSourceAddress,vdlmSourceType,vdlmSourceStatus,vdlmRSequence,vdlmSSequence,vdlmPoll,vdlm2BurstLengthOctets,vdlm2FrequencyHz,vdlm2Index,vdlm2FrequencySkew,vdlm2HDRBitsFixed,vdlm2NoiseLevel,vdlm2OctetsCorrectedByFEC,vdlm2SignalLeveldBm,vdlm2Station,vdlm2Timestamp,vdlm2TimestampMicroseconds,acarsErrorCode,acarsCRCOK,acarsMore,acarsAircraftTailCode,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsFlightNumber,acarsMessageFrom,acarsMessageNumber,acarsMessageNumberSequence,acarsMessageText,acarsExtraURL,acarsExtraPhotos]"`
 }
 
 type ADSBExchangeAnnotatorConfig struct {
@@ -121,9 +121,9 @@ type ADSBExchangeAnnotatorConfig struct {
 	// APIKey provided by signing up at ADSB-Exchange.
 	APIKey string `jsonschema:"required" default:"example_key"`
 	// Geolocation to use for distance calculations (LAT,LON).
-	ReferenceGeolocation string `jsonschema:"example=35.6244416" default:"35.6244416,139.7753782"`
+	ReferenceGeolocation string `default:"35.6244416,139.7753782"`
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `jsonschema:"example=adsbOriginGeolocation,example=adsbOriginGeolocationLatitude,example=adsbOriginGeolocationLongitude,example=adsbAircraftGeolocation,example=adsbAircraftLatitude,example=adsbAircraftLongitude,example=adsbAircraftDistanceKm,example=adsbAircraftDistanceMi" default:"adsbOriginGeolocation"`
+	SelectedFields []string `default:"[adsbOriginGeolocation,adsbOriginGeolocationLatitude,adsbOriginGeolocationLongitude,adsbAircraftGeolocation,adsbAircraftLatitude,adsbAircraftLongitude,adsbAircraftDistanceKm,adsbAircraftDistanceMi]"`
 }
 
 type Tar1090AnnotatorConfig struct {
@@ -131,9 +131,9 @@ type Tar1090AnnotatorConfig struct {
 	// URL to your tar1090 instance
 	URL string `jsonschema:"required,example:http://tar1090/" default:"http://tar1090/"`
 	// Geolocation to use for distance calculations (LAT,LON).
-	ReferenceGeolocation string `jsonschema:"example=35.6244416" default:"35.6244416,139.7753782"`
+	ReferenceGeolocation string `default:"35.6244416,139.7753782"`
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `jsonschema:"example=tar1090ReferenceGeolocation,example=tar1090ReferenceGeolocationLatitude,example=tar1090ReferenceGeolocationLongitude,example=tar1090AircraftEmergency,example=tar1090AircraftGeolocation,example=tar1090AircraftLatitude,example=tar1090AircraftLongitude,example=tar1090AircraftDistanceKm,example=tar1090AircraftDistanceMi,example=tar1090AircraftDistanceNm,example=tar1090AircraftDirectionDegrees,example=tar1090AircraftAltimeterBarometerFeet,example=tar1090AircraftAltimeterGeometricFeet,example=tar1090AircraftAltimeterBarometerRateFeetPerSecond,example=tar1090AircraftOwnerOperator,example=tar1090AircraftFlightNumber,example=tar1090AircraftHexCode,example=tar1090AircraftType,example=tar1090AircraftDescription,example=tar1090AircraftYearOfManufacture,example=tar1090AircraftADSBMessageCount,example=tar1090AircraftRSSIdBm,example=tar1090AircraftNavModes" default:"tar1090AircraftDistanceMi"`
+	SelectedFields []string `default:"[tar1090ReferenceGeolocation,tar1090ReferenceGeolocationLatitude,tar1090ReferenceGeolocationLongitude,tar1090AircraftEmergency,tar1090AircraftGeolocation,tar1090AircraftLatitude,tar1090AircraftLongitude,tar1090AircraftDistanceKm,tar1090AircraftDistanceMi,tar1090AircraftDistanceNm,tar1090AircraftDirectionDegrees,tar1090AircraftAltimeterBarometerFeet,tar1090AircraftAltimeterGeometricFeet,tar1090AircraftAltimeterBarometerRateFeetPerSecond,tar1090AircraftOwnerOperator,tar1090AircraftFlightNumber,tar1090AircraftHexCode,tar1090AircraftType,tar1090AircraftDescription,tar1090AircraftYearOfManufacture,tar1090AircraftADSBMessageCount,tar1090AircraftRSSIdBm,tar1090AircraftNavModes]"`
 }
 
 type OllamaCommonConfig struct {
@@ -144,13 +144,13 @@ type OllamaCommonConfig struct {
 	// Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
 	SystemPrompt string `default:"Answer like a pirate"`
 	// Maximum number of tokens to include in the answer. Lower values restrict response length but too low may clip the valid response short.
-	MaxPredictionTokens int `jsonschema:"example=512" default:"512"`
+	MaxPredictionTokens int `default:"512"`
 	// Maximum number of retries to make against the Ollama URL.
-	MaxRetryAttempts int `jsonschema:"example=5" default:"5"`
+	MaxRetryAttempts int `default:"5"`
 	// How long to wait before retrying the Ollama API.
-	MaxRetryDelaySeconds int `jsonschema:"example=5" default:"5"`
+	MaxRetryDelaySeconds int `default:"5"`
 	// How long to wait until giving up on any request to Ollama.
-	Timeout int `jsonschema:"example=5" default:"5"`
+	Timeout int `default:"5"`
 	// Whether to surround the returned message field with backticks.
 	Options []OllamaOptionsConfig
 }
@@ -161,9 +161,9 @@ type OllamaAnnotatorConfig struct {
 	// Instructions for Ollama for processing messages. More detail produces better results. You can include a question and Ollama will respond yes/no which can also be used to filter the message.
 	UserPrompt string `jsonschema:"required,example=Is there prose in this message? If present\\, prose will be the last section of a message. Return any prose if found."`
 	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
-	FilterWithQuestion bool `jsonschema:"example=true" default:"true"`
+	FilterWithQuestion bool `default:"true"`
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `jsonschema:"example=ollamaProcessedText,example=ollamaEditActions,example=ollamaQuestion" default:"ollamaProcessedText"`
+	SelectedFields []string `default:"[ollamaProcessedText,ollamaEditActions,ollamaQuestion]"`
 }
 
 type OllamaOptionsConfig struct {
@@ -188,54 +188,54 @@ type FiltersConfig struct {
 
 type GenericFilterConfig struct {
 	// Only process messages with text included.
-	HasText bool `jsonschema:"example=true" default:"true"`
+	HasText bool `default:"true"`
 	// Only process messages that have this tail code.
 	TailCode string `default:"1234"`
 	// Only process messages that have this flight number.
 	FlightNumber string `default:"1234"`
 	// Only process messages that have ASS Status.
-	ASSStatus string `jsonschema:"example=anything" default:"anything"`
+	ASSStatus string `default:"anything"`
 	// Only process messages that were received above this signal strength (in dBm).
-	AboveSignaldBm float64 `jsonschema:"example=-10.0" default:"-9.9"`
+	AboveSignaldBm float64 `default:"-9.9"`
 	// Only process messages that were received below this signal strength (in dBm).
-	BelowSignaldBm float64 `jsonschema:"example=-10.0" default:"-9.9"`
+	BelowSignaldBm float64 `default:"-9.9"`
 	// Only process messages received on this frequency.
-	Frequency float64 `jsonschema:"example=136.950" default:"136.950"`
+	Frequency float64 `default:"136.950"`
 	// Only process messages with this station ID.
-	StationID string `jsonschema:"example=N12346" default:"N12346"`
+	StationID string `default:"N12346"`
 	// Only process messages that were from a ground-based transmitter - determined by the presence (from aircraft) or lack of (from ground) a flight number.
-	FromTower bool `jsonschema:"example=true" default:"true"`
+	FromTower bool `default:"true"`
 	// Only process messages that were from an aircraft - determined by the presence (from aircraft) or lack of (from ground) a flight number.
-	FromAircraft bool `jsonschema:"example=true" default:"true"`
+	FromAircraft bool `default:"true"`
 	// Only process messages that have the "More" flag set.
-	More bool `jsonschema:"example=true" default:"true"`
+	More bool `default:"true"`
 	// Only process messages that came from aircraft further than this many nautical miles away (requires ADS-B or tar1090).
-	AboveDistanceNm float64 `jsonschema:"example=15.5" default:"15.5"`
+	AboveDistanceNm float64 `default:"15.5"`
 	// Only process messages that came from aircraft closer than this many nautical miles away (requires ADS-B or tar1090).
-	BelowDistanceNm float64 `jsonschema:"example=15.5" default:"15.5"`
+	BelowDistanceNm float64 `default:"15.5"`
 	// Only process messages that have the "Emergency" flag set.
-	Emergency bool `jsonschema:"example=true" default:"true"`
+	Emergency bool `default:"true"`
 	// Only process messages that have at least this many valid dictionary words in a row.
-	DictionaryPhraseLengthMinimum int `jsonschema:"example=5" default:"5"`
+	DictionaryPhraseLengthMinimum int `default:"5"`
 }
 
 type ACARSFilterConfig struct {
 	ModuleCommonConfig
 	// Only process ACARS messages that are at least this percent (ex: 0.8 for 80 percent) different than any other message received.
-	DuplicateMessageSimilarity float64 `jsonschema:"example=0.9" default:"0.9"`
+	DuplicateMessageSimilarity float64 `default:"0.9"`
 }
 
 type VDLM2FilterConfig struct {
 	ModuleCommonConfig
 	// Only process VDLM2 messages that are at least this percent (ex: 0.8 for 80 percent) different than any other message received.
-	DuplicateMessageSimilarity float64 `jsonschema:"example=0.9" default:"0.9"`
+	DuplicateMessageSimilarity float64 `default:"0.9"`
 }
 
 type OllamaFilterConfig struct {
 	ModuleCommonConfig
 	OllamaCommonConfig
 	// Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
-	FilterOnFailure bool `jsonschema:"example=true" default:"true"`
+	FilterOnFailure bool `default:"true"`
 	// Model to use (you need to pull this in Ollama to use it).
 	Model string `jsonschema:"required,default=llama3.2" default:"llama3.2"`
 	// URL to the Ollama instance to use (include protocol and port).
@@ -246,11 +246,11 @@ type OllamaFilterConfig struct {
 	// Maximum number of tokens to include in the answer. Lower values restrict response length but too low may clip the valid response short.
 	MaxPredictionTokens int `default:"512"`
 	// Maximum number of retries to make against the Ollama URL.
-	MaxRetryAttempts int `jsonschema:"example=5" default:"5"`
+	MaxRetryAttempts int `default:"5"`
 	// How long to wait before retrying the Ollama API.
-	MaxRetryDelaySeconds int `jsonschema:"example=5" default:"5"`
+	MaxRetryDelaySeconds int `default:"5"`
 	// How long to wait until giving up on any request to Ollama.
-	Timeout int `jsonschema:"example=5" default:"5"`
+	Timeout int `default:"5"`
 	// Additional options to provide to the model. This is specific to each model, so no defaults are provided
 	Options []OllamaOptionsConfig
 }
@@ -265,7 +265,7 @@ type OpenAIFilterConfig struct {
 	// Override the built-in system prompt to instruct the model on how to behave for requests (not usually necessary).
 	SystemPrompt string `default:"Answer like a pirate"`
 	// How long to wait until giving up on any request to OpenAI.
-	Timeout int `jsonschema:"example=5" default:"5"`
+	Timeout int `default:"5"`
 }
 
 type ReceiversConfig struct {
@@ -282,7 +282,7 @@ type NewRelicReceiverConfig struct {
 	// API License key to use New Relic.
 	APIKey string `jsonschema:"required" default:"api_key"`
 	// Name for the custom event type to create (example if set to "MyCustomACARSEvents": `FROM MyCustomACARSEvents SELECT count(timestamp)`). If not provided, it will be `CustomACARS`.
-	CustomEventType string `jsonschema:"example=CustomACARS" default:"CustomACARS"`
+	CustomEventType string `default:"CustomACARS"`
 }
 
 type WebHookReceiverConfig struct {
@@ -302,7 +302,7 @@ type DiscordWebhookReceiverConfig struct {
 	// Surround fields with message content with backticks so they are monospaced and stand out.
 	FormatText bool `jsonschema:"default=true" default:"true"`
 	// Require a specific field to be populated or else no message will be sent
-	RequiredFields []string `jsonschema:"example=acarsMessageText" default:"acarsMessageText"`
+	RequiredFields []string `default:"[acarsMessageText]"`
 }
 
 type WebHookReceiverConfigHeaders struct {

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"sort"
 
 	"github.com/ghodss/yaml"
 	"github.com/invopop/jsonschema"
@@ -16,8 +17,106 @@ var (
 `
 )
 
+// These are called when jsonschema Reflects, so we don't need to call these.
+func (ACARSAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+	s, ok := j.Properties.Get("SelectedFields")
+	if !ok {
+		log.Error(yo().Uhh("couldn't get selectedfields for acars annotator config type"))
+		return
+	}
+	a := ACARSHandlerAnnotator{}
+	fields := []string{}
+	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+	s.Examples = append(s.Examples, fields)
+	j.Properties.Set("SelectedFields", s)
+}
+
+func (VDLM2AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+	s, ok := j.Properties.Get("SelectedFields")
+	if !ok {
+		log.Error(yo().Uhh("couldn't get selectedfields for vdlm2 annotator config type"))
+		return
+	}
+	a := VDLM2HandlerAnnotator{}
+	fields := []string{}
+	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+	s.Examples = append(s.Examples, fields)
+	j.Properties.Set("SelectedFields", s)
+}
+
+func (OllamaAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+	s, ok := j.Properties.Get("SelectedFields")
+	if !ok {
+		log.Error(yo().Uhh("couldn't get selectedfields for ollama annotator config type"))
+		return
+	}
+	a := OllamaHandler{}
+	// For Ollama, ACARS and VDLM2 fields are the same
+	// This is not necessarily true for all annotators
+	fields := []string{}
+	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+	s.Examples = append(s.Examples, fields)
+	j.Properties.Set("SelectedFields", s)
+}
+
+func (Tar1090AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+	s, ok := j.Properties.Get("SelectedFields")
+	if !ok {
+		log.Error(yo().Uhh("couldn't get selectedfields for tar1090 annotator config type"))
+		return
+	}
+	a := Tar1090Handler{}
+	// For tar1090, ACARS and VDLM2 fields are the same
+	// This is not necessarily true for all annotators
+	fields := []string{}
+	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+	s.Examples = append(s.Examples, fields)
+	j.Properties.Set("SelectedFields", s)
+}
+
+func (ADSBExchangeAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+	s, ok := j.Properties.Get("SelectedFields")
+	if !ok {
+		log.Error(yo().Uhh("couldn't get selectedfields for vdlm2 annotator config type"))
+		return
+	}
+	a := ADSBHandlerAnnotator{}
+	// For adsb, ACARS and VDLM2 fields are the same
+	// This is not necessarily true for all annotators
+	fields := []string{}
+	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+		fields = append(fields, field)
+	}
+	sort.Strings(fields)
+	s.Examples = append(s.Examples, fields)
+	j.Properties.Set("SelectedFields", s)
+
+}
+
 func GenerateSchema(schemaPath string) {
 	updated := false
+	log.Info(yo().FYI("Generating schema").FRFR())
 	// Generate an example config
 	var defaultConfig Config
 	// We need to do this to set an example value since Options is a slice.
@@ -39,7 +138,7 @@ func GenerateSchema(schemaPath string) {
 	defaults.SetDefaults(&defaultConfig)
 	configYaml, err := yaml.Marshal(defaultConfig)
 	if err != nil {
-		log.Fatal("Error marshaling YAML:", err)
+		log.Fatal(yo().Uhh("Error marshaling YAML:", err).FRFR())
 	}
 	// Add the schema line so editors can use it
 	configYaml = append([]byte(schemaLine), configYaml...)
@@ -52,12 +151,16 @@ func GenerateSchema(schemaPath string) {
 	r := new(jsonschema.Reflector)
 	err = r.AddGoComments("main", "./", jsonschema.WithFullComment())
 	if err != nil {
-		log.Fatalf("unable to add comments to schema, %s", err)
+		log.Fatal(yo().Uhh("unable to add comments to schema, %s", err).FRFR())
 	}
 
 	// Now we generate the schema and save it
 	r.RequiredFromJSONSchemaTags = true
+	// Suppress logs from reflection
+	log.SetLevel(log.ErrorLevel)
 	schema := r.Reflect(&Config{})
+	// Suppress further for clean output
+	log.SetLevel(log.InfoLevel)
 	json, _ := schema.MarshalJSON()
 	if UpdateFile(fmt.Sprintf("./%s", schemaFilePath), json) {
 		updated = true
@@ -67,4 +170,5 @@ func GenerateSchema(schemaPath string) {
 		log.Info(yo().Hmm("Files were updated, so exiting with status of 100").FRFR())
 		os.Exit(100)
 	}
+	log.Info(yo().FYI("Schema is up to date").FRFR())
 }
