@@ -107,8 +107,8 @@ func OpenAIFilter(m string) bool {
 	log.Info(
 		yo().FYI("openai decision: ").
 			GlowUp(action[decision]).
-			Hmm("message ending in: ").
-			INFODUMP(Last20Characters(m)).
+			FYI("message ending in: ").
+			Hmm(Last20Characters(m)).
 			FYI(", reasoning:").
 			INFODUMP(r.Reasoning).FRFR())
 	return decision

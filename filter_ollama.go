@@ -198,8 +198,8 @@ func OllamaFilter(m string) bool {
 	log.Info(
 		yo().FYI("ollama decision: ").
 			GlowUp(action[r.MessageMatchesCriteria]).
-			Hmm(" for message ending in \"").
-			INFODUMP(Last20Characters(m)).
+			FYI(" for message ending in \"").
+			Hmm(Last20Characters(m)).
 			FYI("\", reasoning: ").
 			BTW(r.Reasoning).FRFR())
 	return r.MessageMatchesCriteria
