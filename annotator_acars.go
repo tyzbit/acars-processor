@@ -11,14 +11,14 @@ type ACARSAnnotator interface {
 	SelectFields(Annotation) Annotation
 }
 
-type ACARSHandlerAnnotator struct {
+type ACARSAnnotatorHandler struct {
 }
 
-func (a ACARSHandlerAnnotator) Name() string {
+func (a ACARSAnnotatorHandler) Name() string {
 	return "acars"
 }
 
-func (a ACARSHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+func (a ACARSAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 	if config.Annotators.ACARS.SelectedFields == nil {
 		return annotation
 	}
@@ -29,6 +29,16 @@ func (a ACARSHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
 		}
 	}
 	return selectedFields
+}
+
+func (a ACARSAnnotatorHandler) DefaultFields() []string {
+	// ACARS
+	fields := []string{}
+	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	slices.Sort(fields)
+	return fields
 }
 
 // This is the format ACARSHub sends for ACARS messages
@@ -59,7 +69,7 @@ type ACARSMessage struct {
 }
 
 // Interface function to satisfy ACARSHandler
-func (a ACARSHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
+func (a ACARSAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	// Chop off leading periods
 	tailcode, _ := strings.CutPrefix(m.AircraftTailCode, ".")
 	text := m.MessageText

@@ -41,20 +41,20 @@ func ReadACARSHubACARSMessages() {
 			var next ACARSMessage
 			if err := readJson.Decode(&next); err != nil {
 				// Might have connection issues, exit to reconnect
-				log.Error(yo().Uhh("error decoding acars message: %s", err).FRFR())
+				log.Error(yo().Uhh("error decoding acars message: %v", err).FRFR())
 				break
 			}
 			log.Info(yo().FYI("new acars message received").FRFR())
 			if (next == ACARSMessage{}) {
 				log.Error(
 					yo().Uhh("json message did not match expected structure, we got: ").
-						BTW("%+v", fmt.Sprintf("%+v", next)).FRFR(),
+						BTW("%+v", next).FRFR(),
 				)
 				continue
 			} else {
-				log.Info(yo().FYI("new acars message content ").
-					Hmm(fmt.Sprintf("(%d already in queue)", len(ACARSMessageQueue))).
-					FYI(": ").INFODUMP(fmt.Sprintf("%+v", next)).FRFR())
+				log.Debug(yo().FYI("new acars message content ").
+					Hmm("(%d already in queue)", len(ACARSMessageQueue)).
+					FYI(": ").INFODUMP("%+v", next).FRFR())
 				ACARSMessageQueue <- next
 				continue
 			}
@@ -90,7 +90,7 @@ func ReadACARSHubVDLM2Messages() {
 			var next VDLM2Message
 			if err := readJson.Decode(&next); err != nil {
 				// Might have connection issues, exit to reconnect
-				log.Error(yo().Uhh("error decoding vdlm2 message: %s", err).FRFR())
+				log.Error(yo().Uhh("error decoding vdlm2 message: %v", err).FRFR())
 				break
 			}
 			log.Info(yo().FYI("new vdlm2 message received").FRFR())
@@ -98,9 +98,9 @@ func ReadACARSHubVDLM2Messages() {
 				log.Error(yo().Uhh("json message did not match expected structure, we got: %+v", next).FRFR())
 				continue
 			} else {
-				log.Info(yo().FYI("new acars message content ").
-					Hmm(fmt.Sprintf("(%d already in queue)", len(VDLM2MessageQueue))).
-					FYI(": ").INFODUMP(fmt.Sprintf("%+v", next)).FRFR())
+				log.Debug(yo().FYI("new vdlm2 message content ").
+					Hmm("(%d already in queue)", len(VDLM2MessageQueue)).
+					FYI(": ").INFODUMP("%+v", next).FRFR())
 				VDLM2MessageQueue <- next
 				continue
 			}
@@ -143,7 +143,7 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan ACARSMessage) {
 		}
 		// Annotate the message via all enabled annotators
 		for _, h := range enabledACARSAnnotators {
-			log.Debug(yo().FYI("annotating message with annotator").Hmm(" %s", h.Name()).FYI(": ").INFODUMP(fmt.Sprintf("%+v", message)).FRFR())
+			log.Debug(yo().FYI("annotating message with annotator").Hmm(" %s", h.Name()).FYI(": ").INFODUMP("%+v", message).FRFR())
 			result := h.AnnotateACARSMessage(message)
 			if result != nil {
 				result = h.SelectFields(result)
@@ -154,9 +154,10 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan ACARSMessage) {
 			log.Info(yo().Uhh("no annotations were produced, not calling any receivers").FRFR())
 		} else {
 			for _, r := range enabledReceivers {
-				log.Debug(yo().INFODUMP("sending acars event to reciever").
-					BTW(r.Name()).
-					INFODUMP(": %+v", annotations).FRFR(),
+				log.Debug(yo().FYI("sending acars event to reciever ").
+					Hmm(r.Name()).
+					FYI(": ").
+					INFODUMP("%+v", annotations).FRFR(),
 				)
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
@@ -179,7 +180,7 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
 		}
 		// Annotate the message via all enabled annotators
 		for _, h := range enabledVDLM2Annotators {
-			log.Debug(yo().FYI("annotating message with annotator").Hmm(" %s", h.Name()).FYI(": ").INFODUMP(fmt.Sprintf("%+v", message)).FRFR())
+			log.Debug(yo().FYI("annotating message with annotator").Hmm(" %s", h.Name()).FYI(": ").INFODUMP("%+v", message).FRFR())
 			result := h.AnnotateVDLM2Message(message)
 			if result != nil {
 				result = h.SelectFields(result)
@@ -190,10 +191,10 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
 			log.Info(yo().Uhh("no annotations were produced, not calling any receivers").FRFR())
 		} else {
 			for _, r := range enabledReceivers {
-				log.Debug(yo().INFODUMP("sending vdlm2 event to reciever ").
+				log.Debug(yo().FYI("sending vdlm2 event to reciever ").
 					Hmm("%s", r.Name()).
-					INFODUMP(": ").
-					INFODUMP("%s", annotations).FRFR())
+					FYI(": ").
+					INFODUMP("%+v", annotations).FRFR())
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
 					log.Error(yo().Uhh("error submitting to %s, err: %v", r.Name(), err).FRFR())

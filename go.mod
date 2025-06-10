@@ -5,6 +5,7 @@ go 1.24.0
 require (
 	github.com/adrg/strutil v0.3.1
 	github.com/avast/retry-go v3.0.0+incompatible
+	github.com/fatih/color v1.18.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/invopop/jsonschema v0.13.0
 	github.com/jftuga/geodist v1.0.0
@@ -20,7 +21,6 @@ require (
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
-	github.com/fatih/color v1.18.0 // indirect
 	github.com/kr/pretty v0.3.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

@@ -83,15 +83,15 @@ var OllamaAnnotatorResponseRequestedFormat = OllamaAnnotatorResponseFormat{
 	Required: []string{"question", "edit_actions", "processed_text"},
 }
 
-type OllamaHandler struct {
+type OllamaAnnotatorHandler struct {
 	OllamaAnnotatorResponse
 }
 
-func (a OllamaHandler) Name() string {
+func (a OllamaAnnotatorHandler) Name() string {
 	return "ollama"
 }
 
-func (a OllamaHandler) SelectFields(annotation Annotation) Annotation {
+func (a OllamaAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 	if config.Annotators.Ollama.SelectedFields == nil {
 		return annotation
 	}
@@ -104,31 +104,45 @@ func (a OllamaHandler) SelectFields(annotation Annotation) Annotation {
 	return selectedFields
 }
 
-func (o OllamaHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
+func (o OllamaAnnotatorHandler) DefaultFields() []string {
+	// ACARS
+	fields := []string{}
+	for field := range o.AnnotateACARSMessage(ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	for field := range o.AnnotateVDLM2Message(VDLM2Message{}) {
+		fields = append(fields, field)
+	}
+	slices.Sort(fields)
+	return fields
+}
+
+func (o OllamaAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	return o.AnnotateMessage(m.MessageText)
 }
 
-func (o OllamaHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+func (o OllamaAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	return o.AnnotateMessage(m.VDL2.AVLC.ACARS.MessageText)
 }
 
-func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
+func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation) {
+	enabled := config.Annotators.Ollama.Enabled
 	// If message is blank, return
-	if regexp.MustCompile(`^\s*$`).MatchString(m) {
+	if enabled && (regexp.MustCompile(`^\s*$`).MatchString(m)) {
 		log.Debug(yo().INFODUMP("message was blank, not annotating with ollama").FRFR())
 		return
 	}
-	if config.Annotators.Ollama.Model == "" || config.Annotators.Ollama.UserPrompt == "" {
+	if enabled && config.Annotators.Ollama.Model == "" || enabled && config.Annotators.Ollama.UserPrompt == "" {
 		log.Warn(yo().Uhh("OllamaAnnotator model and prompt are required to use the ollama annotator").FRFR())
 		return
 	}
 	url, err := url.Parse(config.Annotators.Ollama.URL)
-	if err != nil {
+	if enabled && err != nil {
 		log.Error(yo().Uhh("OllamaAnnotator url could not be parsed: %s", err).FRFR())
 		return
 	}
 	client := api.NewClient(url, &http.Client{})
-	if err != nil {
+	if enabled && err != nil {
 		log.Error(yo().Uhh("error initializing OllamaAnnotator: %s", err).FRFR())
 		return
 	}
@@ -221,7 +235,7 @@ func (o OllamaHandler) AnnotateMessage(m string) (annotation Annotation) {
 			return annotation
 		}
 	}
-	if r.ProcessedText == "" && len(r.EditActions) == 0 {
+	if enabled && r.ProcessedText == "" && len(r.EditActions) == 0 {
 		log.Info(yo().Uhh("ollama annotator response was empty").FRFR())
 	} else {
 		// Please update config example values if changed

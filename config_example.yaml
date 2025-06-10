@@ -11,12 +11,43 @@ Annotators:
   ACARS:
     Enabled: true
     SelectedFields:
+    - acarsASSStatus
+    - acarsAcknowledge
+    - acarsAircraftTailCode
+    - acarsAppName
+    - acarsAppProxied
+    - acarsAppProxiedBy
+    - acarsAppRouterUUID
+    - acarsAppRouterVersion
+    - acarsAppVersion
+    - acarsBlockID
+    - acarsChannel
+    - acarsErrorCode
+    - acarsExtraPhotos
+    - acarsExtraURL
+    - acarsFlightNumber
     - acarsFrequencyMHz
+    - acarsLabel
+    - acarsMessageFrom
+    - acarsMessageNumber
+    - acarsMessageText
+    - acarsMode
+    - acarsSignaldBm
+    - acarsStationID
+    - acarsTimestamp
   ADSBExchange:
     APIKey: example_key
     Enabled: true
     ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields: null
+    SelectedFields:
+    - adsbAircraftDistanceKm
+    - adsbAircraftDistanceMi
+    - adsbAircraftGeolocation
+    - adsbAircraftLatitude
+    - adsbAircraftLongitude
+    - adsbOriginGeolocation
+    - adsbOriginGeolocationLatitude
+    - adsbOriginGeolocationLongitude
   Ollama:
     Enabled: true
     FilterWithQuestion: true
@@ -27,7 +58,13 @@ Annotators:
     Options:
     - Name: num_predict
       Value: 512
-    SelectedFields: null
+    SelectedFields:
+    - ollamaEditActions
+    - ollamaEditActions
+    - ollamaProcessedText
+    - ollamaProcessedText
+    - ollamaQuestion
+    - ollamaQuestion
     SystemPrompt: Answer like a pirate
     Timeout: 5
     URL: http://ollama-service:11434
@@ -35,11 +72,76 @@ Annotators:
   Tar1090:
     Enabled: true
     ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields: null
+    SelectedFields:
+    - tar1090AircraftADSBMessageCount
+    - tar1090AircraftAltimeterBarometerFeet
+    - tar1090AircraftAltimeterBarometerRateFeetPerSecond
+    - tar1090AircraftAltimeterGeometricFeet
+    - tar1090AircraftDescription
+    - tar1090AircraftDirectionDegrees
+    - tar1090AircraftDistanceKm
+    - tar1090AircraftDistanceMi
+    - tar1090AircraftDistanceNm
+    - tar1090AircraftEmergency
+    - tar1090AircraftFlightNumber
+    - tar1090AircraftGeolocation
+    - tar1090AircraftHexCode
+    - tar1090AircraftLatitude
+    - tar1090AircraftLongitude
+    - tar1090AircraftNavModes
+    - tar1090AircraftOwnerOperator
+    - tar1090AircraftRSSIdBm
+    - tar1090AircraftType
+    - tar1090AircraftYearOfManufacture
+    - tar1090ReferenceGeolocation
+    - tar1090ReferenceGeolocationLatitude
+    - tar1090ReferenceGeolocationLongitude
     URL: http://tar1090/
   VDLM2:
     Enabled: true
-    SelectedFields: null
+    SelectedFields:
+    - acarsAcknowledge
+    - acarsAircraftTailCode
+    - acarsBlockID
+    - acarsCRCOK
+    - acarsErrorCode
+    - acarsExtraPhotos
+    - acarsExtraURL
+    - acarsFlightNumber
+    - acarsLabel
+    - acarsMessageFrom
+    - acarsMessageNumber
+    - acarsMessageNumberSequence
+    - acarsMessageText
+    - acarsMode
+    - acarsMore
+    - vdlm2AppName
+    - vdlm2AppProxied
+    - vdlm2AppProxiedBy
+    - vdlm2AppRouterUUID
+    - vdlm2AppRouterVersion
+    - vdlm2AppVersion
+    - vdlm2BurstLengthOctets
+    - vdlm2FrequencyHz
+    - vdlm2FrequencySkew
+    - vdlm2HDRBitsFixed
+    - vdlm2Index
+    - vdlm2NoiseLevel
+    - vdlm2OctetsCorrectedByFEC
+    - vdlm2SignalLeveldBm
+    - vdlm2Station
+    - vdlm2Timestamp
+    - vdlm2TimestampMicroseconds
+    - vdlmCR
+    - vdlmDestinationAddress
+    - vdlmDestinationType
+    - vdlmFrameType
+    - vdlmPoll
+    - vdlmRSequence
+    - vdlmSSequence
+    - vdlmSourceAddress
+    - vdlmSourceStatus
+    - vdlmSourceType
 ColorOutput: true
 Filters:
   ACARS:
@@ -91,7 +193,8 @@ Receivers:
   DiscordWebhook:
     Enabled: true
     FormatText: true
-    RequiredFields: null
+    RequiredFields:
+    - acarsMessageText
     URL: https://discord.com/api/webhooks/1234321/unique_id1234
   NewRelic:
     APIKey: api_key
