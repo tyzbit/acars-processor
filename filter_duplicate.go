@@ -37,7 +37,7 @@ func FilterDuplicateACARS(m ACARSMessage) bool {
 			// Message is too similar, filter it out
 			allowMessage = false
 			log.Debug(yo().INFODUMP("message is %d percent similar to a previous message, filtering",
-				int(similarity*100)))
+				int(similarity*100)).FRFR())
 			break
 		}
 	}
@@ -68,7 +68,7 @@ func FilterDuplicateVDLM2(m VDLM2Message) bool {
 			// Message is too similar, filter it out
 			allowMessage = false
 			log.Debug(yo().INFODUMP("message is %d percent similar to a previous message, filtering",
-				int(similarity*100)))
+				int(similarity*100)).FRFR())
 			break
 		}
 	}
