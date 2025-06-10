@@ -100,7 +100,7 @@ type AnnotatorsConfig struct {
 }
 
 type ModuleCommonConfig struct {
-	// Should ACARS message data from ACARSHub be sent to receivers?
+	// Should this be enabled?
 	Enabled bool `jsonschema:",default=true" default:"true"`
 }
 
