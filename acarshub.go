@@ -191,9 +191,9 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
 			log.Info(yo().Uhh("no annotations were produced, not calling any receivers").FRFR())
 		} else {
 			for _, r := range enabledReceivers {
-				log.Debug(yo().INFODUMP("sending vdlm2 event to reciever ").
+				log.Debug(yo().FYI("sending vdlm2 event to reciever ").
 					Hmm("%s", r.Name()).
-					INFODUMP(": ").
+					FYI(": ").
 					INFODUMP("%s", annotations).FRFR())
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
