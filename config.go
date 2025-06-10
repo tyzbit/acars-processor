@@ -107,13 +107,13 @@ type ModuleCommonConfig struct {
 type ACARSAnnotatorConfig struct {
 	ModuleCommonConfig
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `default:"[acarsFrequencyMHz,acarsChannel,acarsErrorCode,acarsSignaldBm,acarsTimestamp,acarsAppName,acarsAppVersion,acarsAppProxied,acarsAppProxiedBy,acarsAppRouterVersion,acarsAppRouterUUID,acarsStationID,acarsASSStatus,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsAircraftTailCode,acarsMessageFrom,acarsMessageText,acarsMessageNumber,acarsFlightNumber,acarsExtraURL,acarsExtraPhotos]"`
+	SelectedFields []string
 }
 
 type VDLM2AnnotatorConfig struct {
 	ModuleCommonConfig
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `default:"[vdlm2AppName,vdlm2AppVersion,vdlm2AppProxied,vdlm2AppProxiedBy,vdlm2AppRouterVersion,vdlm2AppRouterUUID,vdlmCR,vdlmDestinationAddress,vdlmDestinationType,vdlmFrameType,vdlmSourceAddress,vdlmSourceType,vdlmSourceStatus,vdlmRSequence,vdlmSSequence,vdlmPoll,vdlm2BurstLengthOctets,vdlm2FrequencyHz,vdlm2Index,vdlm2FrequencySkew,vdlm2HDRBitsFixed,vdlm2NoiseLevel,vdlm2OctetsCorrectedByFEC,vdlm2SignalLeveldBm,vdlm2Station,vdlm2Timestamp,vdlm2TimestampMicroseconds,acarsErrorCode,acarsCRCOK,acarsMore,acarsAircraftTailCode,acarsMode,acarsLabel,acarsBlockID,acarsAcknowledge,acarsFlightNumber,acarsMessageFrom,acarsMessageNumber,acarsMessageNumberSequence,acarsMessageText,acarsExtraURL,acarsExtraPhotos]"`
+	SelectedFields []string
 }
 
 type ADSBExchangeAnnotatorConfig struct {
@@ -123,7 +123,7 @@ type ADSBExchangeAnnotatorConfig struct {
 	// Geolocation to use for distance calculations (LAT,LON).
 	ReferenceGeolocation string `default:"35.6244416,139.7753782"`
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `default:"[adsbOriginGeolocation,adsbOriginGeolocationLatitude,adsbOriginGeolocationLongitude,adsbAircraftGeolocation,adsbAircraftLatitude,adsbAircraftLongitude,adsbAircraftDistanceKm,adsbAircraftDistanceMi]"`
+	SelectedFields []string
 }
 
 type Tar1090AnnotatorConfig struct {
@@ -133,7 +133,7 @@ type Tar1090AnnotatorConfig struct {
 	// Geolocation to use for distance calculations (LAT,LON).
 	ReferenceGeolocation string `default:"35.6244416,139.7753782"`
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `default:"[tar1090ReferenceGeolocation,tar1090ReferenceGeolocationLatitude,tar1090ReferenceGeolocationLongitude,tar1090AircraftEmergency,tar1090AircraftGeolocation,tar1090AircraftLatitude,tar1090AircraftLongitude,tar1090AircraftDistanceKm,tar1090AircraftDistanceMi,tar1090AircraftDistanceNm,tar1090AircraftDirectionDegrees,tar1090AircraftAltimeterBarometerFeet,tar1090AircraftAltimeterGeometricFeet,tar1090AircraftAltimeterBarometerRateFeetPerSecond,tar1090AircraftOwnerOperator,tar1090AircraftFlightNumber,tar1090AircraftHexCode,tar1090AircraftType,tar1090AircraftDescription,tar1090AircraftYearOfManufacture,tar1090AircraftADSBMessageCount,tar1090AircraftRSSIdBm,tar1090AircraftNavModes]"`
+	SelectedFields []string
 }
 
 type OllamaCommonConfig struct {
@@ -163,7 +163,7 @@ type OllamaAnnotatorConfig struct {
 	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
 	FilterWithQuestion bool `default:"true"`
 	// Fields to provide to receivers from this annotator.
-	SelectedFields []string `default:"[ollamaProcessedText,ollamaEditActions,ollamaQuestion]"`
+	SelectedFields []string
 }
 
 type OllamaOptionsConfig struct {

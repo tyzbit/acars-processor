@@ -11,14 +11,14 @@ type VDLM2Annotator interface {
 	SelectFields(Annotation) Annotation
 }
 
-type VDLM2HandlerAnnotator struct {
+type VDLM2AnnotatorHandler struct {
 }
 
-func (v VDLM2HandlerAnnotator) Name() string {
+func (v VDLM2AnnotatorHandler) Name() string {
 	return "vdlm2"
 }
 
-func (v VDLM2HandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+func (v VDLM2AnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 	if config.Annotators.VDLM2.SelectedFields == nil {
 		return annotation
 	}
@@ -29,6 +29,16 @@ func (v VDLM2HandlerAnnotator) SelectFields(annotation Annotation) Annotation {
 		}
 	}
 	return selectedFields
+}
+
+func (v VDLM2AnnotatorHandler) DefaultFields() []string {
+	// ACARS
+	fields := []string{}
+	for field := range v.AnnotateVDLM2Message(VDLM2Message{}) {
+		fields = append(fields, field)
+	}
+	slices.Sort(fields)
+	return fields
 }
 
 // This is the format ACARSHub sends
@@ -91,7 +101,7 @@ type VDLM2Message struct {
 // Interface function to satisfy ACARSHandler
 // Although this is the ACARS annotator, we must support ACARS and VLM2
 // message types
-func (v VDLM2HandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+func (v VDLM2AnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	tailcode, _ := strings.CutPrefix(m.VDL2.AVLC.ACARS.Registration, ".")
 	text := m.VDL2.AVLC.ACARS.MessageText
 	// Please update config example values if changed

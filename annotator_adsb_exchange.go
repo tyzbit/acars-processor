@@ -17,11 +17,11 @@ import (
 const adsbapiv2 = "https://adsbexchange-com1.p.rapidapi.com/v2/%s"
 const adsbapikeyheader = "x-rapidapi-key"
 
-func (a ADSBHandlerAnnotator) Name() string {
+func (a ADSBAnnotatorHandler) Name() string {
 	return "ads-b exchange"
 }
 
-func (a ADSBHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
+func (a ADSBAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 	// If no fields are being selected, return annotation unchanged
 	if config.Annotators.ADSBExchange.SelectedFields == nil {
 		return annotation
@@ -35,7 +35,17 @@ func (a ADSBHandlerAnnotator) SelectFields(annotation Annotation) Annotation {
 	return selectedFields
 }
 
-type ADSBHandlerAnnotator struct {
+func (a ADSBAnnotatorHandler) DefaultFields() []string {
+	// ACARS
+	fields := []string{}
+	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	slices.Sort(fields)
+	return fields
+}
+
+type ADSBAnnotatorHandler struct {
 	SingleAircraftPosition SingleAircraftPosition
 }
 
@@ -86,7 +96,7 @@ type SingleAircraftPosition struct {
 }
 
 // Wrapper around the SingleAircraftPositionByRegistration API
-func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (ac SingleAircraftPosition, err error) {
+func (a ADSBAnnotatorHandler) SingleAircraftPositionByRegistration(reg string) (ac SingleAircraftPosition, err error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf(adsbapiv2, fmt.Sprintf("registration/%s/", reg)), nil)
 	if err != nil {
 		return ac, err
@@ -115,7 +125,7 @@ func (a ADSBHandlerAnnotator) SingleAircraftPositionByRegistration(reg string) (
 }
 
 // Interface function to satisfy ACARSHandler
-func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
+func (a ADSBAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
 	enabled := config.Annotators.ADSBExchange.Enabled
 	if !enabled && config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
 		log.Info(yo().Hmm("adsb enabled but geolocation not set, using '0,0'").FRFR())
@@ -166,7 +176,7 @@ func (a ADSBHandlerAnnotator) AnnotateACARSMessage(m ACARSMessage) (annotation A
 }
 
 // Interface function to satisfy ACARSHandler
-func (a ADSBHandlerAnnotator) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+func (a ADSBAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	enabled := config.Annotators.ADSBExchange.Enabled
 	if enabled && config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
 		log.Info(yo().Hmm("adsb exchange enabled but geolocation not set, using '0,0'").FRFR())
