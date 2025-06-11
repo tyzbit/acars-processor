@@ -34,9 +34,12 @@ func LoadSavedMessages() error {
 	}
 
 	if !config.ACARSProcessorSettings.SaveMessages {
+		log.Info(yo.FYI("Database is not enabled").FRFR())
 		sqlitePath = "file::memory:?cache=shared"
 	} else {
-		if config.ACARSProcessorSettings.SQLiteDatabasePath != "" {
+		p := config.ACARSProcessorSettings.SQLiteDatabasePath
+		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
+		if p != "" {
 			sqlitePath = config.ACARSProcessorSettings.SQLiteDatabasePath
 		}
 	}
