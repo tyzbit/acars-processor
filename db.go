@@ -54,7 +54,7 @@ func LoadSavedMessages() error {
 	if err := db.AutoMigrate(ACARSMessage{}); err != nil {
 		log.Fatal(yo.Uhh("Unable to automigrate ACARSMessage type: %s", err).FRFR())
 	}
-	db.Find(&am)
+	db.Find(&am, ACARSMessage{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}})
 	for _, a := range am {
 		ACARSMessageQueue <- a.ID
 	}
@@ -67,7 +67,7 @@ func LoadSavedMessages() error {
 	if err := db.AutoMigrate(VDLM2Message{}); err != nil {
 		log.Fatal(yo.Uhh("Unable to automigrate VDLM2Message type: %s", err).FRFR())
 	}
-	db.Find(&vm)
+	db.Find(&vm, VDLM2Message{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}})
 	for _, v := range vm {
 		VDLM2MessageQueue <- v.ID
 	}
