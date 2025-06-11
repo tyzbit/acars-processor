@@ -54,7 +54,7 @@ func ReadACARSHubACARSMessages() {
 				)
 				continue
 			} else {
-				queueLength := db.Find(ACARSMessage{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}}).RowsAffected
+				queueLength := db.Find(&ACARSMessage{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}}).RowsAffected
 				log.Debug(yo.FYI("new acars message content ").
 					Hmm("(%d already in queue)", queueLength).
 					FYI(": ").INFODUMP("%+v", next).FRFR())
@@ -102,7 +102,7 @@ func ReadACARSHubVDLM2Messages() {
 				log.Error(yo.Uhh("json message did not match expected structure, we got: %+v", next).FRFR())
 				continue
 			} else {
-				queueLength := db.Find(VDLM2Message{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}}).RowsAffected
+				queueLength := db.Find(&VDLM2Message{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}}).RowsAffected
 				log.Debug(yo.FYI("new vdlm2 message content ").
 					Hmm("(%d already in queue)", queueLength).
 					FYI(": ").INFODUMP("%+v", next).FRFR())
