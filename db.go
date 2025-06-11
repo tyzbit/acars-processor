@@ -33,7 +33,8 @@ func LoadSavedMessages() error {
 		}
 	}
 
-	if !config.ACARSProcessorSettings.SaveMessages {
+	save := config.ACARSProcessorSettings.SaveMessages
+	if !save {
 		log.Info(yo.FYI("Database is not enabled").FRFR())
 		sqlitePath = "file::memory:?cache=shared"
 	} else {
@@ -57,7 +58,9 @@ func LoadSavedMessages() error {
 	for _, a := range am {
 		ACARSMessageQueue <- a.ID
 	}
-	log.Info(yo.FYI("Loaded %d ACARS messages from the db", len(am)).FRFR())
+	if save {
+		log.Info(yo.FYI("Loaded %d ACARS messages from the db", len(am)).FRFR())
+	}
 
 	// VDLM2
 	vm := []VDLM2Message{}
@@ -68,7 +71,9 @@ func LoadSavedMessages() error {
 	for _, v := range vm {
 		VDLM2MessageQueue <- v.ID
 	}
-	log.Info(yo.FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
+	if save {
+		log.Info(yo.FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
+	}
 	tx.Commit()
 	return nil
 }
