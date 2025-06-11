@@ -12,7 +12,7 @@ import (
 
 var (
 	config                 = Config{}
-	yo                     = func() *Rizz { return new(Rizz) }
+	yo                     = new(Rizz)
 	db                     = new(gorm.DB)
 	configFilePath         = "config.yaml"
 	schemaFilePath         = "schema.json"
@@ -38,7 +38,7 @@ func main() {
 	LoadConfig()
 	ConfigureLogging()
 	if err := LoadSavedMessages(); err != nil {
-		log.Fatal(yo().Uhh("unable to initialize database: %s", err).FRFR())
+		log.Fatal(yo.Uhh("unable to initialize database: %s", err).FRFR())
 	}
 	ConfigureAnnotators()
 	ConfigureReceivers()

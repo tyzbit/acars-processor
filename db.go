@@ -29,7 +29,7 @@ func LoadSavedMessages() error {
 	if errors.Is(err, fs.ErrNotExist) {
 		dirPath := filepath.Dir(sqlitePath)
 		if err := os.MkdirAll(dirPath, 0660); err != nil {
-			log.Error(yo().Uhh("unable to make directory path %s, err: %w", dirPath, err).FRFR())
+			log.Error(yo.Uhh("unable to make directory path %s, err: %w", dirPath, err).FRFR())
 		}
 	}
 
@@ -49,23 +49,23 @@ func LoadSavedMessages() error {
 	// ACARS
 	am := []ACARSMessage{}
 	if err := tx.AutoMigrate(ACARSMessage{}); err != nil {
-		log.Fatal(yo().Uhh("Unable to automigrate ACARSMessage type: %s", err).FRFR())
+		log.Fatal(yo.Uhh("Unable to automigrate ACARSMessage type: %s", err).FRFR())
 	}
 	for _, a := range am {
 		ACARSMessageQueue <- a.ID
 	}
-	log.Info(yo().FYI("Loaded %d ACARS messages from the db", len(am)).FRFR())
+	log.Info(yo.FYI("Loaded %d ACARS messages from the db", len(am)).FRFR())
 
 	// VDLM2
 	vm := []VDLM2Message{}
 	if err := tx.AutoMigrate(VDLM2Message{}); err != nil {
-		log.Fatal(yo().Uhh("Unable to automigrate VDLM2Message type: %s", err).FRFR())
+		log.Fatal(yo.Uhh("Unable to automigrate VDLM2Message type: %s", err).FRFR())
 	}
 	tx.Find(&vm)
 	for _, v := range vm {
 		VDLM2MessageQueue <- v.ID
 	}
-	log.Info(yo().FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
+	log.Info(yo.FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
 	tx.Commit()
 	return nil
 }

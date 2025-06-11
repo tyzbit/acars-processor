@@ -37,7 +37,7 @@ func ReadFile(filePath string) []byte {
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Error(yo().Uhh("Error reading the file: %v", err).FRFR())
+			log.Error(yo.Uhh("Error reading the file: %v", err).FRFR())
 			os.Exit(1)
 		}
 	}
@@ -47,7 +47,7 @@ func ReadFile(filePath string) []byte {
 func WriteFile(filePath string, contents []byte) {
 	err := os.WriteFile(filePath, contents, 0644)
 	if err != nil {
-		log.Error(yo().Uhh("Error writing file: %w", err))
+		log.Error(yo.Uhh("Error writing file: %w", err))
 	}
 }
 
@@ -56,7 +56,7 @@ func UpdateFile(filePath string, contents []byte) (changed bool) {
 	file := ReadFile(filePath)
 	err := os.WriteFile(filePath, contents, 0644)
 	if err != nil {
-		log.Error(yo().Uhh("Error writing file: %w", err))
+		log.Error(yo.Uhh("Error writing file: %w", err))
 	}
 	return string(file) != string(contents)
 }

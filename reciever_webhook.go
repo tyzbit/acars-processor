@@ -28,7 +28,7 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 	var b bytes.Buffer
 	err = t.Execute(&b, a)
 	if err != nil {
-		log.Error(yo().Uhh("error executing template, err: %v", err).FRFR())
+		log.Error(yo.Uhh("error executing template, err: %v", err).FRFR())
 		return
 	}
 
@@ -41,7 +41,7 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 	}
 
 	c := http.Client{}
-	log.Info(yo().FYI("calling custom webhook").FRFR())
+	log.Info(yo.FYI("calling custom webhook").FRFR())
 	resp, err := c.Do(h)
 	if err != nil {
 		return err
@@ -52,6 +52,6 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 	}
 	defer resp.Body.Close()
 
-	log.Debug(yo().INFODUMP("webhook returned: %s", string(body)))
+	log.Debug(yo.INFODUMP("webhook returned: %s", string(body)))
 	return nil
 }
