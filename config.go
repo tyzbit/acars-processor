@@ -11,9 +11,9 @@ import (
 func ConfigureLogging() {
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp: true,
-		ForceColors:   config.ColorOutput,
+		ForceColors:   config.ACARSProcessorSettings.ColorOutput,
 	})
-	loglevel := strings.ToLower(config.LogLevel)
+	loglevel := strings.ToLower(config.ACARSProcessorSettings.LogLevel)
 	switch loglevel {
 	case "debug":
 		log.SetLevel(log.DebugLevel)
@@ -46,12 +46,17 @@ func LoadConfig() {
 
 // Main configuration for acars-processor. Have fun!
 type Config struct {
-	// Set logging verbosity.
-	LogLevel string `jsonschema:"default=info" default:"info"`
-	// Force whether or not color output is used
-	ColorOutput bool `jsonschema:"default=true" default:"true"`
-	// ACARSHub connection settings.
-	ACARSHub ACARSHubConfig
+	// These control acars-processor
+	ACARSProcessorSettings struct {
+		// Force whether or not color output is used
+		ColorOutput bool `json:",omitempty" jsonschema:"default=true" default:"true"`
+		// Whether or not to use a SQLite database to save messages
+		SaveMessages bool `json:",omitempty" jsonschema:"default=false" default:"false"`
+		// Set logging verbosity.
+		LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
+		// ACARSHub connection settings.
+		ACARSHub ACARSHubConfig `jsonschema:"required"`
+	} `jsonschema:"required"`
 	// Services that receive raw ACARS/VDLM2 messages and return more information, usually after a lookup or additional processing.
 	Annotators AnnotatorsConfig
 	// Filter messages out before being processed.

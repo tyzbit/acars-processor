@@ -26,7 +26,7 @@ func (yo *Rizz) FRFR() (s string) {
 		return ""
 	}
 	for _, dm := range yo.DMs {
-		if !config.ColorOutput {
+		if !config.ACARSProcessorSettings.ColorOutput {
 			dm.Color.DisableColor()
 		} else {
 			dm.Color.EnableColor()
@@ -37,6 +37,7 @@ func (yo *Rizz) FRFR() (s string) {
 }
 
 // add a color and string manually to the message slice
+// always gotta end it with .FRFR()
 // check out this mad drip
 func (yo *Rizz) GlowUp(dm DM) (r *Rizz) {
 	yo.DMs = append(yo.DMs, DM{dm.Color, dm.Message})
@@ -44,6 +45,7 @@ func (yo *Rizz) GlowUp(dm DM) (r *Rizz) {
 }
 
 // green
+// always gotta end it with .FRFR()
 // We did it, Reddit
 func (yo *Rizz) Bet(finna ...any) (r *Rizz) {
 	if len(finna) == 1 {
@@ -57,6 +59,7 @@ func (yo *Rizz) Bet(finna ...any) (r *Rizz) {
 }
 
 // magenta
+// always gotta end it with .FRFR()
 // ngl, but
 func (yo *Rizz) FYI(finna ...any) (r *Rizz) {
 	if len(finna) == 1 {
@@ -70,6 +73,7 @@ func (yo *Rizz) FYI(finna ...any) (r *Rizz) {
 }
 
 // cyan
+// always gotta end it with .FRFR()
 // yoooooo
 func (yo *Rizz) Hmm(finna ...any) (r *Rizz) {
 	if len(finna) == 1 {
@@ -83,6 +87,7 @@ func (yo *Rizz) Hmm(finna ...any) (r *Rizz) {
 }
 
 // yellow
+// always gotta end it with .FRFR()
 // cringe
 func (yo *Rizz) Uhh(finna ...any) (r *Rizz) {
 	if len(finna) == 1 {
@@ -96,6 +101,7 @@ func (yo *Rizz) Uhh(finna ...any) (r *Rizz) {
 }
 
 // grey
+// always gotta end it with .FRFR()
 // check it,
 func (yo *Rizz) INFODUMP(finna ...any) (r *Rizz) {
 	darkGrey := *color.RGB(90, 90, 90)
@@ -110,7 +116,8 @@ func (yo *Rizz) INFODUMP(finna ...any) (r *Rizz) {
 }
 
 // bold+italic
-// fr
+// always gotta end it with .FRFR()
+// check out the rizz fam
 func (yo *Rizz) BTW(finna ...any) (r *Rizz) {
 	bio := color.New(color.Bold, color.Italic)
 	if len(finna) == 1 {

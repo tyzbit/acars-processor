@@ -3,3 +3,4 @@ config.yaml
 __debug*
 .DS_Store
 .vscode/launch.json
+messages.db*

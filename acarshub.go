@@ -9,25 +9,27 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 var (
 	ACARSHubMaxConcurrentRequests = 1
-	ACARSMessageQueue             = make(chan ACARSMessage, 10000)
-	VDLM2MessageQueue             = make(chan VDLM2Message, 10000)
+	// These are just channels of IDs
+	ACARSMessageQueue = make(chan uint, 10000)
+	VDLM2MessageQueue = make(chan uint, 10000)
 )
 
 func ReadACARSHubACARSMessages() {
-	if config.ACARSHub.MaxConcurrentRequests != 0 {
-		ACARSHubMaxConcurrentRequests = config.ACARSHub.MaxConcurrentRequests
+	if config.ACARSProcessorSettings.ACARSHub.MaxConcurrentRequests != 0 {
+		ACARSHubMaxConcurrentRequests = config.ACARSProcessorSettings.ACARSHub.MaxConcurrentRequests
 	}
 	for range ACARSHubMaxConcurrentRequests {
 		go HandleACARSJSONMessages(ACARSMessageQueue)
 	}
 
-	address := fmt.Sprintf("%s:%d", config.ACARSHub.ACARS.Host, config.ACARSHub.ACARS.Port)
+	address := fmt.Sprintf("%s:%d", config.ACARSProcessorSettings.ACARSHub.ACARS.Host, config.ACARSProcessorSettings.ACARSHub.ACARS.Port)
 	for {
-		log.Debug(yo().INFODUMP("connecting to ").Hmm(config.ACARSHub.ACARS.Host).INFODUMP(" on acars json port ").Hmm(fmt.Sprint(config.ACARSHub.ACARS.Port)).FRFR())
+		log.Debug(yo().INFODUMP("connecting to ").Hmm(config.ACARSProcessorSettings.ACARSHub.ACARS.Host).INFODUMP(" on acars json port ").Hmm(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.ACARS.Port)).FRFR())
 		s, err := net.Dial("tcp", address)
 		if err != nil {
 			log.Error(yo().Uhh("error connecting to acars json: %v", err).FRFR())
@@ -55,7 +57,8 @@ func ReadACARSHubACARSMessages() {
 				log.Debug(yo().FYI("new acars message content ").
 					Hmm("(%d already in queue)", len(ACARSMessageQueue)).
 					FYI(": ").INFODUMP("%+v", next).FRFR())
-				ACARSMessageQueue <- next
+				db.Create(&next)
+				ACARSMessageQueue <- next.ID
 				continue
 			}
 		}
@@ -67,16 +70,16 @@ func ReadACARSHubACARSMessages() {
 }
 
 func ReadACARSHubVDLM2Messages() {
-	if config.ACARSHub.MaxConcurrentRequests != 0 {
-		ACARSHubMaxConcurrentRequests = config.ACARSHub.MaxConcurrentRequests
+	if config.ACARSProcessorSettings.ACARSHub.MaxConcurrentRequests != 0 {
+		ACARSHubMaxConcurrentRequests = config.ACARSProcessorSettings.ACARSHub.MaxConcurrentRequests
 	}
 	for range ACARSHubMaxConcurrentRequests {
 		go HandleVDLM2JSONMessages(VDLM2MessageQueue)
 	}
 
-	address := fmt.Sprintf("%s:%d", config.ACARSHub.VDLM2.Host, config.ACARSHub.VDLM2.Port)
+	address := fmt.Sprintf("%s:%d", config.ACARSProcessorSettings.ACARSHub.VDLM2.Host, config.ACARSProcessorSettings.ACARSHub.VDLM2.Port)
 	for {
-		log.Debug(yo().INFODUMP("connecting to ").Hmm(config.ACARSHub.VDLM2.Host).INFODUMP(" on vdlm2 json port ").Hmm(fmt.Sprint(config.ACARSHub.VDLM2.Port)).FRFR())
+		log.Debug(yo().INFODUMP("connecting to ").Hmm(config.ACARSProcessorSettings.ACARSHub.VDLM2.Host).INFODUMP(" on vdlm2 json port ").Hmm(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.VDLM2.Port)).FRFR())
 		s, err := net.Dial("tcp", address)
 		if err != nil {
 			log.Error(yo().Uhh("error connecting to vdlm2 json: %v", err).FRFR())
@@ -101,7 +104,8 @@ func ReadACARSHubVDLM2Messages() {
 				log.Debug(yo().FYI("new vdlm2 message content ").
 					Hmm("(%d already in queue)", len(VDLM2MessageQueue)).
 					FYI(": ").INFODUMP("%+v", next).FRFR())
-				VDLM2MessageQueue <- next
+				db.Create(&next)
+				VDLM2MessageQueue <- next.ID
 				continue
 			}
 		}
@@ -115,11 +119,11 @@ func ReadACARSHubVDLM2Messages() {
 // Connects to ACARS and starts listening to messages
 func SubscribeToACARSHub() {
 	launched := false
-	if config.ACARSHub.ACARS.Host != "" && config.ACARSHub.ACARS.Port != 0 {
+	if config.ACARSProcessorSettings.ACARSHub.ACARS.Host != "" && config.ACARSProcessorSettings.ACARSHub.ACARS.Port != 0 {
 		go ReadACARSHubACARSMessages()
 		launched = true
 	}
-	if config.ACARSHub.VDLM2.Host != "" && config.ACARSHub.VDLM2.Port != 0 {
+	if config.ACARSProcessorSettings.ACARSHub.VDLM2.Host != "" && config.ACARSProcessorSettings.ACARSHub.VDLM2.Port != 0 {
 		go ReadACARSHubVDLM2Messages()
 		launched = true
 	}
@@ -132,8 +136,19 @@ func SubscribeToACARSHub() {
 
 // Reads messages in the channel from ReadACARSHubVDLM2Messages, annotates and
 // sends off to configured receivers
-func HandleACARSJSONMessages(ACARSMessageQueue chan ACARSMessage) {
-	for message := range ACARSMessageQueue {
+func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
+	for id := range ACARSMessageQueue {
+		// Create a message with the ID we're looking for
+		message := ACARSMessage{
+			Model: gorm.Model{
+				ID: id,
+			},
+		}
+		// Find that message
+		db.Where(&message).Find(&message)
+		if (message.CreatedAt == time.Time{}) {
+			log.Error(yo().Uhh("couldn't find message with id %d", id))
+		}
 		annotations := map[string]any{}
 		ok, filters := ACARSCriteriaFilter{}.Filter(message)
 		if !ok {
@@ -165,13 +180,25 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan ACARSMessage) {
 				}
 			}
 		}
+		db.Delete(&message)
 	}
 }
 
 // Reads messages in the channel from ReadACARSHubACARSMessages, annotates and
 // sends off to configured receivers
-func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
-	for message := range VDLM2MessageQueue {
+func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
+	for id := range VDLM2MessageQueue {
+		// Create a message with the ID we're looking for
+		message := VDLM2Message{
+			Model: gorm.Model{
+				ID: id,
+			},
+		}
+		// Find that message
+		db.Where(&message).Find(&message)
+		if (message.CreatedAt == time.Time{}) {
+			log.Error(yo().Uhh("couldn't find message with id %d", id))
+		}
 		annotations := map[string]any{}
 		ok, filters := VDLM2CriteriaFilter{}.Filter(message)
 		if !ok {
@@ -201,5 +228,6 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan VDLM2Message) {
 				}
 			}
 		}
+		db.Delete(&message)
 	}
 }
