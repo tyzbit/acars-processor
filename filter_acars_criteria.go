@@ -71,6 +71,7 @@ func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []st
 	for _, filter := range enabledFilters {
 		if !ACARSFilterFunctions[filter](m) {
 			ok = false
+			db.Delete(&m)
 			failedFilters = append(failedFilters, filter)
 		}
 	}

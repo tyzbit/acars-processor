@@ -14,6 +14,9 @@ import (
 var (
 	configExample = "config_example.yaml"
 	schemaLine    = `# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
+# This file (and schema.json) are automatically generated 
+# from the code by running ./acars-processor -s
+
 `
 )
 

@@ -22,7 +22,7 @@ func ConfigureAnnotators() {
 		log.Info(yo().Bet("TAR1090 VDLM2 annotator enabled").FRFR())
 		enabledACARSAnnotators = append(enabledACARSAnnotators, Tar1090AnnotatorHandler{})
 	}
-	if config.Annotators.Ollama.Enabled && config.ACARSHub.ACARS.Host != "" {
+	if config.Annotators.Ollama.Enabled && config.ACARSProcessorSettings.ACARSHub.ACARS.Host != "" {
 		log.Info(yo().Bet("Ollama ACARS annotator enabled").FRFR())
 		enabledACARSAnnotators = append(enabledACARSAnnotators, OllamaAnnotatorHandler{})
 	}
@@ -39,7 +39,7 @@ func ConfigureAnnotators() {
 		log.Info(yo().Bet("TAR1090 VDLM2 annotator enabled").FRFR())
 		enabledVDLM2Annotators = append(enabledVDLM2Annotators, Tar1090AnnotatorHandler{})
 	}
-	if config.Annotators.Ollama.Enabled && config.ACARSHub.VDLM2.Host != "" {
+	if config.Annotators.Ollama.Enabled && config.ACARSProcessorSettings.ACARSHub.VDLM2.Host != "" {
 		log.Info(yo().Bet("Ollama VDLM2 annotator enabled").FRFR())
 		enabledVDLM2Annotators = append(enabledVDLM2Annotators, OllamaAnnotatorHandler{})
 	}

@@ -2,14 +2,18 @@ package main
 
 import (
 	"flag"
+	"log"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"gorm.io/gorm"
 )
 
 var (
 	config                 = Config{}
 	yo                     = func() *Rizz { return new(Rizz) }
+	db                     = new(gorm.DB)
 	configFilePath         = "config.yaml"
 	schemaFilePath         = "schema.json"
 	enabledACARSAnnotators = []ACARSAnnotator{}
@@ -33,6 +37,9 @@ func main() {
 
 	LoadConfig()
 	ConfigureLogging()
+	if err := LoadSavedMessages(); err != nil {
+		log.Fatal(yo().Uhh("unable to initialize database: %s", err).FRFR())
+	}
 	ConfigureAnnotators()
 	ConfigureReceivers()
 	ConfigureFilters()

@@ -69,6 +69,7 @@ func (f VDLM2CriteriaFilter) Filter(m VDLM2Message) (ok bool, failedFilters []st
 	for _, filter := range enabledFilters {
 		if !VDLM2FilterFunctions[filter](m) {
 			ok = false
+			db.Delete(&m)
 			failedFilters = append(failedFilters, filter)
 		}
 	}

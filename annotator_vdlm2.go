@@ -3,6 +3,8 @@ package main
 import (
 	"slices"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type VDLM2Annotator interface {
@@ -43,27 +45,29 @@ func (v VDLM2AnnotatorHandler) DefaultFields() []string {
 
 // This is the format ACARSHub sends
 type VDLM2Message struct {
+	gorm.Model
 	VDL2 struct {
 		App struct {
+			gorm.Model
 			Name               string `json:"name"`
 			Version            string `json:"ver"`
 			Proxied            bool   `json:"proxied"`
 			ProxiedBy          string `json:"proxied_by"`
 			ACARSRouterVersion string `json:"acars_router_version"`
 			ACARSRouterUUID    string `json:"acars_router_uuid"`
-		} `json:"app"`
+		} `json:"app" gorm:"embedded"`
 		AVLC struct {
 			CR          string `json:"cr"`
 			Destination struct {
 				Address string `json:"addr"`
 				Type    string `json:"type"`
-			} `json:"dst"`
+			} `json:"dst" gorm:"embedded"`
 			FrameType string `json:"frame_type"`
 			Source    struct {
 				Address string `json:"addr"`
 				Type    string `json:"type"`
 				Status  string `json:"status"`
-			} `json:"src"`
+			} `json:"src" gorm:"embedded"`
 			RSequence int  `json:"rseq"`
 			SSequence int  `json:"sseq"`
 			Poll      bool `json:"poll"`
@@ -75,13 +79,13 @@ type VDLM2Message struct {
 				Mode                  string `json:"mode"`
 				Label                 string `json:"label"`
 				BlockID               string `json:"blk_id"`
-				Acknowledge           any    `json:"ack"`
+				Acknowledge           any    `json:"ack" gorm:"type:string"`
 				FlightNumber          string `json:"flight"`
 				MessageNumber         string `json:"msg_num"`
 				MessageNumberSequence string `json:"msg_num_seq"`
 				MessageText           string `json:"msg_text"`
-			} `json:"acars"`
-		} `json:"avlc"`
+			} `json:"acars" gorm:"embedded"`
+		} `json:"avlc" gorm:"embedded"`
 		BurstLengthOctets    int     `json:"burst_len_octets"`
 		FrequencyHz          int     `json:"freq"`
 		Index                int     `json:"idx"`
@@ -94,8 +98,8 @@ type VDLM2Message struct {
 		Timestamp            struct {
 			UnixTimestamp int `json:"sec"`
 			Microseconds  int `json:"usec"`
-		} `json:"t"`
-	} `json:"vdl2"`
+		} `json:"t" gorm:"embedded"`
+	} `json:"vdl2" gorm:"embedded"`
 }
 
 // Interface function to satisfy ACARSHandler

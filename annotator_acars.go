@@ -1,8 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"slices"
 	"strings"
+
+	"gorm.io/gorm"
 )
 
 type ACARSAnnotator interface {
@@ -43,6 +46,7 @@ func (a ACARSAnnotatorHandler) DefaultFields() []string {
 
 // This is the format ACARSHub sends for ACARS messages
 type ACARSMessage struct {
+	gorm.Model
 	FrequencyMHz float64 `json:"freq"`
 	Channel      int     `json:"channel"`
 	ErrorCode    int     `json:"error"`
@@ -55,14 +59,14 @@ type ACARSMessage struct {
 		ProxiedBy          string `json:"proxied_by"`
 		ACARSRouterVersion string `json:"acars_router_version"`
 		ACARSRouterUUID    string `json:"acars_router_uuid"`
-	} `json:"app"`
+	} `json:"app" gorm:"embedded"`
 	StationID        string `json:"station_id"`
 	ASSStatus        string `json:"assstat"`
 	Mode             string `json:"mode"`
 	Label            string `json:"label"`
 	BlockID          string `json:"block_id"`
-	Acknowledge      any    `json:"ack"`  // Can be bool or string
-	AircraftTailCode string `json:"tail"` // Can be string or float
+	Acknowledge      any    `json:"ack" gorm:"type:string"` // Can be bool or string
+	AircraftTailCode string `json:"tail"`                   // Can be string or float
 	MessageText      string `json:"text"`
 	MessageNumber    string `json:"msgno"`
 	FlightNumber     string `json:"flight"`
@@ -91,7 +95,7 @@ func (a ACARSAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation 
 		"acarsMode":             m.Mode,
 		"acarsLabel":            m.Label,
 		"acarsBlockID":          m.BlockID,
-		"acarsAcknowledge":      m.Acknowledge,
+		"acarsAcknowledge":      fmt.Sprint(m.Acknowledge),
 		"acarsAircraftTailCode": tailcode,
 		"acarsMessageFrom":      AircraftOrTower(m.FlightNumber),
 		"acarsMessageText":      text,

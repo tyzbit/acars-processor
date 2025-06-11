@@ -1,12 +1,19 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
-ACARSHub:
-  ACARS:
-    Host: acarshub
-    Port: 15550
-  MaxConcurrentRequests: 0
-  VDLM2:
-    Host: acarshub
-    Port: 15555
+# This file (and schema.json) are automatically generated 
+# from the code by running ./acars-processor -s
+
+ACARSProcessorSettings:
+  ACARSHub:
+    ACARS:
+      Host: acarshub
+      Port: 15550
+    MaxConcurrentRequests: 0
+    VDLM2:
+      Host: acarshub
+      Port: 15555
+  ColorOutput: true
+  LogLevel: info
+  SQLiteDatabasePath: ./messages.db
 Annotators:
   ACARS:
     Enabled: true
@@ -142,7 +149,6 @@ Annotators:
     - vdlmSourceAddress
     - vdlmSourceStatus
     - vdlmSourceType
-ColorOutput: true
 Filters:
   ACARS:
     DuplicateMessageSimilarity: 0.9
@@ -188,7 +194,6 @@ Filters:
   VDLM2:
     DuplicateMessageSimilarity: 0.9
     Enabled: true
-LogLevel: info
 Receivers:
   DiscordWebhook:
     Enabled: true
