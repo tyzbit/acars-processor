@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	OpenAISystemPrompt = `You are an AI that is an expert at logical 
-	reasoning. You will be provided criteria and then a communication message. 
-	You will use your skills and any examples provided to evaluate determine 
+	OpenAISystemPrompt = `you are an AI that is an expert at logical 
+	reasoning. you will be provided criteria and then a communication message. 
+	you will use your skills and any examples provided to evaluate determine 
 	if the message positively matches the provided criteria.
 
 	Here's the criteria:
@@ -39,7 +39,7 @@ type OpenAIResponse struct {
 func OpenAIFilter(m string) bool {
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
-		log.Info(yo().FYI("message was blank, filtering without calling OpenAI").FRFR())
+		log.Info(yo.FYI("message was blank, filtering without calling OpenAI").FRFR())
 		return false
 	}
 	client := openai.NewClient(
@@ -53,7 +53,7 @@ func OpenAIFilter(m string) bool {
 		openAIModel = config.Filters.OpenAI.Model
 	}
 
-	log.Debug(yo().INFODUMP("calling OpenAI model ").Hmm(openAIModel).FRFR())
+	log.Debug(yo.INFODUMP("calling OpenAI model ").Hmm(openAIModel).FRFR())
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
@@ -67,7 +67,7 @@ func OpenAIFilter(m string) bool {
 			Temperature: openai.Float(0),
 		})
 	if err != nil {
-		log.Error(yo().Uhh("error using OpenAI: %s", err).FRFR())
+		log.Error(yo.Uhh("error using OpenAI: %s", err).FRFR())
 		return true
 	}
 
@@ -79,7 +79,7 @@ func OpenAIFilter(m string) bool {
 	// Find the last json payload in case the model reasons about
 	// one in the middle of thinking
 	if len(matches) == 0 {
-		log.Error(yo().Uhh("did not find a json object in response: %s",
+		log.Error(yo.Uhh("did not find a json object in response: %s",
 			chatCompletion.Choices[0].Message.Content).FRFR())
 		return true
 	}
@@ -89,8 +89,8 @@ func OpenAIFilter(m string) bool {
 	err = json.Unmarshal([]byte(content), &r)
 
 	if err != nil {
-		log.Warn(yo().Uhh("error unmarshaling response from OpenAI: %s", err).FRFR())
-		log.Debug(yo().INFODUMP("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content))
+		log.Warn(yo.Uhh("error unmarshaling response from OpenAI: %s", err).FRFR())
+		log.Debug(yo.INFODUMP("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content))
 		return true
 	}
 	decision := r.MessageMatches == "true" || r.MessageMatches == true
@@ -105,7 +105,7 @@ func OpenAIFilter(m string) bool {
 		},
 	}
 	log.Info(
-		yo().FYI("openai decision: ").
+		yo.FYI("openai decision: ").
 			GlowUp(action[decision]).
 			FYI("message ending in: ").
 			Hmm(Last20Characters(m)).

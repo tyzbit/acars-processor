@@ -65,5 +65,5 @@ func ConfigureFilters() {
 		enabledFilters = append(enabledFilters, "MessageSimilarity")
 	}
 	log.Info(
-		yo().FYI("enabled filters: ").Hmm(strings.Join(enabledFilters, ",")).FRFR())
+		yo.FYI("enabled filters: ").Hmm(strings.Join(enabledFilters, ",")).FRFR())
 }

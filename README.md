@@ -44,7 +44,7 @@ goes wrong), **by default they do not filter the message**.
   ACARS/VDLM2 receiver.
 
 - Ollama: Uses Ollama and it will return a processed response based on your
-  instructions. You can also ask a question about the message, which can be used
+  instructions. you can also ask a question about the message, which can be used
   to annotate and filter in one step. This is likely not as effective as just
   using the Ollama filter itself.
 
@@ -57,10 +57,10 @@ goes wrong), **by default they do not filter the message**.
 ### General Configuration
 
 Check `config_example.yaml` for all possible settings and illustrative values.
-You can duplicate it to `config.yaml` and edit it or copy it but only keep the
+you can duplicate it to `config.yaml` and edit it or copy it but only keep the
 first line. This will let you auto-complete the file if your editor supports it.
 
-You can use environment variables (`${apikey}`) and they will be substituted
+you can use environment variables (`${apikey}`) and they will be substituted
 from the environment before the app starts. It's highly recommended to quote
 your values in case substitution fails so you don't chase misleading errors.
 
@@ -72,7 +72,7 @@ I recommend `gemma3:4b`. It uses about 8GB at runtime but is similar in
 effectiveness to OpenAI's models.
 
 If you're not seeing great results out of your model, be verbose, explicit and
-include examples of what you want to see and not see. You can also try
+include examples of what you want to see and not see. you can also try
 a different one or try overriding the system prompt with
 `FILTER_OLLAMA_SYSTEM_PROMPT`. If acars-processor isn't able to pull a JSON
 object from the response, it'll log what it got from the model at a
@@ -100,7 +100,7 @@ some info to help you get a good start:
   `pre-commit install` in the root directory of the repo.
 - If you use VSCode, there's already an example launch config for debugging.
 - Although large language model use is strongly discouraged, it is not forbidden
-  (but this could change at any time). You will not be given special leniency
+  (but this could change at any time). you will not be given special leniency
   for counterfeit code that must be tediously tweaked after you make your PR
   due to inept AI. Weigh the efficacy of your tools against the new, additional
   work they make for you by using them.

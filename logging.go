@@ -20,7 +20,7 @@ type DM struct {
 
 // execute the chain
 // no cap
-func (yo *Rizz) FRFR() (s string) {
+func (yo Rizz) FRFR() (s string) {
 	if len(yo.DMs) == 0 {
 		log.Error("no messages to print cuh")
 		return ""
@@ -39,7 +39,7 @@ func (yo *Rizz) FRFR() (s string) {
 // add a color and string manually to the message slice
 // always gotta end it with .FRFR()
 // check out this mad drip
-func (yo *Rizz) GlowUp(dm DM) (r *Rizz) {
+func (yo Rizz) GlowUp(dm DM) (r Rizz) {
 	yo.DMs = append(yo.DMs, DM{dm.Color, dm.Message})
 	return yo
 }
@@ -47,7 +47,7 @@ func (yo *Rizz) GlowUp(dm DM) (r *Rizz) {
 // green
 // always gotta end it with .FRFR()
 // We did it, Reddit
-func (yo *Rizz) Bet(finna ...any) (r *Rizz) {
+func (yo Rizz) Bet(finna ...any) (r Rizz) {
 	if len(finna) == 1 {
 		// Simple message
 		yo.DMs = append(yo.DMs, DM{*color.New(color.FgGreen), finna[0].(string)})
@@ -61,7 +61,7 @@ func (yo *Rizz) Bet(finna ...any) (r *Rizz) {
 // magenta
 // always gotta end it with .FRFR()
 // ngl, but
-func (yo *Rizz) FYI(finna ...any) (r *Rizz) {
+func (yo Rizz) FYI(finna ...any) (r Rizz) {
 	if len(finna) == 1 {
 		// Simple message
 		yo.DMs = append(yo.DMs, DM{*color.New(color.FgMagenta), finna[0].(string)})
@@ -75,7 +75,7 @@ func (yo *Rizz) FYI(finna ...any) (r *Rizz) {
 // cyan
 // always gotta end it with .FRFR()
 // yoooooo
-func (yo *Rizz) Hmm(finna ...any) (r *Rizz) {
+func (yo Rizz) Hmm(finna ...any) (r Rizz) {
 	if len(finna) == 1 {
 		// Simple message
 		yo.DMs = append(yo.DMs, DM{*color.New(color.FgCyan), finna[0].(string)})
@@ -89,7 +89,7 @@ func (yo *Rizz) Hmm(finna ...any) (r *Rizz) {
 // yellow
 // always gotta end it with .FRFR()
 // cringe
-func (yo *Rizz) Uhh(finna ...any) (r *Rizz) {
+func (yo Rizz) Uhh(finna ...any) (r Rizz) {
 	if len(finna) == 1 {
 		// Simple message
 		yo.DMs = append(yo.DMs, DM{*color.New(color.FgYellow), finna[0].(string)})
@@ -103,7 +103,7 @@ func (yo *Rizz) Uhh(finna ...any) (r *Rizz) {
 // grey
 // always gotta end it with .FRFR()
 // check it,
-func (yo *Rizz) INFODUMP(finna ...any) (r *Rizz) {
+func (yo Rizz) INFODUMP(finna ...any) (r Rizz) {
 	darkGrey := *color.RGB(90, 90, 90)
 	if len(finna) == 1 {
 		// Simple message
@@ -118,7 +118,7 @@ func (yo *Rizz) INFODUMP(finna ...any) (r *Rizz) {
 // bold+italic
 // always gotta end it with .FRFR()
 // check out the rizz fam
-func (yo *Rizz) BTW(finna ...any) (r *Rizz) {
+func (yo Rizz) BTW(finna ...any) (r Rizz) {
 	bio := color.New(color.Bold, color.Italic)
 	if len(finna) == 1 {
 		// Simple message
