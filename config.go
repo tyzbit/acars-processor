@@ -51,7 +51,8 @@ type Config struct {
 		// Force whether or not color output is used
 		ColorOutput bool `json:",omitempty" jsonschema:"default=true" default:"true"`
 		// Whether or not to use a SQLite database to save messages
-		SaveMessages bool `json:",omitempty" jsonschema:"default=false" default:"false"`
+		SaveMessages       bool   `json:",omitempty" jsonschema:"default=false" default:"false"`
+		SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
 		// Set logging verbosity.
 		LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
 		// ACARSHub connection settings.

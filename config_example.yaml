@@ -13,6 +13,7 @@ ACARSProcessorSettings:
       Port: 15555
   ColorOutput: true
   LogLevel: info
+  SQLiteDatabasePath: ./messages.db
 Annotators:
   ACARS:
     Enabled: true

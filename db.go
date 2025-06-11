@@ -35,6 +35,10 @@ func LoadSavedMessages() error {
 
 	if !config.ACARSProcessorSettings.SaveMessages {
 		sqlitePath = "file::memory:?cache=shared"
+	} else {
+		if config.ACARSProcessorSettings.SQLiteDatabasePath != "" {
+			sqlitePath = config.ACARSProcessorSettings.SQLiteDatabasePath
+		}
 	}
 	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{Logger: logConfig})
 
