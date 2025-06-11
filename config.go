@@ -47,23 +47,26 @@ func LoadConfig() {
 // Main configuration for acars-processor. Have fun!
 type Config struct {
 	// These control acars-processor
-	ACARSProcessorSettings struct {
-		// Force whether or not color output is used
-		ColorOutput bool `json:",omitempty" jsonschema:"default=true" default:"true"`
-		// Whether or not to use a SQLite database to save messages
-		SaveMessages       bool   `json:",omitempty" jsonschema:"default=false" default:"false"`
-		SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
-		// Set logging verbosity.
-		LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
-		// ACARSHub connection settings.
-		ACARSHub ACARSHubConfig `jsonschema:"required"`
-	} `jsonschema:"required"`
+	ACARSProcessorSettings ACARSProcessorSettings `jsonschema:"required"`
 	// Services that receive raw ACARS/VDLM2 messages and return more information, usually after a lookup or additional processing.
 	Annotators AnnotatorsConfig
 	// Filter messages out before being processed.
 	Filters FiltersConfig
 	// After messages are filtered and annotated, they're sent to all configured receivers. One example is Discord Webhooks, which allow you to post messages to a channel in Discord.
 	Receivers ReceiversConfig
+}
+
+type ACARSProcessorSettings struct {
+	// Force whether or not color output is used.
+	ColorOutput bool `json:",omitempty" jsonschema:"default=true" default:"true"`
+	// Whether or not to use a SQLite database to save messages.
+	SaveMessages bool `json:",omitempty" jsonschema:"default=false" default:"false"`
+	// Path to the database. If an empty string (""), database will be in-memory only.
+	SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
+	// Set logging verbosity.
+	LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
+	// ACARSHub connection settings.
+	ACARSHub ACARSHubConfig `jsonschema:"required"`
 }
 
 type ACARSHubConfig struct {
