@@ -49,12 +49,12 @@ func LoadSavedMessages() error {
 	if err != nil {
 		return err
 	}
-	tx := db.Begin()
 	// ACARS
 	am := []ACARSMessage{}
-	if err := tx.AutoMigrate(ACARSMessage{}); err != nil {
+	if err := db.AutoMigrate(ACARSMessage{}); err != nil {
 		log.Fatal(yo.Uhh("Unable to automigrate ACARSMessage type: %s", err).FRFR())
 	}
+	db.Find(&am)
 	for _, a := range am {
 		ACARSMessageQueue <- a.ID
 	}
@@ -64,16 +64,15 @@ func LoadSavedMessages() error {
 
 	// VDLM2
 	vm := []VDLM2Message{}
-	if err := tx.AutoMigrate(VDLM2Message{}); err != nil {
+	if err := db.AutoMigrate(VDLM2Message{}); err != nil {
 		log.Fatal(yo.Uhh("Unable to automigrate VDLM2Message type: %s", err).FRFR())
 	}
-	tx.Find(&vm)
+	db.Find(&vm)
 	for _, v := range vm {
 		VDLM2MessageQueue <- v.ID
 	}
 	if save {
 		log.Info(yo.FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
 	}
-	tx.Commit()
 	return nil
 }
