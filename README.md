@@ -2,11 +2,12 @@
 
 A simple daemon that, in order:
 
-1.  Listens to ACARS/VDLM2 messages from ACARSHub
-2.  Filters them according to various criteria from various providers
-3.  Hydrates them with additional data via external lookups from various
+1.  Listens to ACARS/VDLM2 messages from ACARSHub,
+    optionally saving them to resume or review.
+3.  Filters them according to various criteria from various providers
+4.  Hydrates them with additional data via external lookups from various
     providers
-4.  Submits the message to a specified receiver such as a Discord webhook
+5.  Submits the message to a specified receiver such as a Discord webhook
     or others.
 
 Configuration is done with `config.yaml` and there is a schema to help you
@@ -57,12 +58,13 @@ goes wrong), **by default they do not filter the message**.
 ### General Configuration
 
 Check `config_example.yaml` for all possible settings and illustrative values.
-you can duplicate it to `config.yaml` and edit it or copy it but only keep the
+You can duplicate it to `config.yaml` and edit it or copy it but only keep the
 first line. This will let you auto-complete the file if your editor supports it.
 
-you can use environment variables (`${apikey}`) and they will be substituted
-from the environment before the app starts. It's highly recommended to quote
-your values in case substitution fails so you don't chase misleading errors.
+You can use environment variables (`${apikey}`) in the config and they will
+be substituted from the environment before the app starts. It's highly 
+recommended to quote your values in case substitution fails so you don't
+chase misleading errors.
 
 ### A Note on Using Large Language Models for Filters
 
