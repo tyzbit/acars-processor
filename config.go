@@ -67,7 +67,7 @@ type ACARSProcessorSettings struct {
 	SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
 	// Set logging verbosity.
 	LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
-	// Whether to refrain from printing timestamps in logs
+	// Whether to refrain from printing timestamps in logs.
 	LogHideTimestamps bool `json:",omitempty" jsonschema:"default=false" default:"false"`
 	// ACARSHub connection settings.
 	ACARSHub ACARSHubConfig `jsonschema:"required"`
