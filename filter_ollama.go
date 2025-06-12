@@ -91,9 +91,9 @@ type OllamaFilterResult struct {
 // Return true if a message passes a filter, false otherwise
 func OllamaFilter(m string) bool {
 	log.Debug(
-		yo.FYI("submitting message ending in ").
+		yo.FYI("submitting message ending in \"").
 			Hmm(Last20Characters(m)).
-			FYI(" for filtering with Ollama").FRFR())
+			FYI("\" for filtering with Ollama").FRFR())
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
 		log.Debug(yo.FYI("message was blank, filtering without calling Ollama").FRFR())

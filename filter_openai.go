@@ -38,9 +38,9 @@ type OpenAIResponse struct {
 // Return true if a message passes a filter, false otherwise
 func OpenAIFilter(m string) bool {
 	log.Debug(
-		yo.FYI("submitting message ending in ").
+		yo.FYI("submitting message ending in \"").
 			Hmm(Last20Characters(m)).
-			FYI(" for filtering with OpenAI").FRFR())
+			FYI("\" for filtering with OpenAI").FRFR())
 
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
