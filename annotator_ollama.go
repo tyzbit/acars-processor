@@ -110,9 +110,6 @@ func (o OllamaAnnotatorHandler) DefaultFields() []string {
 	for field := range o.AnnotateACARSMessage(ACARSMessage{}) {
 		fields = append(fields, field)
 	}
-	for field := range o.AnnotateVDLM2Message(VDLM2Message{}) {
-		fields = append(fields, field)
-	}
 	slices.Sort(fields)
 	return fields
 }
