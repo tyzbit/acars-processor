@@ -67,10 +67,7 @@ Annotators:
       Value: 512
     SelectedFields:
     - OllamaEditActions
-    - OllamaEditActions
     - OllamaProcessedText
-    - OllamaProcessedText
-    - OllamaQuestion
     - OllamaQuestion
     SystemPrompt: Answer like a pirate
     Timeout: 5
