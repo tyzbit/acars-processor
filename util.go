@@ -99,7 +99,9 @@ func SanitizeJSONString(s string) string {
 }
 
 func Last20Characters(s string) string {
+	// Remove newlines and trim leading spaces
 	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.TrimLeft(s, " ")
 	if len(s) <= 20 {
 		return s
 	}
