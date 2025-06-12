@@ -2,6 +2,9 @@ package main
 
 import (
 	"regexp"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type ACARSCriteriaFilter struct {
@@ -71,6 +74,12 @@ func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []st
 	for _, filter := range enabledFilters {
 		if !ACARSFilterFunctions[filter](m) {
 			ok = false
+			log.Debug(
+				yo.FYI("message ending in ").
+					Hmm(Last20Characters(m.MessageText)).
+					FYI("took ").
+					Hmm(time.Since(m.CreatedAt).String()).
+					FYI("to filter with %s after ingest", filter).FRFR())
 			db.Delete(&m)
 			failedFilters = append(failedFilters, filter)
 		}
