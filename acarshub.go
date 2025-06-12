@@ -156,6 +156,13 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 		if !ok {
 			fd := strings.Join(filters, ",")
 			log.Info(yo.FYI("message was filtered out by %s", fd).FRFR())
+			log.Debug(
+				yo.FYI("message ending in ").
+					Hmm(Last20Characters(message.MessageText)).
+					FYI(" took ").
+					Hmm(time.Since(message.CreatedAt).String()).
+					FYI(" to filter after ingest").FRFR())
+			db.Delete(&message)
 			continue
 		}
 		// Annotate the message via all enabled annotators
@@ -211,6 +218,13 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 		ok, filters := VDLM2CriteriaFilter{}.Filter(message)
 		if !ok {
 			log.Info(yo.FYI("message was filtered out by %s", strings.Join(filters, ",")).FRFR())
+			log.Debug(
+				yo.FYI("message ending in ").
+					Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
+					FYI(" took ").
+					Hmm(time.Since(message.CreatedAt).String()).
+					FYI(" to filter after ingest").FRFR())
+			db.Delete(&message)
 			continue
 		}
 		// Annotate the message via all enabled annotators

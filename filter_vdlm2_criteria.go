@@ -2,9 +2,6 @@ package main
 
 import (
 	"regexp"
-	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type VDLM2CriteriaFilter struct {
@@ -72,13 +69,6 @@ func (f VDLM2CriteriaFilter) Filter(m VDLM2Message) (ok bool, failedFilters []st
 	for _, filter := range enabledFilters {
 		if !VDLM2FilterFunctions[filter](m) {
 			ok = false
-			log.Debug(
-				yo.FYI("message ending in ").
-					Hmm(Last20Characters(m.VDL2.AVLC.ACARS.MessageText)).
-					FYI(" took ").
-					Hmm(time.Since(m.CreatedAt).String()).
-					FYI(" to filter with %s after ingest", filter).FRFR())
-			db.Delete(&m)
 			failedFilters = append(failedFilters, filter)
 		}
 	}
