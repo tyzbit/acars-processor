@@ -10,8 +10,9 @@ import (
 
 func ConfigureLogging() {
 	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp: true,
-		ForceColors:   config.ACARSProcessorSettings.ColorOutput,
+		FullTimestamp:    true,
+		ForceColors:      config.ACARSProcessorSettings.ColorOutput,
+		DisableTimestamp: config.ACARSProcessorSettings.LogHideTimestamps,
 	})
 	loglevel := strings.ToLower(config.ACARSProcessorSettings.LogLevel)
 	switch loglevel {
@@ -59,12 +60,15 @@ type Config struct {
 type ACARSProcessorSettings struct {
 	// Force whether or not color output is used.
 	ColorOutput bool `json:",omitempty" jsonschema:"default=true" default:"true"`
+
 	// Whether or not to use a SQLite database to save messages.
 	SaveMessages bool `json:",omitempty" jsonschema:"default=false" default:"false"`
 	// Path to the database. If an empty string (""), database will be in-memory only.
 	SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
 	// Set logging verbosity.
 	LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
+	// Whether to refrain from printing timestamps in logs
+	LogHideTimestamps bool `json:",omitempty" jsonschema:"default=false" default:"false"`
 	// ACARSHub connection settings.
 	ACARSHub ACARSHubConfig `jsonschema:"required"`
 }
