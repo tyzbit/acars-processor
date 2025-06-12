@@ -99,6 +99,7 @@ func SanitizeJSONString(s string) string {
 }
 
 func Last20Characters(s string) string {
+	s = strings.ReplaceAll(s, "\n", " ")
 	if len(s) <= 20 {
 		return s
 	}
