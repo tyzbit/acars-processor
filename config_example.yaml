@@ -66,12 +66,12 @@ Annotators:
     - Name: num_predict
       Value: 512
     SelectedFields:
-    - ollamaEditActions
-    - ollamaEditActions
-    - ollamaProcessedText
-    - ollamaProcessedText
-    - ollamaQuestion
-    - ollamaQuestion
+    - OllamaEditActions
+    - OllamaEditActions
+    - OllamaProcessedText
+    - OllamaProcessedText
+    - OllamaQuestion
+    - OllamaQuestion
     SystemPrompt: Answer like a pirate
     Timeout: 5
     URL: http://ollama-service:11434

@@ -75,9 +75,9 @@ var OllamaFilterResponseRequestedFormat = OllamaFilterResponseFormat{
 // Return true if a message passes a filter, false otherwise
 func OllamaFilter(m string) bool {
 	log.Debug(
-		yo.FYI("filtering message ending in ").
+		yo.FYI("submitting message ending in ").
 			Hmm(Last20Characters(m)).
-			FYI(" with Ollama", Last20Characters(m)).FRFR())
+			FYI(" for filtering with Ollama").FRFR())
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
 		log.Debug(yo.FYI("message was blank, filtering without calling Ollama").FRFR())
