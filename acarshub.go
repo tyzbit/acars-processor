@@ -187,7 +187,7 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 				Hmm(Last20Characters(message.MessageText)).
 				FYI(" took ").
 				Hmm(time.Since(message.CreatedAt).String()).
-				FYI("to process from ingest").FRFR())
+				FYI(" to process from ingest").FRFR())
 		db.Delete(&message)
 	}
 }
@@ -241,7 +241,7 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 				Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
 				FYI(" took ").
 				Hmm(time.Since(message.CreatedAt).String()).
-				FYI("to process after ingest").FRFR())
+				FYI(" to process after ingest").FRFR())
 		db.Delete(&message)
 	}
 }
