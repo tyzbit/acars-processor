@@ -77,7 +77,7 @@ func (f ACARSCriteriaFilter) Filter(m ACARSMessage) (ok bool, failedFilters []st
 			log.Debug(
 				yo.FYI("message ending in ").
 					Hmm(Last20Characters(m.MessageText)).
-					FYI("took ").
+					FYI(" took ").
 					Hmm(time.Since(m.CreatedAt).String()).
 					FYI("to filter with %s after ingest", filter).FRFR())
 			db.Delete(&m)
