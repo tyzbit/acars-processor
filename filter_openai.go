@@ -37,6 +37,11 @@ type OpenAIResponse struct {
 
 // Return true if a message passes a filter, false otherwise
 func OpenAIFilter(m string) bool {
+	log.Debug(
+		yo.FYI("filtering message ending in ").
+			Hmm(Last20Characters(m)).
+			FYI(" with OpenAI", Last20Characters(m)).FRFR())
+
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
 		log.Info(yo.FYI("message was blank, filtering without calling OpenAI").FRFR())

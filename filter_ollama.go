@@ -74,13 +74,17 @@ var OllamaFilterResponseRequestedFormat = OllamaFilterResponseFormat{
 
 // Return true if a message passes a filter, false otherwise
 func OllamaFilter(m string) bool {
+	log.Debug(
+		yo.FYI("filtering message ending in ").
+			Hmm(Last20Characters(m)).
+			FYI(" with Ollama", Last20Characters(m)).FRFR())
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
-		log.Debug(yo.FYI("message was blank, filtering without calling ollama").FRFR())
+		log.Debug(yo.FYI("message was blank, filtering without calling Ollama").FRFR())
 		return false
 	}
 	if config.Filters.Ollama.Model == "" || config.Filters.Ollama.UserPrompt == "" {
-		log.Warn(yo.Uhh("OllamaFilter model and prompt are required to use the ollama filter").FRFR())
+		log.Warn(yo.Uhh("OllamaFilter model and prompt are required to use the Ollama filter").FRFR())
 		return true
 	}
 	url, err := url.Parse(config.Filters.Ollama.URL)
@@ -113,7 +117,7 @@ func OllamaFilter(m string) bool {
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaFilterResponseRequestedFormat)
 	if err != nil {
-		log.Error(yo.Uhh("error setting ollama response format: %s", err).FRFR())
+		log.Error(yo.Uhh("error setting Ollama response format: %s", err).FRFR())
 		return true
 	}
 
@@ -149,7 +153,7 @@ func OllamaFilter(m string) bool {
 		content = SanitizeJSONString(content)
 		err = json.Unmarshal([]byte(content), &r)
 		if err != nil {
-			err = fmt.Errorf("%w, ollama full response: %s", err, resp.Response)
+			err = fmt.Errorf("%w, Ollama full response: %s", err, resp.Response)
 			return err
 		}
 		return nil
@@ -196,7 +200,7 @@ func OllamaFilter(m string) bool {
 	}
 
 	log.Info(
-		yo.FYI("ollama decision: ").
+		yo.FYI("Ollama decision: ").
 			GlowUp(action[r.MessageMatchesCriteria]).
 			FYI(" for message ending in \"").
 			Hmm(Last20Characters(m)).
