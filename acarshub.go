@@ -182,6 +182,12 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 				}
 			}
 		}
+		log.Debug(
+			yo.FYI("message ending in ").
+				Hmm(Last20Characters(message.MessageText)).
+				FYI("took ").
+				Hmm(time.Since(message.CreatedAt).String()).
+				FYI("to process from ingest").FRFR())
 		db.Delete(&message)
 	}
 }
@@ -230,6 +236,12 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 				}
 			}
 		}
+		log.Debug(
+			yo.FYI("message ending in ").
+				Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
+				FYI("took ").
+				Hmm(time.Since(message.CreatedAt).String()).
+				FYI("to process after ingest").FRFR())
 		db.Delete(&message)
 	}
 }
