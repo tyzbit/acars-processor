@@ -45,10 +45,10 @@ func LoadSavedMessages() error {
 		}
 	}
 	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{Logger: logConfig})
-
 	if err != nil {
 		return err
 	}
+
 	// ACARS
 	am := []ACARSMessage{}
 	if err := db.AutoMigrate(ACARSMessage{}); err != nil {
@@ -74,5 +74,11 @@ func LoadSavedMessages() error {
 	if save {
 		log.Info(yo.FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
 	}
+
+	// Ollama filter
+	if err = db.AutoMigrate(OllamaFilterResult{}); err != nil {
+		log.Fatal(yo.Uhh("Unable to automigrate Ollama filter type: %s", err).FRFR())
+	}
+
 	return nil
 }

@@ -13,6 +13,7 @@ import (
 	"github.com/fatih/color"
 	api "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 var (
@@ -72,6 +73,21 @@ var OllamaFilterResponseRequestedFormat = OllamaFilterResponseFormat{
 	Required: []string{"message_matches_criteria", "reasoning"},
 }
 
+type OllamaFilterRequest struct {
+	Model                               string
+	OllamaSystemPromptFirstInstructions string
+	OllamaUserPrompt                    string
+	OllamaSystemPromptFinalInstructions string
+	ACARSMessage                        string
+}
+
+type OllamaFilterResult struct {
+	gorm.Model
+	ACARSMessage         string
+	OllamaFilterRequest  `gorm:"embedded"`
+	OllamaFilterResponse `gorm:"embedded"`
+}
+
 // Return true if a message passes a filter, false otherwise
 func OllamaFilter(m string) bool {
 	log.Debug(
@@ -126,11 +142,12 @@ func OllamaFilter(m string) bool {
 		opts[opt.Name] = opt.Value
 	}
 
+	systemPrompt := OllamaFilterFirstInstructions + config.Filters.Ollama.UserPrompt +
+		OllamaFilterFinalInstructions
 	req := &api.GenerateRequest{
-		Model:  config.Filters.Ollama.Model,
-		Format: requestedFormatJson,
-		System: OllamaFilterFirstInstructions + config.Filters.Ollama.UserPrompt +
-			OllamaFilterFinalInstructions,
+		Model:   config.Filters.Ollama.Model,
+		Format:  requestedFormatJson,
+		System:  systemPrompt,
 		Stream:  &stream,
 		Prompt:  `Here is the message to evaluate:\n` + m,
 		Options: opts,
@@ -156,6 +173,18 @@ func OllamaFilter(m string) bool {
 			err = fmt.Errorf("%w, Ollama full response: %s", err, resp.Response)
 			return err
 		}
+		ofr := OllamaFilterResult{
+			ACARSMessage: m,
+			OllamaFilterRequest: OllamaFilterRequest{
+				Model:                               config.Filters.Ollama.Model,
+				OllamaSystemPromptFirstInstructions: OllamaFilterFirstInstructions,
+				OllamaUserPrompt:                    config.Filters.Ollama.UserPrompt,
+				OllamaSystemPromptFinalInstructions: OllamaFilterFinalInstructions,
+				ACARSMessage:                        m,
+			},
+			OllamaFilterResponse: r,
+		}
+		db.Create(&ofr)
 		return nil
 	}
 
