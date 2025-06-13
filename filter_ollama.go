@@ -114,9 +114,6 @@ func OllamaFilter(m string) bool {
 		return true
 	}
 
-	if config.Filters.Ollama.MaxPredictionTokens != 0 {
-		OllamaFilterMaxPredictionTokens = config.Filters.Ollama.MaxPredictionTokens
-	}
 	if config.Filters.Ollama.SystemPrompt != "" {
 		OllamaFilterFirstInstructions = config.Filters.Ollama.SystemPrompt
 	}

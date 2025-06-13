@@ -58,7 +58,6 @@ Annotators:
   Ollama:
     Enabled: true
     FilterWithQuestion: true
-    MaxPredictionTokens: 512
     MaxRetryAttempts: 5
     MaxRetryDelaySeconds: 5
     Model: llama3.2

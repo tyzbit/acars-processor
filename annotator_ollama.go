@@ -39,10 +39,9 @@ var (
 
 	Return the processed text in the 'processed_text' field.
 	`
-	OllamaAnnotatorTimeout             = 120
-	OllamaAnnotatorMaxPredictionTokens = 512
-	OllamaAnnotatorMaxRetryAttempts    = 6
-	OllamaAnnotatorRetryDelaySeconds   = 5
+	OllamaAnnotatorTimeout           = 120
+	OllamaAnnotatorMaxRetryAttempts  = 6
+	OllamaAnnotatorRetryDelaySeconds = 5
 )
 
 type OllamaAnnotatorResponse struct {
@@ -144,9 +143,6 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		return
 	}
 
-	if config.Annotators.Ollama.MaxPredictionTokens != 0 {
-		OllamaAnnotatorMaxPredictionTokens = config.Annotators.Ollama.MaxPredictionTokens
-	}
 	if config.Annotators.Ollama.SystemPrompt != "" {
 		OllamaAnnotatorFirstInstructions = config.Annotators.Ollama.SystemPrompt
 	}

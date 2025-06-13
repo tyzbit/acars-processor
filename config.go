@@ -156,8 +156,6 @@ type OllamaCommonConfig struct {
 	URL string `jsonschema:"required,example=http://ollama-service:11434" default:"http://ollama-service:11434"`
 	// Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
 	SystemPrompt string `default:"Answer like a pirate"`
-	// Maximum number of tokens to include in the answer. Lower values restrict response length but too low may clip the valid response short.
-	MaxPredictionTokens int `default:"512"`
 	// Maximum number of retries to make against the Ollama URL.
 	MaxRetryAttempts int `default:"5"`
 	// How long to wait before retrying the Ollama API.
