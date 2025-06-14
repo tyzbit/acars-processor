@@ -161,8 +161,10 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 				yo.FYI("message ending in \"").
 					Hmm(Last20Characters(message.MessageText)).
 					FYI("\" took ").
+					Hmm(time.Since(message.ProcessingStartedAt).String()).
+					FYI(" to process and was ingested ").
 					Hmm(time.Since(message.CreatedAt).String()).
-					FYI(" to filter after ingest").FRFR())
+					FYI(" ago").FRFR())
 			db.Delete(&message)
 			continue
 		}
@@ -226,8 +228,10 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 				yo.FYI("message ending in \"").
 					Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
 					FYI("\" took ").
+					Hmm(time.Since(message.ProcessingStartedAt).String()).
+					FYI(" to process and was ingested ").
 					Hmm(time.Since(message.CreatedAt).String()).
-					FYI(" to filter after ingest").FRFR())
+					FYI(" ago").FRFR())
 			db.Delete(&message)
 			continue
 		}
