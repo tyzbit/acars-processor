@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"slices"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -47,12 +48,13 @@ func (a ACARSAnnotatorHandler) DefaultFields() []string {
 // This is the format ACARSHub sends for ACARS messages
 type ACARSMessage struct {
 	gorm.Model
-	FrequencyMHz float64 `json:"freq"`
-	Channel      int     `json:"channel"`
-	ErrorCode    int     `json:"error"`
-	SignaldBm    float64 `json:"level"`
-	Timestamp    float64 `json:"timestamp"`
-	App          struct {
+	ProcessingStartedAt time.Time
+	FrequencyMHz        float64 `json:"freq"`
+	Channel             int     `json:"channel"`
+	ErrorCode           int     `json:"error"`
+	SignaldBm           float64 `json:"level"`
+	Timestamp           float64 `json:"timestamp"`
+	App                 struct {
 		Name               string `json:"name"`
 		Version            string `json:"version"`
 		Proxied            bool   `json:"proxied"`

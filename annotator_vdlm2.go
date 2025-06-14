@@ -3,6 +3,7 @@ package main
 import (
 	"slices"
 	"strings"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -46,7 +47,8 @@ func (v VDLM2AnnotatorHandler) DefaultFields() []string {
 // This is the format ACARSHub sends
 type VDLM2Message struct {
 	gorm.Model
-	VDL2 struct {
+	ProcessingStartedAt time.Time
+	VDL2                struct {
 		App struct {
 			gorm.Model
 			Name               string `json:"name"`

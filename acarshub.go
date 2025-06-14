@@ -151,6 +151,7 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 		if (message.CreatedAt == time.Time{}) {
 			log.Error(yo.Uhh("couldn't find message with id %d", id))
 		}
+		message.ProcessingStartedAt = time.Now()
 		annotations := map[string]any{}
 		ok, filters := ACARSCriteriaFilter{}.Filter(message)
 		if !ok {
@@ -193,8 +194,10 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 			yo.FYI("message ending in \"").
 				Hmm(Last20Characters(message.MessageText)).
 				FYI("\" took ").
+				Hmm(time.Since(message.ProcessingStartedAt).String()).
+				FYI(" to process and was ingested ").
 				Hmm(time.Since(message.CreatedAt).String()).
-				FYI(" to process from ingest").FRFR())
+				FYI(" ago").FRFR())
 		db.Delete(&message)
 	}
 }
@@ -214,6 +217,7 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 		if (message.CreatedAt == time.Time{}) {
 			log.Error(yo.Uhh("couldn't find message with id %d", id))
 		}
+		message.ProcessingStartedAt = time.Now()
 		annotations := map[string]any{}
 		ok, filters := VDLM2CriteriaFilter{}.Filter(message)
 		if !ok {
@@ -254,8 +258,10 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 			yo.FYI("message ending in \"").
 				Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
 				FYI("\" took ").
+				Hmm(time.Since(message.ProcessingStartedAt).String()).
+				FYI(" to process and was ingested ").
 				Hmm(time.Since(message.CreatedAt).String()).
-				FYI(" to process after ingest").FRFR())
+				FYI(" ago").FRFR())
 		db.Delete(&message)
 	}
 }
