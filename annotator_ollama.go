@@ -209,13 +209,14 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
 			return &RetriableError{
-				Err: fmt.Errorf("error using OllamaAnnotator: %s", err)}
+				Err:        fmt.Errorf("error using OllamaAnnotator: %s", err),
+				RetryAfter: time.Duration(OllamaAnnotatorRetryDelaySeconds) * time.Second,
+			}
 		}
 		return nil
 	},
 		retry.Attempts(uint(OllamaAnnotatorMaxRetryAttempts)),
 		retry.DelayType(retry.BackOffDelay),
-		retry.Delay(time.Second*time.Duration(config.Annotators.Ollama.MaxRetryDelaySeconds)),
 		retry.OnRetry(func(n uint, err error) {
 			log.Error(yo.Uhh("OllamaAnnotator attempt #%d failed: %v", n+1, err).FRFR())
 		}),
