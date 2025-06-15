@@ -161,10 +161,9 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 				yo.FYI("message ending in \"").
 					Hmm(Last20Characters(message.MessageText)).
 					FYI("\" took ").
-					Hmm(time.Since(message.ProcessingStartedAt).String()).
+					Hmm("%s seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 					FYI(" to process and was ingested ").
-					Hmm(time.Since(message.CreatedAt).String()).
-					FYI(" ago").FRFR())
+					Hmm("%s seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
 			db.Delete(&message)
 			continue
 		}
@@ -196,10 +195,9 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 			yo.FYI("message ending in \"").
 				Hmm(Last20Characters(message.MessageText)).
 				FYI("\" took ").
-				Hmm(time.Since(message.ProcessingStartedAt).String()).
+				Hmm("%s seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 				FYI(" to process and was ingested ").
-				Hmm(time.Since(message.CreatedAt).String()).
-				FYI(" ago").FRFR())
+				Hmm("%s seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
 		db.Delete(&message)
 	}
 }
@@ -228,10 +226,9 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 				yo.FYI("message ending in \"").
 					Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
 					FYI("\" took ").
-					Hmm(time.Since(message.ProcessingStartedAt).String()).
+					Hmm("%s seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 					FYI(" to process and was ingested ").
-					Hmm(time.Since(message.CreatedAt).String()).
-					FYI(" ago").FRFR())
+					Hmm("%s seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
 			db.Delete(&message)
 			continue
 		}
@@ -262,10 +259,9 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 			yo.FYI("message ending in \"").
 				Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
 				FYI("\" took ").
-				Hmm(time.Since(message.ProcessingStartedAt).String()).
+				Hmm("%s seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 				FYI(" to process and was ingested ").
-				Hmm(time.Since(message.CreatedAt).String()).
-				FYI(" ago").FRFR())
+				Hmm("%s seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
 		db.Delete(&message)
 	}
 }
