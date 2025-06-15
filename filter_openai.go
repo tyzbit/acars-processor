@@ -110,11 +110,11 @@ func OpenAIFilter(m string) bool {
 		},
 	}
 	log.Info(
-		yo.FYI("openai decision: ").
+		yo.FYI("OpenAI decision: ").
 			GlowUp(action[decision]).
-			FYI("message ending in: ").
+			FYI(" for message ending in: \"").
 			Hmm(Last20Characters(m)).
-			FYI(", reasoning:").
-			INFODUMP(r.Reasoning).FRFR())
+			FYI("\", reasoning: ").
+			BTW(r.Reasoning).FRFR())
 	return decision
 }
