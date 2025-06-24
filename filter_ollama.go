@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	OllamaFilterFirstInstructions = `you are an AI that is an expert at logical 
+	OllamaFilterFirstInstructions = `You are an AI that is an expert at logical 
 	reasoning. you will be provided criteria and then a communication message. 
 	you will use your skills and any examples provided to evaluate determine 
 	if the message positively matches the provided criteria. 
