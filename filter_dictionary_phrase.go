@@ -31,9 +31,9 @@ func LongestDictionaryWordPhraseLength(messageText string) (wc int64) {
 	}
 
 	wc = int64(len(maxConsecutiveWordSlice))
-	log.Debug(yo.INFODUMP("message had %d consecutive dictionary words in it", wc))
+	log.Debug(yo.INFODUMP("message had %d consecutive dictionary words in it", wc).FRFR())
 	if wc > 0 {
-		log.Debug(yo.INFODUMP("longest dictionary word phrase found: %s", strings.Join(maxConsecutiveWordSlice, " ")))
+		log.Debug(yo.INFODUMP("longest dictionary word phrase found: %s", strings.Join(maxConsecutiveWordSlice, " ")).FRFR())
 	}
 	return wc
 }

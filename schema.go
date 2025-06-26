@@ -24,7 +24,7 @@ var (
 func (ACARSAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for acars annotator config type"))
+		log.Error(yo.Uhh("couldn't get selectedfields for acars annotator config type").FRFR())
 		return
 	}
 	a := ACARSAnnotatorHandler{}
@@ -40,7 +40,7 @@ func (ACARSAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (VDLM2AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for vdlm2 annotator config type"))
+		log.Error(yo.Uhh("couldn't get selectedfields for vdlm2 annotator config type").FRFR())
 		return
 	}
 	a := VDLM2AnnotatorHandler{}
@@ -56,7 +56,7 @@ func (VDLM2AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (OllamaAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for ollama annotator config type"))
+		log.Error(yo.Uhh("couldn't get selectedfields for ollama annotator config type").FRFR())
 		return
 	}
 	a := OllamaAnnotatorHandler{}
@@ -77,7 +77,7 @@ func (OllamaAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (Tar1090AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for tar1090 annotator config type"))
+		log.Error(yo.Uhh("couldn't get selectedfields for tar1090 annotator config type").FRFR())
 		return
 	}
 	a := Tar1090AnnotatorHandler{}
@@ -98,7 +98,7 @@ func (Tar1090AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (ADSBExchangeAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for vdlm2 annotator config type"))
+		log.Error(yo.Uhh("couldn't get selectedfields for vdlm2 annotator config type").FRFR())
 		return
 	}
 	a := ADSBAnnotatorHandler{}

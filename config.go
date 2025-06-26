@@ -15,16 +15,9 @@ func ConfigureLogging() {
 		DisableTimestamp: config.ACARSProcessorSettings.LogHideTimestamps,
 	})
 	loglevel := strings.ToLower(config.ACARSProcessorSettings.LogLevel)
-	switch loglevel {
-	case "debug":
-		log.SetLevel(log.DebugLevel)
-	case "info":
-		log.SetLevel(log.InfoLevel)
-	case "warn":
-		log.SetLevel(log.WarnLevel)
-	case "error":
-		log.SetLevel(log.ErrorLevel)
-	default:
+	if l, err := log.ParseLevel(loglevel); err == nil {
+		log.SetLevel(l)
+	} else {
 		log.SetLevel(log.InfoLevel)
 	}
 }

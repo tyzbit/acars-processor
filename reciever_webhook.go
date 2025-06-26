@@ -52,6 +52,6 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 	}
 	defer resp.Body.Close()
 
-	log.Debug(yo.INFODUMP("webhook returned: %s", string(body)))
+	log.Debug(yo.INFODUMP("webhook returned: %s", string(body)).FRFR())
 	return nil
 }

@@ -107,7 +107,7 @@ func (a ADSBAnnotatorHandler) SingleAircraftPositionByRegistration(reg string) (
 	log.Debug(yo.INFODUMP("making call to ads-b exchange").FRFR())
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error(yo.Uhh(err))
+		log.Error(yo.Uhh(err).FRFR())
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)

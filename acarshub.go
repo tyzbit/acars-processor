@@ -149,7 +149,7 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 		// Find that message
 		db.Where(&message).Find(&message)
 		if (message.CreatedAt == time.Time{}) {
-			log.Error(yo.Uhh("couldn't find message with id %d", id))
+			log.Error(yo.Uhh("couldn't find message with id %d", id).FRFR())
 		}
 		message.ProcessingStartedAt = time.Now()
 		annotations := map[string]any{}
@@ -215,7 +215,7 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 		// Find that message
 		db.Where(&message).Find(&message)
 		if (message.CreatedAt == time.Time{}) {
-			log.Error(yo.Uhh("couldn't find message with id %d", id))
+			log.Error(yo.Uhh("couldn't find message with id %d", id).FRFR())
 		}
 		message.ProcessingStartedAt = time.Now()
 		annotations := map[string]any{}

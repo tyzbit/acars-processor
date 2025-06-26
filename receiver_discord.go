@@ -105,7 +105,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	}
 
 	if response := string(body); response != "" {
-		log.Debug(yo.INFODUMP("discord api returned: %s", response))
+		log.Debug(yo.INFODUMP("discord api returned: %s", response).FRFR())
 	}
 	return err
 }

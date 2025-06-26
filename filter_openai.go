@@ -95,7 +95,7 @@ func OpenAIFilter(m string) bool {
 
 	if err != nil {
 		log.Warn(yo.Uhh("error unmarshaling response from OpenAI: %s", err).FRFR())
-		log.Debug(yo.INFODUMP("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content))
+		log.Debug(yo.INFODUMP("OpenAI full response: %s", chatCompletion.Choices[0].Message.Content).FRFR())
 		return true
 	}
 	decision := r.MessageMatches == "true" || r.MessageMatches == true

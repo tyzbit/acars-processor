@@ -14,7 +14,7 @@ func ConfigureAnnotators() {
 	if config.Annotators.ADSBExchange.Enabled {
 		log.Info(yo.Bet("ADSB annotator enabled").FRFR())
 		if config.Annotators.ADSBExchange.APIKey == "" {
-			log.Error(yo.Uhh("ADSB API key not set"))
+			log.Error(yo.Uhh("ADSB API key not set").FRFR())
 		}
 		enabledACARSAnnotators = append(enabledACARSAnnotators, ADSBAnnotatorHandler{})
 	}
