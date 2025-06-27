@@ -164,7 +164,7 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 					Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 					FYI(" to process and was ingested ").
 					Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
-			db.Delete(&message)
+			db.Where(&message).Delete(&message)
 			continue
 		}
 		// Annotate the message via all enabled annotators
@@ -198,7 +198,7 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 				Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 				FYI(" to process and was ingested ").
 				Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
-		db.Delete(&message)
+		db.Where(&message).Delete(&message)
 	}
 }
 
@@ -229,7 +229,7 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 					Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 					FYI(" to process and was ingested ").
 					Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
-			db.Delete(&message)
+			db.Where(&message).Delete(&message)
 			continue
 		}
 		// Annotate the message via all enabled annotators
@@ -262,6 +262,6 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 				Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
 				FYI(" to process and was ingested ").
 				Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
-		db.Delete(&message)
+		db.Where(&message).Delete(&message)
 	}
 }

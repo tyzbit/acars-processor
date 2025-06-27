@@ -69,7 +69,7 @@ type ACARSProcessorDatabaseConfig struct {
 	// Type of database to use
 	Type string `json:"" jsonschema:"example=sqlite,example=mariadb" default:"sqlite"`
 	// Connection string (if using an external database)
-	ConnectionString string `json:",omitempty" jsonschema:"example=user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local" default:"user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"`
+	ConnectionString string `json:",omitempty" jsonschema:"example=user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local # mariadb,example=host=localhost user=acarsproc password=acarspass dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Shanghai # postgres" default:"user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"`
 	// Path to the database file (if using SQLITE). If set to an empty string (""), database will be in-memory only.
 	SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
 }

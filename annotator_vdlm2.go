@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"gorm.io/gorm"
 )
 
@@ -73,18 +74,18 @@ type VDLM2Message struct {
 			SSequence int  `json:"sseq"`
 			Poll      bool `json:"poll"`
 			ACARS     struct {
-				Error                 bool   `json:"err"`
-				CRCOK                 bool   `json:"crc_ok"`
-				More                  bool   `json:"more"`
-				Registration          string `json:"reg"`
-				Mode                  string `json:"mode"`
-				Label                 string `json:"label"`
-				BlockID               string `json:"blk_id"`
-				Acknowledge           any    `json:"ack" gorm:"type:string"`
-				FlightNumber          string `json:"flight"`
-				MessageNumber         string `json:"msg_num"`
-				MessageNumberSequence string `json:"msg_num_seq"`
-				MessageText           string `json:"msg_text"`
+				Error                 bool        `json:"err"`
+				CRCOK                 bool        `json:"crc_ok"`
+				More                  bool        `json:"more"`
+				Registration          string      `json:"reg"`
+				Mode                  string      `json:"mode"`
+				Label                 string      `json:"label"`
+				BlockID               string      `json:"blk_id"`
+				Acknowledge           Acknowledge `json:"ack" gorm:"type:string"`
+				FlightNumber          string      `json:"flight"`
+				MessageNumber         string      `json:"msg_num"`
+				MessageNumberSequence string      `json:"msg_num_seq"`
+				MessageText           string      `json:"msg_text"`
 			} `json:"acars" gorm:"embedded"`
 		} `json:"avlc" gorm:"embedded"`
 		BurstLengthOctets    int     `json:"burst_len_octets"`
@@ -101,6 +102,20 @@ type VDLM2Message struct {
 			Microseconds  int `json:"usec"`
 		} `json:"t" gorm:"embedded"`
 	} `json:"vdl2" gorm:"embedded"`
+}
+
+// https://stackoverflow.com/questions/77332325/how-to-pass-a-custom-type-value-to-pgx-query-in-go
+type Acknowledge struct {
+	string
+}
+
+func (a Acknowledge) ScanText(v pgtype.Text) error {
+	return nil
+}
+
+func (a Acknowledge) TextValue(v pgtype.Text) (t pgtype.Text, err error) {
+	t, err = v.TextValue()
+	return t, err
 }
 
 // Interface function to satisfy ACARSHandler

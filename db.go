@@ -9,6 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -56,11 +57,24 @@ func InitMariaDB() (err error) {
 	return err
 }
 
+func InitPostgresDB() (err error) {
+	dsn := config.ACARSProcessorSettings.Database.ConnectionString
+	if dsn == "" {
+		return errors.New("postgres specified but connection string is not set")
+	}
+	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	return err
+}
+
 func LoadSavedMessages() error {
 	switch config.ACARSProcessorSettings.Database.Type {
 	case "mariadb":
 		if err := InitMariaDB(); err != nil {
 			log.Fatal(yo.Uhh("unable to initialize mariadb, err: %s", err).FRFR())
+		}
+	case "postgres":
+		if err := InitPostgresDB(); err != nil {
+			log.Fatal(yo.Uhh("unable to initialize postgres, err: %s", err).FRFR())
 		}
 		// SQLite is used as a DB library even if we're not saving messages.
 	default:
