@@ -73,14 +73,16 @@ func LoadSavedMessages() error {
 	}
 
 	switch config.ACARSProcessorSettings.Database.Type {
-	case "sqlite":
-		if err := InitSQLite(logConfig); err != nil {
-			log.Fatal(yo.Uhh("unable to initialize sqlite, err: %s", err).FRFR())
-		}
 	case "mariadb":
 		if err := InitMariaDB(logConfig); err != nil {
 			log.Fatal(yo.Uhh("unable to initialize mariadb, err: %s", err).FRFR())
 		}
+	// SQLite is used as a DB library even if we're not saving messages.
+	default:
+		if err := InitSQLite(logConfig); err != nil {
+			log.Fatal(yo.Uhh("unable to initialize sqlite, err: %s", err).FRFR())
+		}
+
 	}
 
 	// ACARS
