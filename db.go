@@ -43,16 +43,8 @@ func InitSQLite(l logger.Interface) (err error) {
 
 func InitMariaDB(l logger.Interface) (err error) {
 	dsn := config.ACARSProcessorSettings.Database.ConnectionString
-	if !config.ACARSProcessorSettings.Database.Enabled {
-		if err = InitSQLite(l); err != nil {
-			return err
-		}
-	} else {
-		p := config.ACARSProcessorSettings.Database.SQLiteDatabasePath
-		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
-		if p != "" {
-			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
-		}
+	if dsn == "" {
+		return errors.New("mariadb specified but connection string is not set")
 	}
 	u, err := url.Parse(dsn)
 	if err != nil {
