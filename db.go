@@ -47,7 +47,7 @@ func InitMariaDB() (err error) {
 	}
 	u, err := url.Parse(dsn)
 	if err != nil {
-		log.Panic(yo.Uhh("unable to parse mariadb connection string: %s", err))
+		log.Panic(yo.Uhh("unable to parse mariadb connection string: %s", err).FRFR())
 	}
 	q := u.Query()
 	q.Set("parseTime", "True")
