@@ -11,14 +11,13 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var (
 	sqlitePath = "./messages.db"
 )
 
-func InitSQLite(l logger.Interface) (err error) {
+func InitSQLite() (err error) {
 	// Create the folder path if it doesn't exist
 	_, err = os.Stat(sqlitePath)
 	if errors.Is(err, fs.ErrNotExist) {
@@ -37,11 +36,11 @@ func InitSQLite(l logger.Interface) (err error) {
 		}
 		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
 	}
-	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{Logger: l})
+	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{})
 	return err
 }
 
-func InitMariaDB(l logger.Interface) (err error) {
+func InitMariaDB() (err error) {
 	dsn := config.ACARSProcessorSettings.Database.ConnectionString
 	if dsn == "" {
 		return errors.New("mariadb specified but connection string is not set")
@@ -53,25 +52,19 @@ func InitMariaDB(l logger.Interface) (err error) {
 	q := u.Query()
 	q.Set("parseTime", "True")
 	u.RawQuery = q.Encode()
-	db, err = gorm.Open(mysql.Open(u.String()), &gorm.Config{Logger: l})
+	db, err = gorm.Open(mysql.Open(u.String()), &gorm.Config{})
 	return err
 }
 
 func LoadSavedMessages() error {
-	// Increase verbosity of the database if the loglevel is higher than Info
-	var logConfig logger.Interface
-	if log.GetLevel() == log.DebugLevel {
-		logConfig = logger.Default.LogMode(logger.Info)
-	}
-
 	switch config.ACARSProcessorSettings.Database.Type {
 	case "mariadb":
-		if err := InitMariaDB(logConfig); err != nil {
+		if err := InitMariaDB(); err != nil {
 			log.Fatal(yo.Uhh("unable to initialize mariadb, err: %s", err).FRFR())
 		}
 	// SQLite is used as a DB library even if we're not saving messages.
 	default:
-		if err := InitSQLite(logConfig); err != nil {
+		if err := InitSQLite(); err != nil {
 			log.Fatal(yo.Uhh("unable to initialize sqlite, err: %s", err).FRFR())
 		}
 	}

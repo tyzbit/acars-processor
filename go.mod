@@ -16,6 +16,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/words v0.0.0-20181116223016-6463671b7759
 	gomodules.xyz/envsubst v0.2.0
+	gorm.io/driver/mysql v1.6.0
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.30.0
 )
@@ -42,5 +43,4 @@ require (
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.6.0 // indirect
 )
