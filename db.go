@@ -3,10 +3,12 @@ package main
 import (
 	"errors"
 	"io/fs"
+	"net/url"
 	"os"
 	"path/filepath"
 
 	log "github.com/sirupsen/logrus"
+	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -16,6 +18,53 @@ var (
 	sqlitePath = "./messages.db"
 )
 
+func InitSQLite(l logger.Interface) (err error) {
+	// Create the folder path if it doesn't exist
+	_, err = os.Stat(sqlitePath)
+	if errors.Is(err, fs.ErrNotExist) {
+		dirPath := filepath.Dir(sqlitePath)
+		if err := os.MkdirAll(dirPath, 0660); err != nil {
+			return err
+		}
+	}
+	if !config.ACARSProcessorSettings.Database.Enabled {
+		log.Info(yo.FYI("Database is not enabled").FRFR())
+		sqlitePath = "file::memory:?cache=shared"
+	} else {
+		p := config.ACARSProcessorSettings.Database.SQLiteDatabasePath
+		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
+		if p != "" {
+			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
+		}
+	}
+	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{Logger: l})
+	return err
+}
+
+func InitMariaDB(l logger.Interface) (err error) {
+	dsn := config.ACARSProcessorSettings.Database.ConnectionString
+	if !config.ACARSProcessorSettings.Database.Enabled {
+		if err = InitSQLite(l); err != nil {
+			return err
+		}
+	} else {
+		p := config.ACARSProcessorSettings.Database.SQLiteDatabasePath
+		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
+		if p != "" {
+			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
+		}
+	}
+	u, err := url.Parse(dsn)
+	if err != nil {
+		log.Panic(yo.Uhh("unable to parse mariadb connection string: %s", err))
+	}
+	q := u.Query()
+	q.Set("parseTime", "True")
+	u.RawQuery = q.Encode()
+	db, err = gorm.Open(mysql.Open(u.String()), &gorm.Config{Logger: l})
+	return err
+}
+
 func LoadSavedMessages() error {
 	// Increase verbosity of the database if the loglevel is higher than Info
 	var logConfig logger.Interface
@@ -23,30 +72,15 @@ func LoadSavedMessages() error {
 		logConfig = logger.Default.LogMode(logger.Info)
 	}
 
-	// Create the folder path if it doesn't exist
-	var err error
-	_, err = os.Stat(sqlitePath)
-	if errors.Is(err, fs.ErrNotExist) {
-		dirPath := filepath.Dir(sqlitePath)
-		if err := os.MkdirAll(dirPath, 0660); err != nil {
-			log.Error(yo.Uhh("unable to make directory path %s, err: %w", dirPath, err).FRFR())
+	switch config.ACARSProcessorSettings.Database.Type {
+	case "sqlite":
+		if err := InitSQLite(logConfig); err != nil {
+			log.Fatal(yo.Uhh("unable to initialize sqlite, err: %s", err).FRFR())
 		}
-	}
-
-	save := config.ACARSProcessorSettings.SaveMessages
-	if !save {
-		log.Info(yo.FYI("Database is not enabled").FRFR())
-		sqlitePath = "file::memory:?cache=shared"
-	} else {
-		p := config.ACARSProcessorSettings.SQLiteDatabasePath
-		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
-		if p != "" {
-			sqlitePath = config.ACARSProcessorSettings.SQLiteDatabasePath
+	case "mariadb":
+		if err := InitMariaDB(logConfig); err != nil {
+			log.Fatal(yo.Uhh("unable to initialize mariadb, err: %s", err).FRFR())
 		}
-	}
-	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{Logger: logConfig})
-	if err != nil {
-		return err
 	}
 
 	// ACARS
@@ -58,7 +92,7 @@ func LoadSavedMessages() error {
 	for _, a := range am {
 		ACARSMessageQueue <- a.ID
 	}
-	if save {
+	if config.ACARSProcessorSettings.Database.Enabled {
 		log.Info(yo.FYI("Loaded %d ACARS messages from the db", len(am)).FRFR())
 	}
 
@@ -71,12 +105,12 @@ func LoadSavedMessages() error {
 	for _, v := range vm {
 		VDLM2MessageQueue <- v.ID
 	}
-	if save {
+	if config.ACARSProcessorSettings.Database.Enabled {
 		log.Info(yo.FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
 	}
 
 	// Ollama filter
-	if err = db.AutoMigrate(OllamaFilterResult{}); err != nil {
+	if err := db.AutoMigrate(OllamaFilterResult{}); err != nil {
 		log.Fatal(yo.Uhh("Unable to automigrate Ollama filter type: %s", err).FRFR())
 	}
 

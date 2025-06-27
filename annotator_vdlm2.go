@@ -50,7 +50,6 @@ type VDLM2Message struct {
 	ProcessingStartedAt time.Time
 	VDL2                struct {
 		App struct {
-			gorm.Model
 			Name               string `json:"name"`
 			Version            string `json:"ver"`
 			Proxied            bool   `json:"proxied"`

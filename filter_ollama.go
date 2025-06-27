@@ -167,7 +167,7 @@ func OllamaFilter(m string) bool {
 		content = SanitizeJSONString(content)
 		err = json.Unmarshal([]byte(content), &r)
 		if err != nil {
-			err = fmt.Errorf("%w, Ollama full response: %s", err, resp.Response)
+			err = fmt.Errorf("%s, Ollama full response: %s", err, resp.Response)
 			return err
 		}
 		ofr := OllamaFilterResult{
