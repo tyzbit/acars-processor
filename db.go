@@ -31,11 +31,11 @@ func InitSQLite(l logger.Interface) (err error) {
 		log.Info(yo.FYI("Database is not enabled").FRFR())
 		sqlitePath = "file::memory:?cache=shared"
 	} else {
-		p := config.ACARSProcessorSettings.Database.SQLiteDatabasePath
-		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
+		p := sqlitePath
 		if p != "" {
 			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
 		}
+		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
 	}
 	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{Logger: l})
 	return err
@@ -82,7 +82,6 @@ func LoadSavedMessages() error {
 		if err := InitSQLite(logConfig); err != nil {
 			log.Fatal(yo.Uhh("unable to initialize sqlite, err: %s", err).FRFR())
 		}
-
 	}
 
 	// ACARS
