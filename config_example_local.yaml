@@ -5,7 +5,11 @@
 ACARSProcessorSettings:
   ColorOutput: true
   LogLevel: info
-  SaveMessages: false
+  Database:
+    Enabled: true
+    ConnectionString: user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
+    SQLiteDatabasePath: ./messages.db
+    Type: mariadb
   ACARSHub:
     ACARS:
       Host: acarshub

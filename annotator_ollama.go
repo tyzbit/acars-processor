@@ -196,7 +196,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		err = json.Unmarshal([]byte(content), &r)
 		log.Debug(yo.INFODUMP("Ollama annotator done reason: %s, response: %s", resp.DoneReason, resp.Response).FRFR())
 		if err != nil {
-			err = fmt.Errorf("%w, Ollama full response: %s", err, resp.Response)
+			err = fmt.Errorf("%s, Ollama full response: %s", err, resp.Response)
 			return err
 		}
 		return nil

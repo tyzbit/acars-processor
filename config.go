@@ -53,17 +53,25 @@ type Config struct {
 type ACARSProcessorSettings struct {
 	// Force whether or not color output is used.
 	ColorOutput bool `json:",omitempty" jsonschema:"default=true" default:"true"`
-
-	// Whether or not to use a SQLite database to save messages.
-	SaveMessages bool `json:",omitempty" jsonschema:"default=false" default:"false"`
-	// Path to the database. If an empty string (""), database will be in-memory only.
-	SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
+	// Database configuration
+	Database ACARSProcessorDatabaseConfig `json:",omitempty"`
 	// Set logging verbosity.
 	LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
 	// Whether to refrain from printing timestamps in logs.
 	LogHideTimestamps bool `json:",omitempty" jsonschema:"default=false" default:"false"`
 	// ACARSHub connection settings.
 	ACARSHub ACARSHubConfig `jsonschema:"required"`
+}
+
+type ACARSProcessorDatabaseConfig struct {
+	// Whether or not to use a database to save messages.
+	Enabled bool `json:",omitempty" jsonschema:"default=false" default:"false"`
+	// Type of database to use
+	Type string `json:"" jsonschema:"example=sqlite,example=mariadb" default:"sqlite"`
+	// Connection string (if using an external database)
+	ConnectionString string `json:",omitempty" jsonschema:"example=user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local" default:"user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local"`
+	// Path to the database file (if using SQLITE). If set to an empty string (""), database will be in-memory only.
+	SQLiteDatabasePath string `json:",omitempty" jsonschema:"default=./messages.db" default:"./messages.db"`
 }
 
 type ACARSHubConfig struct {
