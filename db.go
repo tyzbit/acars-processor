@@ -68,7 +68,7 @@ func InitMariaDB(l logger.Interface) (err error) {
 func LoadSavedMessages() error {
 	// Increase verbosity of the database if the loglevel is higher than Info
 	var logConfig logger.Interface
-	if log.GetLevel() < log.DebugLevel {
+	if log.GetLevel() == log.DebugLevel {
 		logConfig = logger.Default.LogMode(logger.Info)
 	}
 
