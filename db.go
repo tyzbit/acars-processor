@@ -34,7 +34,7 @@ func InitSQLite() (err error) {
 		if p != "" {
 			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
 		}
-		log.Info(yo.Bet("Database is enabled at path %s", p).FRFR())
+		log.Info(yo.Bet("Database path set to %s", p).FRFR())
 	}
 	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{})
 	return err
@@ -62,12 +62,13 @@ func LoadSavedMessages() error {
 		if err := InitMariaDB(); err != nil {
 			log.Fatal(yo.Uhh("unable to initialize mariadb, err: %s", err).FRFR())
 		}
-	// SQLite is used as a DB library even if we're not saving messages.
+		// SQLite is used as a DB library even if we're not saving messages.
 	default:
 		if err := InitSQLite(); err != nil {
 			log.Fatal(yo.Uhh("unable to initialize sqlite, err: %s", err).FRFR())
 		}
 	}
+	log.Info(yo.FYI("%s database initialized", config.ACARSProcessorSettings.Database.Type).FRFR())
 
 	// ACARS
 	am := []ACARSMessage{}
