@@ -68,10 +68,13 @@ chase misleading errors.
 
 ### A Note on Using Large Language Models for Filters
 
-OpenAI's gpt3.5 and higher do well with the system prompt. With OllamaFilter,
+OpenAI's `gpt3.5` and higher do well with the system prompt. With OllamaFilter,
 the model you choose will greatly impact the quality of the filtering.
-I recommend `gemma3:4b`. It uses about 8GB at runtime but is similar in
-effectiveness to OpenAI's models.
+If self-hosting, I recommend `qwen3:30b-a3b` if your system has enough VRAM.
+It is a Mixture-of-Experts model that selectively loads parameters into memory
+which allows you to use more parameters with less runtime memory used. In my
+testing, it outperforms every model tested: `gpt-4o`, `gpt-4o-mini`, `gemma3`, 
+and `llama3.2`.
 
 If you're not seeing great results out of your model, be verbose, explicit and
 include examples of what you want to see and not see. you can also try
@@ -82,6 +85,12 @@ object from the response, it'll log what it got from the model at a
 reduce `FILTER_OLLAMA_MAX_PREDICTION_TOKENS` and/or increase
 `ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER` as well as review your OllamaFilter
 configuration for improvements (such as number of parallel requests)
+
+If you use the database functionality you can review the `ollama_filter` table
+for false positives and negatives to improve your prompt. Remember that LLMs do
+not comprehend what they're doing, so they'll never complete a task perfectly
+all the time. You should be able to get >99% efficacy with a low amount of
+effort writing your prompt however.
 
 #### Webhooks
 
