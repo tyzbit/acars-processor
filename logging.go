@@ -8,6 +8,9 @@ import (
 
 // Render n strings using c color, returning a string with color escape sequences
 func ColorSprintf(c color.Color, n ...any) (rs string) {
+	if config.ACARSProcessorSettings.ColorOutput {
+		c.EnableColor()
+	}
 	if len(n) == 1 {
 		// Simple message
 		return c.Sprint(n[0].(string)) + color.New(color.Reset).Sprint("")
