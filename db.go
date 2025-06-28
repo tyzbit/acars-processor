@@ -57,9 +57,6 @@ func InitMariaDB() (err error) {
 }
 
 func LoadSavedMessages() error {
-	if !config.ACARSProcessorSettings.Database.Enabled {
-		return nil
-	}
 	switch config.ACARSProcessorSettings.Database.Type {
 	case "mariadb":
 		if err := InitMariaDB(); err != nil {
@@ -71,7 +68,9 @@ func LoadSavedMessages() error {
 			log.Fatal(Attention("unable to initialize sqlite, err: %s", err))
 		}
 	}
-	log.Info(Content("%s database initialized", config.ACARSProcessorSettings.Database.Type))
+	if config.ACARSProcessorSettings.Database.Enabled {
+		log.Info(Content("%s database initialized", config.ACARSProcessorSettings.Database.Type))
+	}
 
 	// ACARS
 	am := []ACARSMessage{}
