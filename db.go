@@ -27,14 +27,14 @@ func InitSQLite() (err error) {
 		}
 	}
 	if !config.ACARSProcessorSettings.Database.Enabled {
-		log.Info(yo.FYI("Database is not enabled").FRFR())
+		log.Info(Content("Database is not enabled"))
 		sqlitePath = "file::memory:?cache=shared"
 	} else {
 		p := sqlitePath
 		if p != "" {
 			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
 		}
-		log.Info(yo.Bet("Database path set to %s", p).FRFR())
+		log.Info(Success("Database path set to %s", p))
 	}
 	db, err = gorm.Open(sqlite.Open(sqlitePath), &gorm.Config{})
 	return err
@@ -47,7 +47,7 @@ func InitMariaDB() (err error) {
 	}
 	u, err := url.Parse(dsn)
 	if err != nil {
-		log.Panic(yo.Uhh("unable to parse mariadb connection string: %s", err).FRFR())
+		log.Fatal(Attention("unable to parse mariadb connection string: %s", err))
 	}
 	q := u.Query()
 	q.Set("parseTime", "True")
@@ -60,45 +60,45 @@ func LoadSavedMessages() error {
 	switch config.ACARSProcessorSettings.Database.Type {
 	case "mariadb":
 		if err := InitMariaDB(); err != nil {
-			log.Fatal(yo.Uhh("unable to initialize mariadb, err: %s", err).FRFR())
+			log.Fatal(Attention("unable to initialize mariadb, err: %s", err))
 		}
 		// SQLite is used as a DB library even if we're not saving messages.
 	default:
 		if err := InitSQLite(); err != nil {
-			log.Fatal(yo.Uhh("unable to initialize sqlite, err: %s", err).FRFR())
+			log.Fatal(Attention("unable to initialize sqlite, err: %s", err))
 		}
 	}
-	log.Info(yo.FYI("%s database initialized", config.ACARSProcessorSettings.Database.Type).FRFR())
+	log.Info(Content("%s database initialized", config.ACARSProcessorSettings.Database.Type))
 
 	// ACARS
 	am := []ACARSMessage{}
 	if err := db.AutoMigrate(ACARSMessage{}); err != nil {
-		log.Fatal(yo.Uhh("Unable to automigrate ACARSMessage type: %s", err).FRFR())
+		log.Fatal(Attention("Unable to automigrate ACARSMessage type: %s", err))
 	}
 	db.Find(&am, ACARSMessage{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}})
 	for _, a := range am {
 		ACARSMessageQueue <- a.ID
 	}
 	if config.ACARSProcessorSettings.Database.Enabled {
-		log.Info(yo.FYI("Loaded %d ACARS messages from the db", len(am)).FRFR())
+		log.Info(Content("Loaded %d ACARS messages from the db", len(am)))
 	}
 
 	// VDLM2
 	vm := []VDLM2Message{}
 	if err := db.AutoMigrate(VDLM2Message{}); err != nil {
-		log.Fatal(yo.Uhh("Unable to automigrate VDLM2Message type: %s", err).FRFR())
+		log.Fatal(Attention("Unable to automigrate VDLM2Message type: %s", err))
 	}
 	db.Find(&vm, VDLM2Message{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}})
 	for _, v := range vm {
 		VDLM2MessageQueue <- v.ID
 	}
 	if config.ACARSProcessorSettings.Database.Enabled {
-		log.Info(yo.FYI("Loaded %d VDLM2 messages from the db", len(vm)).FRFR())
+		log.Info(Content("Loaded %d VDLM2 messages from the db", len(vm)))
 	}
 
 	// Ollama filter
 	if err := db.AutoMigrate(OllamaFilterResult{}); err != nil {
-		log.Fatal(yo.Uhh("Unable to automigrate Ollama filter type: %s", err).FRFR())
+		log.Fatal(Attention("Unable to automigrate Ollama filter type: %s", err))
 	}
 
 	return nil

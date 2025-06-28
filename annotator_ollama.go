@@ -35,7 +35,7 @@ var (
 	answer in the 'question' field. If you weren't asked a question,
 	return true in the 'question' field.
 
-	Note each action you took to process the text in 'edit_actions'.
+,Note each action you took to process the text in 'edit_actions'.
 
 	Return the processed text in the 'processed_text' field.
 	`
@@ -125,21 +125,21 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 	enabled := config.Annotators.Ollama.Enabled
 	// If message is blank, return
 	if enabled && (regexp.MustCompile(`^\s*$`).MatchString(m)) {
-		log.Debug(yo.INFODUMP("message was blank, not annotating with Ollama").FRFR())
+		log.Debug(Aside("message was blank, not annotating with Ollama"))
 		return
 	}
 	if enabled && config.Annotators.Ollama.Model == "" || enabled && config.Annotators.Ollama.UserPrompt == "" {
-		log.Warn(yo.Uhh("OllamaAnnotator model and prompt are required to use the Ollama annotator").FRFR())
+		log.Warn(Attention("OllamaAnnotator model and prompt are required to use the Ollama annotator"))
 		return
 	}
 	url, err := url.Parse(config.Annotators.Ollama.URL)
 	if enabled && err != nil {
-		log.Error(yo.Uhh("OllamaAnnotator url could not be parsed: %s", err).FRFR())
+		log.Error(Attention("OllamaAnnotator url could not be parsed: %s", err))
 		return
 	}
 	client := api.NewClient(url, &http.Client{})
 	if enabled && err != nil {
-		log.Error(yo.Uhh("error initializing OllamaAnnotator: %s", err).FRFR())
+		log.Error(Attention("error initializing OllamaAnnotator: %s", err))
 		return
 	}
 
@@ -159,7 +159,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaAnnotatorResponseRequestedFormat)
 	if err != nil {
-		log.Error(yo.Uhh("error setting Ollama response format: %s", err).FRFR())
+		log.Error(Attention("error setting Ollama response format: %s", err))
 		return
 	}
 
@@ -194,7 +194,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 
 		content = SanitizeJSONString(content)
 		err = json.Unmarshal([]byte(content), &r)
-		log.Debug(yo.INFODUMP("Ollama annotator done reason: %s, response: %s", resp.DoneReason, resp.Response).FRFR())
+		log.Debug(Aside("Ollama annotator done reason: %s, response: %s", resp.DoneReason, resp.Response))
 		if err != nil {
 			err = fmt.Errorf("%s, Ollama full response: %s", err, resp.Response)
 			return err
@@ -204,7 +204,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaAnnotatorTimeout)*time.Second)
 	defer cancel()
-	log.Debug(yo.INFODUMP("calling OllamaAnnotator, model ").Hmm(config.Annotators.Ollama.Model).FRFR())
+	log.Debug(Aside("calling OllamaAnnotator, model "), Note(config.Annotators.Ollama.Model))
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
@@ -218,19 +218,19 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		retry.Attempts(uint(OllamaAnnotatorMaxRetryAttempts)),
 		retry.DelayType(retry.BackOffDelay),
 		retry.OnRetry(func(n uint, err error) {
-			log.Error(yo.Uhh("OllamaAnnotator attempt #%d failed: %v", n+1, err).FRFR())
+			log.Error(Attention("OllamaAnnotator attempt #%d failed: %v", n+1, err))
 		}),
 	)
 
 	if config.Annotators.Ollama.FilterWithQuestion {
 		if !r.Question {
-			log.Info(yo.Hmm("Ollama annotation response did not qualify according to " +
+			log.Info(Note("Ollama annotation response did not qualify according to " +
 				"user requirements, not returning any output"))
 			return annotation
 		}
 	}
 	if enabled && r.ProcessedText == "" && len(r.EditActions) == 0 {
-		log.Info(yo.Uhh("Ollama annotator response was empty").FRFR())
+		log.Info(Attention("Ollama annotator response was empty"))
 	} else {
 		// Please update config example values if changed
 		annotation = Annotation{

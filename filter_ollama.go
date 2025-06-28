@@ -17,7 +17,7 @@ import (
 )
 
 var (
-	OllamaFilterFirstInstructions = `You are an AI that is an expert at logical 
+	OllamaFilterFirstInstructions = `You are an AI that is an expert at cal 
 	reasoning. you will be provided criteria and then a communication message. 
 	you will use your skills and any examples provided to evaluate determine 
 	if the message positively matches the provided criteria. 
@@ -90,27 +90,26 @@ type OllamaFilterResult struct {
 
 // Return true if a message passes a filter, false otherwise
 func OllamaFilter(m string) bool {
-	log.Debug(
-		yo.FYI("submitting message ending in \"").
-			Hmm(Last20Characters(m)).
-			FYI("\" for filtering with Ollama").FRFR())
+	log.Debug(Content("submitting message ending in \""),
+		Note(Last20Characters(m)),
+		Content("\" for filtering with Ollama"))
 	// If message is blank, return
 	if regexp.MustCompile(`^\s*$`).MatchString(m) {
-		log.Debug(yo.FYI("message was blank, filtering without calling Ollama").FRFR())
+		log.Debug(Content("message was blank, filtering without calling Ollama"))
 		return false
 	}
 	if config.Filters.Ollama.Model == "" || config.Filters.Ollama.UserPrompt == "" {
-		log.Warn(yo.Uhh("OllamaFilter model and prompt are required to use the Ollama filter").FRFR())
+		log.Warn(Attention("OllamaFilter model and prompt are required to use the Ollama filter"))
 		return true
 	}
 	url, err := url.Parse(config.Filters.Ollama.URL)
 	if err != nil {
-		log.Error(yo.Uhh("OllamaFilter url could not be parsed: %s", err).FRFR())
+		log.Error(Attention("OllamaFilter url could not be parsed: %s", err))
 		return true
 	}
 	client := api.NewClient(url, &http.Client{})
 	if err != nil {
-		log.Error(yo.Uhh("error initializing OllamaFilter: %s", err).FRFR())
+		log.Error(Attention("error initializing OllamaFilter: %s", err))
 		return true
 	}
 
@@ -130,7 +129,7 @@ func OllamaFilter(m string) bool {
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaFilterResponseRequestedFormat)
 	if err != nil {
-		log.Error(yo.Uhh("error setting Ollama response format: %s", err).FRFR())
+		log.Error(Attention("error setting Ollama response format: %s", err))
 		return true
 	}
 
@@ -187,7 +186,7 @@ func OllamaFilter(m string) bool {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaFilterTimeout)*time.Second)
 	defer cancel()
-	log.Debug(yo.FYI("calling OllamaFilter, model ").Hmm(config.Filters.Ollama.Model).FRFR())
+	log.Debug(Content("calling OllamaFilter, model "), Note(config.Filters.Ollama.Model))
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
@@ -201,35 +200,27 @@ func OllamaFilter(m string) bool {
 		retry.Attempts(uint(OllamaFilterMaxRetryAttempts)),
 		retry.DelayType(retry.BackOffDelay),
 		retry.OnRetry(func(n uint, err error) {
-			log.Error(yo.Uhh("OllamaFilter attempt #%d failed: %v", n+1, err).FRFR())
+			log.Error(Attention("OllamaFilter attempt #%d failed: %v", n+1, err))
 		}),
 	)
 
-	action := map[bool]DM{
-		true: {
-			Color:   *color.New(color.FgCyan),
-			Message: "allow",
-		},
-		false: {
-			Color:   *color.New(color.FgYellow),
-			Message: "filter",
-		},
+	action := map[bool]string{
+		true:  Custom(*color.New(color.FgCyan), "allow"),
+		false: Custom(*color.New(color.FgYellow), "filter"),
 	}
 
 	if err != nil {
-		log.Error(
-			yo.Uhh("too many failures calling OllamaFilter, giving up and ").
-				GlowUp(action[!config.Filters.Ollama.FilterOnFailure]).
-				Uhh("ing: %s", err).FRFR())
+		log.Error(Attention("too many failures calling OllamaFilter, giving up and "),
+			action[!config.Filters.Ollama.FilterOnFailure],
+			Attention("ing: %s", err))
 		return !config.Filters.Ollama.FilterOnFailure
 	}
 
-	log.Info(
-		yo.FYI("Ollama decision: ").
-			GlowUp(action[r.MessageMatchesCriteria]).
-			FYI(" for message ending in \"").
-			Hmm(Last20Characters(m)).
-			FYI("\", reasoning: ").
-			BTW(r.Reasoning).FRFR())
+	log.Info(Content("Ollama decision: "),
+		action[r.MessageMatchesCriteria],
+		Content(" for message ending in \""),
+		Note(Last20Characters(m)),
+		Content("\", reasoning: "),
+		Emphasised(r.Reasoning))
 	return r.MessageMatchesCriteria
 }

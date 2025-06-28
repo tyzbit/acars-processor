@@ -29,42 +29,40 @@ func ReadACARSHubACARSMessages() {
 
 	address := fmt.Sprintf("%s:%d", config.ACARSProcessorSettings.ACARSHub.ACARS.Host, config.ACARSProcessorSettings.ACARSHub.ACARS.Port)
 	for {
-		log.Debug(yo.INFODUMP("connecting to ").Hmm(config.ACARSProcessorSettings.ACARSHub.ACARS.Host).INFODUMP(" on acars json port ").Hmm(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.ACARS.Port)).FRFR())
+		log.Debug(Aside("connecting to "), Note(config.ACARSProcessorSettings.ACARSHub.ACARS.Host), Aside(" on acars json port "), Note(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.ACARS.Port)))
 		s, err := net.Dial("tcp", address)
 		if err != nil {
-			log.Error(yo.Uhh("error connecting to acars json: %v", err).FRFR())
+			log.Error(Attention("error connecting to acars json: %v", err))
 			time.Sleep(time.Second * 1)
 			continue
 		}
-		log.Info(yo.Bet("connected to acarshub acars json port successfully").FRFR())
+		log.Info(Success("connected to acarshub acars json port successfully"))
 		readJson := json.NewDecoder(io.Reader(s))
-		log.Debug(yo.INFODUMP("handling acars json messages").FRFR())
+		log.Debug(Aside("handling acars json messages"))
 		for {
 			var next ACARSMessage
 			if err := readJson.Decode(&next); err != nil {
 				// Might have connection issues, exit to reconnect
-				log.Error(yo.Uhh("error decoding acars message: %v", err).FRFR())
+				log.Error(Attention("error decoding acars message: %v", err))
 				break
 			}
-			log.Info(yo.FYI("new acars message received").FRFR())
+			log.Info(Content("new acars message received"))
 			if (next == ACARSMessage{}) {
-				log.Error(
-					yo.Uhh("json message did not match expected structure, we got: ").
-						BTW("%+v", next).FRFR(),
-				)
+				log.Error(Attention("json message did not match expected structure, we got: "),
+					Emphasised("%+v", next))
 				continue
 			} else {
 				queueLength := db.Find(&[]ACARSMessage{{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}}}).RowsAffected
-				log.Debug(yo.FYI("new acars message content ").
-					Hmm("(%d already in queue)", queueLength).
-					FYI(": ").INFODUMP("%+v", next).FRFR())
+				log.Debug(Content("new acars message content "),
+					Note("(%d already in queue)", queueLength),
+					Content(": "), Aside("%+v", next))
 				db.Create(&next)
 				ACARSMessageQueue <- next.ID
 				continue
 			}
 		}
 
-		log.Warn(yo.Uhh("acars handler exited, reconnecting").FRFR())
+		log.Warn(Attention("acars handler exited, reconnecting"))
 		s.Close()
 		time.Sleep(time.Second * 1)
 	}
@@ -80,39 +78,39 @@ func ReadACARSHubVDLM2Messages() {
 
 	address := fmt.Sprintf("%s:%d", config.ACARSProcessorSettings.ACARSHub.VDLM2.Host, config.ACARSProcessorSettings.ACARSHub.VDLM2.Port)
 	for {
-		log.Debug(yo.INFODUMP("connecting to ").Hmm(config.ACARSProcessorSettings.ACARSHub.VDLM2.Host).INFODUMP(" on vdlm2 json port ").Hmm(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.VDLM2.Port)).FRFR())
+		log.Debug(Aside("connecting to "), Note(config.ACARSProcessorSettings.ACARSHub.VDLM2.Host), Aside(" on vdlm2 json port "), Note(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.VDLM2.Port)))
 		s, err := net.Dial("tcp", address)
 		if err != nil {
-			log.Error(yo.Uhh("error connecting to vdlm2 json: %v", err).FRFR())
+			log.Error(Attention("error connecting to vdlm2 json: %v", err))
 			time.Sleep(time.Second * 1)
 			break
 		}
-		log.Info(yo.Bet("connected to acarshub vdlm2 json port successfully").FRFR())
+		log.Info(Success("connected to acarshub vdlm2 json port successfully"))
 		readJson := json.NewDecoder(io.Reader(s))
-		log.Debug(yo.INFODUMP("handling vdlm2 json messages").FRFR())
+		log.Debug(Aside("handling vdlm2 json messages"))
 		for {
 			var next VDLM2Message
 			if err := readJson.Decode(&next); err != nil {
 				// Might have connection issues, exit to reconnect
-				log.Error(yo.Uhh("error decoding vdlm2 message: %v", err).FRFR())
+				log.Error(Attention("error decoding vdlm2 message: %v", err))
 				break
 			}
-			log.Info(yo.FYI("new vdlm2 message received").FRFR())
+			log.Info(Content("new vdlm2 message received"))
 			if (next == VDLM2Message{}) {
-				log.Error(yo.Uhh("json message did not match expected structure, we got: %+v", next).FRFR())
+				log.Error(Attention("json message did not match expected structure, we got: %+v", next))
 				continue
 			} else {
 				queueLength := db.Find(&[]VDLM2Message{{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}}}).RowsAffected
-				log.Debug(yo.FYI("new vdlm2 message content ").
-					Hmm("(%d already in queue)", queueLength).
-					FYI(": ").INFODUMP("%+v", next).FRFR())
+				log.Debug(Content("new vdlm2 message content "),
+					Note("(%d already in queue)", queueLength),
+					Content(": "), Aside("%+v", next))
 				db.Create(&next)
 				VDLM2MessageQueue <- next.ID
 				continue
 			}
 		}
 
-		log.Warn(yo.Uhh("vdlm2 handler exited, reconnecting").FRFR())
+		log.Warn(Attention("vdlm2 handler exited, reconnecting"))
 		s.Close()
 		time.Sleep(time.Second * 1)
 	}
@@ -130,9 +128,9 @@ func SubscribeToACARSHub() {
 		launched = true
 	}
 	if !launched {
-		log.Warn(yo.Uhh("no acarshub subscribers set, please check configuration (%s).FRFR()", configFilePath))
+		log.Warn(Attention("no acarshub subscribers set, please check configuration (%s)()", configFilePath))
 	} else {
-		log.Debug(yo.INFODUMP("launched acarshub subscribers").FRFR())
+		log.Debug(Aside("launched acarshub subscribers"))
 	}
 }
 
@@ -149,27 +147,26 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 		// Find that message
 		db.Where(&message).Find(&message)
 		if (message.CreatedAt == time.Time{}) {
-			log.Error(yo.Uhh("couldn't find message with id %d", id).FRFR())
+			log.Error(Attention("couldn't find message with id %d", id))
 		}
 		message.ProcessingStartedAt = time.Now()
 		annotations := map[string]any{}
 		ok, filters := ACARSCriteriaFilter{}.Filter(message)
 		if !ok {
 			fd := strings.Join(filters, ",")
-			log.Info(yo.FYI("message was filtered out by %s", fd).FRFR())
-			log.Debug(
-				yo.FYI("message ending in \"").
-					Hmm(Last20Characters(message.MessageText)).
-					FYI("\" took ").
-					Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
-					FYI(" to process and was ingested ").
-					Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
+			log.Info(Content("message was filtered out by %s", fd))
+			log.Debug(Content("message ending in \""),
+				Note(Last20Characters(message.MessageText)),
+				Content("\" took "),
+				Note("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()),
+				Content(" to process and was ingested "),
+				Note("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()))
 			db.Delete(&message)
 			continue
 		}
 		// Annotate the message via all enabled annotators
 		for _, h := range enabledACARSAnnotators {
-			log.Debug(yo.FYI("annotating message with annotator").Hmm(" %s", h.Name()).FYI(": ").INFODUMP("%+v", message).FRFR())
+			log.Debug(Content("annotating message with annotator"), Note(" %s", h.Name()), Content(": "), Aside("%+v", message))
 			result := h.AnnotateACARSMessage(message)
 			if result != nil {
 				result = h.SelectFields(result)
@@ -177,27 +174,25 @@ func HandleACARSJSONMessages(ACARSMessageQueue chan uint) {
 			}
 		}
 		if len(annotations) == 0 {
-			log.Info(yo.Uhh("no annotations were produced, not calling any receivers").FRFR())
+			log.Info(Attention("no annotations were produced, not calling any receivers"))
 		} else {
 			for _, r := range enabledReceivers {
-				log.Debug(yo.FYI("sending acars event to reciever ").
-					Hmm(r.Name()).
-					FYI(": ").
-					INFODUMP("%+v", annotations).FRFR(),
-				)
+				log.Debug(Content("sending acars event to reciever "),
+					Note(r.Name()),
+					Content(": "),
+					Aside("%+v", annotations))
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
-					log.Error(yo.Uhh("error submitting to %s, err: %v", r.Name(), err).FRFR())
+					log.Error(Attention("error submitting to %s, err: %v", r.Name(), err))
 				}
 			}
 		}
-		log.Debug(
-			yo.FYI("message ending in \"").
-				Hmm(Last20Characters(message.MessageText)).
-				FYI("\" took ").
-				Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
-				FYI(" to process and was ingested ").
-				Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
+		log.Debug(Content("message ending in \""),
+			Note(Last20Characters(message.MessageText)),
+			Content("\" took "),
+			Note("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()),
+			Content(" to process and was ingested "),
+			Note("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()))
 		db.Delete(&message)
 	}
 }
@@ -215,26 +210,25 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 		// Find that message
 		db.Find(&message)
 		if (time.Time{}.Equal(message.CreatedAt)) {
-			log.Error(yo.Uhh("couldn't find message with id %d", id).FRFR())
+			log.Error(Attention("couldn't find message with id %d", id))
 		}
 		message.ProcessingStartedAt = time.Now()
 		annotations := map[string]any{}
 		ok, filters := VDLM2CriteriaFilter{}.Filter(message)
 		if !ok {
-			log.Info(yo.FYI("message was filtered out by %s", strings.Join(filters, ",")).FRFR())
-			log.Debug(
-				yo.FYI("message ending in \"").
-					Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
-					FYI("\" took ").
-					Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
-					FYI(" to process and was ingested ").
-					Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
+			log.Info(Content("message was filtered out by %s", strings.Join(filters, ",")))
+			log.Debug(Content("message ending in \""),
+				Note(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)),
+				Content("\" took "),
+				Note("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()),
+				Content(" to process and was ingested "),
+				Note("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()))
 			db.Delete(&message)
 			continue
 		}
 		// Annotate the message via all enabled annotators
 		for _, h := range enabledVDLM2Annotators {
-			log.Debug(yo.FYI("annotating message with annotator").Hmm(" %s", h.Name()).FYI(": ").INFODUMP("%+v", message).FRFR())
+			log.Debug(Content("annotating message with annotator"), Note(" %s", h.Name()), Content(": "), Aside("%+v", message))
 			result := h.AnnotateVDLM2Message(message)
 			if result != nil {
 				result = h.SelectFields(result)
@@ -242,26 +236,25 @@ func HandleVDLM2JSONMessages(VDLM2MessageQueue chan uint) {
 			}
 		}
 		if len(annotations) == 0 {
-			log.Info(yo.Uhh("no annotations were produced, not calling any receivers").FRFR())
+			log.Info(Attention("no annotations were produced, not calling any receivers"))
 		} else {
 			for _, r := range enabledReceivers {
-				log.Debug(yo.FYI("sending vdlm2 event to reciever ").
-					Hmm("%s", r.Name()).
-					FYI(": ").
-					INFODUMP("%+v", annotations).FRFR())
+				log.Debug(Content("sending vdlm2 event to reciever "),
+					Note("%s", r.Name()),
+					Content(": "),
+					Aside("%+v", annotations))
 				err := r.SubmitACARSAnnotations(annotations)
 				if err != nil {
-					log.Error(yo.Uhh("error submitting to %s, err: %v", r.Name(), err).FRFR())
+					log.Error(Attention("error submitting to %s, err: %v", r.Name(), err))
 				}
 			}
 		}
-		log.Debug(
-			yo.FYI("message ending in \"").
-				Hmm(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)).
-				FYI("\" took ").
-				Hmm("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()).
-				FYI(" to process and was ingested ").
-				Hmm("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()).FRFR())
+		log.Debug(Content("message ending in \""),
+			Note(Last20Characters(message.VDL2.AVLC.ACARS.MessageText)),
+			Content("\" took "),
+			Note("%.2f seconds", time.Since(message.ProcessingStartedAt).Seconds()),
+			Content(" to process and was ingested "),
+			Note("%.2f seconds ago", time.Since(message.CreatedAt).Seconds()))
 		db.Delete(&message)
 	}
 }

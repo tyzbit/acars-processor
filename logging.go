@@ -4,128 +4,53 @@ import (
 	"fmt"
 
 	"github.com/fatih/color"
-	log "github.com/sirupsen/logrus"
 )
 
-// Shorthand for colorizing output
-// Increases overall program rizz
-type Rizz struct {
-	DMs []DM
-}
-
-type DM struct {
-	Color   color.Color
-	Message string
-}
-
-// execute the chain
-// no cap
-func (yo Rizz) FRFR() (s string) {
-	if len(yo.DMs) == 0 {
-		log.Error("no messages to print cuh")
-		return ""
+// Render n strings using c color, returning a string with color escape sequences
+func ColorSprintf(c color.Color, n ...any) (rs string) {
+	if len(n) == 1 {
+		// Simple message
+		return c.Sprint(n[0].(string)) + color.New(color.Reset).Sprint("")
+	} else {
+		// Message with formatting
+		return c.Sprint(fmt.Sprintf(n[0].(string), n[1:]...)) +
+			color.New(color.Reset).Sprint("")
 	}
-	for _, dm := range yo.DMs {
-		if !config.ACARSProcessorSettings.ColorOutput {
-			dm.Color.DisableColor()
-		} else {
-			dm.Color.EnableColor()
-		}
-		s = s + dm.Color.Sprint(dm.Message) + color.New(color.Reset).Sprint("")
-	}
-	return s
-}
-
-// add a color and string manually to the message slice
-// always gotta end it with .FRFR()
-// check out this mad drip
-func (yo Rizz) GlowUp(dm DM) (r Rizz) {
-	yo.DMs = append(yo.DMs, DM{dm.Color, dm.Message})
-	return yo
 }
 
 // green
-// always gotta end it with .FRFR()
-// We did it, Reddit
-func (yo Rizz) Bet(finna ...any) (r Rizz) {
-	if len(finna) == 1 {
-		// Simple message
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgGreen), finna[0].(string)})
-	} else {
-		// Message with formatting
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgGreen), fmt.Sprintf(finna[0].(string), finna[1:]...)})
-	}
-	return yo
+func Success(s ...any) string {
+	return ColorSprintf(*color.New(color.FgGreen), s...)
 }
 
 // magenta
-// always gotta end it with .FRFR()
-// ngl, but
-func (yo Rizz) FYI(finna ...any) (r Rizz) {
-	if len(finna) == 1 {
-		// Simple message
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgMagenta), finna[0].(string)})
-	} else {
-		// Message with formatting
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgMagenta), fmt.Sprintf(finna[0].(string), finna[1:]...)})
-	}
-	return yo
+func Content(s ...any) string {
+	return ColorSprintf(*color.New(color.FgMagenta), s...)
 }
 
 // cyan
-// always gotta end it with .FRFR()
-// yoooooo
-func (yo Rizz) Hmm(finna ...any) (r Rizz) {
-	if len(finna) == 1 {
-		// Simple message
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgCyan), finna[0].(string)})
-	} else {
-		// Message with formatting
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgCyan), fmt.Sprintf(finna[0].(string), finna[1:]...)})
-	}
-	return yo
+func Note(s ...any) string {
+	return ColorSprintf(*color.New(color.FgCyan), s...)
 }
 
 // yellow
-// always gotta end it with .FRFR()
-// cringe
-func (yo Rizz) Uhh(finna ...any) (r Rizz) {
-	if len(finna) == 1 {
-		// Simple message
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgYellow), finna[0].(string)})
-	} else {
-		// Message with formatting
-		yo.DMs = append(yo.DMs, DM{*color.New(color.FgYellow), fmt.Sprintf(finna[0].(string), finna[1:]...)})
-	}
-	return yo
+func Attention(s ...any) string {
+	return ColorSprintf(*color.New(color.FgYellow), s...)
 }
 
 // grey
-// always gotta end it with .FRFR()
-// check it,
-func (yo Rizz) INFODUMP(finna ...any) (r Rizz) {
+func Aside(s ...any) string {
 	darkGrey := *color.RGB(90, 90, 90)
-	if len(finna) == 1 {
-		// Simple message
-		yo.DMs = append(yo.DMs, DM{darkGrey, finna[0].(string)})
-	} else {
-		// Message with formatting
-		yo.DMs = append(yo.DMs, DM{darkGrey, fmt.Sprintf(finna[0].(string), finna[1:]...)})
-	}
-	return yo
+	return ColorSprintf(darkGrey, s...)
 }
 
 // bold+italic
-// always gotta end it with .FRFR()
-// check out the rizz fam
-func (yo Rizz) BTW(finna ...any) (r Rizz) {
+func Emphasised(s ...any) string {
 	bio := color.New(color.Bold, color.Italic)
-	if len(finna) == 1 {
-		// Simple message
-		yo.DMs = append(yo.DMs, DM{*bio, finna[0].(string)})
-	} else {
-		// Message with formatting
-		yo.DMs = append(yo.DMs, DM{*bio, fmt.Sprintf(finna[0].(string), finna[1:]...)})
-	}
-	return yo
+	return ColorSprintf(*bio, s...)
+}
+
+// Custom
+func Custom(c color.Color, s ...any) string {
+	return ColorSprintf(c, s...)
 }

@@ -26,7 +26,7 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 		telemetry.ConfigAPIKey(config.Receivers.NewRelic.APIKey),
 	)
 	if err != nil {
-		log.Error(yo.Uhh("Error creating harvester:", err).FRFR())
+		log.Error(Attention("Error creating harvester:", err))
 	}
 
 	// Allow overriding the custom event type if set
@@ -47,7 +47,7 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 	}
 
 	// Flush events to New Relic. HarvestNow sends any recorded events immediately.
-	log.Info(yo.FYI("calling new relic").FRFR())
+	log.Info(Content("calling new relic"))
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	harvester.HarvestNow(ctx)

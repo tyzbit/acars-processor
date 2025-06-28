@@ -24,7 +24,7 @@ var (
 func (ACARSAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for acars annotator config type").FRFR())
+		log.Error(Attention("couldn't get selectedfields for acars annotator config type"))
 		return
 	}
 	a := ACARSAnnotatorHandler{}
@@ -40,7 +40,7 @@ func (ACARSAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (VDLM2AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for vdlm2 annotator config type").FRFR())
+		log.Error(Attention("couldn't get selectedfields for vdlm2 annotator config type"))
 		return
 	}
 	a := VDLM2AnnotatorHandler{}
@@ -56,7 +56,7 @@ func (VDLM2AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (OllamaAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for ollama annotator config type").FRFR())
+		log.Error(Attention("couldn't get selectedfields for ollama annotator config type"))
 		return
 	}
 	a := OllamaAnnotatorHandler{}
@@ -77,7 +77,7 @@ func (OllamaAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (Tar1090AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for tar1090 annotator config type").FRFR())
+		log.Error(Attention("couldn't get selectedfields for tar1090 annotator config type"))
 		return
 	}
 	a := Tar1090AnnotatorHandler{}
@@ -98,7 +98,7 @@ func (Tar1090AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (ADSBExchangeAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(yo.Uhh("couldn't get selectedfields for vdlm2 annotator config type").FRFR())
+		log.Error(Attention("couldn't get selectedfields for vdlm2 annotator config type"))
 		return
 	}
 	a := ADSBAnnotatorHandler{}
@@ -119,7 +119,7 @@ func (ADSBExchangeAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 
 func GenerateSchema(schemaPath string) {
 	var configUpdated, schemaUpdated bool
-	log.Info(yo.FYI("Generating schema").FRFR())
+	log.Info(Content("Generating schema"))
 	// Generate an example config
 	var defaultConfig Config
 	// We need to do this to set an example value since Options is a slice.
@@ -152,14 +152,14 @@ func GenerateSchema(schemaPath string) {
 	configYaml, err := yaml.Marshal(defaultConfig)
 	if err != nil {
 		// Squelch errors
-		log.Fatal(yo.Uhh("Error marshaling YAML:", err).FRFR())
+		log.Fatal(Attention("Error marshaling YAML:", err))
 	}
 	// Add the schema line so editors can use it
 	configYaml = append([]byte(schemaLine), configYaml...)
 	if UpdateFile(configExample, configYaml) {
 		configUpdated = true
 		log.SetLevel(log.InfoLevel)
-		log.Info(yo.Bet("Updated example config").FRFR())
+		log.Info(Success("Updated example config"))
 		log.SetLevel(log.FatalLevel)
 	}
 
@@ -167,7 +167,7 @@ func GenerateSchema(schemaPath string) {
 	r := new(jsonschema.Reflector)
 	err = r.AddGoComments("main", "./", jsonschema.WithFullComment())
 	if err != nil {
-		log.Fatal(yo.Uhh("unable to add comments to schema, %s", err).FRFR())
+		log.Fatal(Attention("unable to add comments to schema, %s", err))
 	}
 
 	// Now we generate the schema and save it
@@ -178,11 +178,11 @@ func GenerateSchema(schemaPath string) {
 	json, _ := schema.MarshalJSON()
 	if UpdateFile(fmt.Sprintf("./%s", schemaFilePath), json) {
 		schemaUpdated = true
-		log.Info(yo.Bet("Updated schema at %s", schemaFilePath).FRFR())
+		log.Info(Success("Updated schema at %s", schemaFilePath))
 	}
 	if configUpdated || schemaUpdated {
-		log.Info(yo.Hmm("Files were updated, so exiting with status of 100").FRFR())
+		log.Info(Note("Files were updated, so exiting with status of 100"))
 		os.Exit(100)
 	}
-	log.Info(yo.FYI("Schema and example config are up to date").FRFR())
+	log.Info(Content("Schema and example config are up to date"))
 }
