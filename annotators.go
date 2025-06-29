@@ -16,7 +16,7 @@ func ConfigureAnnotators() {
 		enabledACARSAnnotators = append(enabledACARSAnnotators, ADSBAnnotatorHandler{})
 	}
 	if config.Annotators.Tar1090.Enabled {
-		log.Info(Success("TAR1090 VDLM2 annotator enabled"))
+		log.Info(Success("TAR1090 ACARS annotator enabled"))
 		enabledACARSAnnotators = append(enabledACARSAnnotators, Tar1090AnnotatorHandler{})
 	}
 	if config.Annotators.Ollama.Enabled && config.ACARSProcessorSettings.ACARSHub.ACARS.Host != "" {
