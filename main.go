@@ -7,43 +7,49 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gorm.io/gorm"
+	acarshub "github.com/tyzbit/acars-processor/acarshub"
+	"github.com/tyzbit/acars-processor/annotator"
+	config "github.com/tyzbit/acars-processor/config"
+	"github.com/tyzbit/acars-processor/database"
+	. "github.com/tyzbit/acars-processor/decorate"
+	filter "github.com/tyzbit/acars-processor/filter"
+	"github.com/tyzbit/acars-processor/handler"
+	receiver "github.com/tyzbit/acars-processor/receiver"
 )
 
 var (
-	config                 = Config{}
-	db                     = new(gorm.DB)
-	configFilePath         = "config.yaml"
-	schemaFilePath         = "schema.json"
-	enabledACARSAnnotators = []ACARSAnnotator{}
-	enabledVDLM2Annotators = []VDLM2Annotator{}
-	enabledReceivers       = []Receiver{}
-	enabledFilters         = []string{}
+	schemaFilePath = "schema.json"
 )
 
 func main() {
 	var generateSchema bool
 	// flags declaration using flag package
-	flag.StringVar(&configFilePath, "c", configFilePath, "Config file path.")
+	flag.StringVar(&config.ConfigFilePath, "c", config.ConfigFilePath, "Config file path.")
 	flag.BoolVar(&generateSchema, "s", false, "Generate schema.json, then exit.")
 	flag.Parse()
 
 	// Generate schema only and then exit
 	if generateSchema {
-		GenerateSchema(schemaFilePath)
+		config.GenerateSchema(schemaFilePath)
 		return
 	}
 
-	LoadConfig()
-	ConfigureLogging()
-	if err := LoadSavedMessages(); err != nil {
+	if err := config.LoadConfig(); err != nil {
+		log.Fatalf("error loading config: %s", err)
+	}
+	config.ConfigureLogging()
+	if err := database.LoadSavedMessages(); err != nil {
 		log.Fatal(Attention("unable to initialize database: %s", err))
 	}
-	ConfigureAnnotators()
-	ConfigureReceivers()
-	ConfigureFilters()
+	// Migrate types native to these packages
+	acarshub.AutoMigrate()
+	filter.AutoMigrate()
+	annotator.ConfigureAnnotators()
+	receiver.ConfigureReceivers()
+	filter.ConfigureFilters()
 
-	go SubscribeToACARSHub()
+	go handler.HandleACARSHub()
+	go acarshub.SubscribeToACARSHub()
 
 	// Listen for signals from the OS
 	sc := make(chan os.Signal, 1)

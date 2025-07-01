@@ -1,4 +1,4 @@
-package main
+package receiver
 
 import (
 	"bytes"
@@ -7,6 +7,9 @@ import (
 	"text/template"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/tyzbit/acars-processor/annotator"
+	. "github.com/tyzbit/acars-processor/config"
+	. "github.com/tyzbit/acars-processor/decorate"
 )
 
 type WebhookHandlerReciever struct {
@@ -19,8 +22,8 @@ func (n WebhookHandlerReciever) Name() string {
 }
 
 // Must satisfy Receiver interface
-func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error) {
-	t, err := template.ParseFiles("receiver_webhook.tpl")
+func (n WebhookHandlerReciever) SubmitACARSAnnotations(a annotator.Annotation) (err error) {
+	t, err := template.ParseFiles("webhook.tpl")
 	if err != nil {
 		log.Fatal(Attention(err))
 	}
@@ -32,11 +35,11 @@ func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error)
 		return
 	}
 
-	h, err := http.NewRequest(config.Receivers.Webhook.Method, config.Receivers.Webhook.URL, &b)
+	h, err := http.NewRequest(Config.Receivers.Webhook.Method, Config.Receivers.Webhook.URL, &b)
 	if err != nil {
 		return err
 	}
-	for _, header := range config.Receivers.Webhook.Headers {
+	for _, header := range Config.Receivers.Webhook.Headers {
 		h.Header.Add(header.Name, header.Value)
 	}
 

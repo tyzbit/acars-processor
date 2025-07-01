@@ -1,4 +1,4 @@
-package main
+package annotator
 
 import (
 	"encoding/json"
@@ -12,6 +12,10 @@ import (
 
 	"github.com/jftuga/geodist"
 	log "github.com/sirupsen/logrus"
+	"github.com/tyzbit/acars-processor/acarshub"
+	. "github.com/tyzbit/acars-processor/config"
+	. "github.com/tyzbit/acars-processor/decorate"
+	"github.com/tyzbit/acars-processor/util"
 )
 
 const adsbapiv2 = "https://adsbexchange-com1.p.rapidapi.com/v2/%s"
@@ -23,12 +27,12 @@ func (a ADSBAnnotatorHandler) Name() string {
 
 func (a ADSBAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 	// If no fields are being selected, return annotation unchanged
-	if config.Annotators.ADSBExchange.SelectedFields == nil {
+	if Config.Annotators.ADSBExchange.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if slices.Contains(config.Annotators.ADSBExchange.SelectedFields, field) {
+		if slices.Contains(Config.Annotators.ADSBExchange.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}
@@ -38,7 +42,7 @@ func (a ADSBAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 func (a ADSBAnnotatorHandler) DefaultFields() []string {
 	// ACARS
 	fields := []string{}
-	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
+	for field := range a.AnnotateACARSMessage(acarshub.ACARSMessage{}) {
 		fields = append(fields, field)
 	}
 	slices.Sort(fields)
@@ -101,7 +105,7 @@ func (a ADSBAnnotatorHandler) SingleAircraftPositionByRegistration(reg string) (
 	if err != nil {
 		return ac, err
 	}
-	req.Header.Add(adsbapikeyheader, config.Annotators.ADSBExchange.APIKey)
+	req.Header.Add(adsbapikeyheader, Config.Annotators.ADSBExchange.APIKey)
 	client := &http.Client{}
 
 	log.Debug(Aside("making call to ads-b exchange"))
@@ -125,13 +129,13 @@ func (a ADSBAnnotatorHandler) SingleAircraftPositionByRegistration(reg string) (
 }
 
 // Interface function to satisfy ACARSHandler
-func (a ADSBAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
-	enabled := config.Annotators.ADSBExchange.Enabled
-	if !enabled && config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
+func (a ADSBAnnotatorHandler) AnnotateACARSMessage(m acarshub.ACARSMessage) (annotation Annotation) {
+	enabled := Config.Annotators.ADSBExchange.Enabled
+	if !enabled && Config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
 		log.Info(Note("adsb enabled but geolocation not set, using '0,0'"))
-		config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
+		Config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
 	}
-	coords := strings.Split(config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
+	coords := strings.Split(Config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
 	if enabled && len(coords) != 2 {
 		log.Warn(Attention("geolocation coordinates are not in the format 'LAT,LON'"))
 		return annotation
@@ -162,7 +166,7 @@ func (a ADSBAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation A
 		log.Warn(Attention("error calculating distance: %s", err))
 	}
 	event := Annotation{
-		"adsbOriginGeolocation":          config.Annotators.ADSBExchange.ReferenceGeolocation,
+		"adsbOriginGeolocation":          Config.Annotators.ADSBExchange.ReferenceGeolocation,
 		"adsbOriginGeolocationLatitude":  olat,
 		"adsbOriginGeolocationLongitude": olon,
 		"adsbAircraftGeolocation":        fmt.Sprintf("%f,%f", alat, alon),
@@ -176,13 +180,13 @@ func (a ADSBAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation A
 }
 
 // Interface function to satisfy ACARSHandler
-func (a ADSBAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
-	enabled := config.Annotators.ADSBExchange.Enabled
-	if enabled && config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
+func (a ADSBAnnotatorHandler) AnnotateVDLM2Message(m acarshub.VDLM2Message) (annotation Annotation) {
+	enabled := Config.Annotators.ADSBExchange.Enabled
+	if enabled && Config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
 		log.Info(Note("adsb exchange enabled but geolocation not set, using '0,0'"))
-		config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
+		Config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
 	}
-	coords := strings.Split(config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
+	coords := strings.Split(Config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
 	if enabled && len(coords) != 2 {
 		log.Warn(Attention("adsb exchange geolocation coordinates are not in the format 'LAT,LON'"))
 		return annotation
@@ -195,7 +199,7 @@ func (a ADSBAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 	var err error
 	// If disabled, we're just generating the schema
 	if enabled {
-		position, err = a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
+		position, err = a.SingleAircraftPositionByRegistration(util.NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
 		if err != nil {
 			log.Warn(Attention("error getting aircraft position from adsb exchange: %v", err))
 		}
@@ -213,7 +217,7 @@ func (a ADSBAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation A
 	}
 	// Please update config example values if changed
 	event := Annotation{
-		"adsbOriginGeolocation":          config.Annotators.ADSBExchange.ReferenceGeolocation,
+		"adsbOriginGeolocation":          Config.Annotators.ADSBExchange.ReferenceGeolocation,
 		"adsbOriginGeolocationLatitude":  olat,
 		"adsbOriginGeolocationLongitude": olon,
 		"adsbAircraftGeolocation":        fmt.Sprintf("%f,%f", alat, alon),

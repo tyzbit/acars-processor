@@ -1,4 +1,4 @@
-package main
+package filter
 
 import (
 	"context"
@@ -9,6 +9,9 @@ import (
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/option"
 	log "github.com/sirupsen/logrus"
+	. "github.com/tyzbit/acars-processor/config"
+	. "github.com/tyzbit/acars-processor/decorate"
+	"github.com/tyzbit/acars-processor/util"
 )
 
 var (
@@ -38,7 +41,7 @@ type OpenAIResponse struct {
 // Return true if a message passes a filter, false otherwise
 func OpenAIFilter(m string) bool {
 	log.Debug(Content("submitting message ending in \""),
-		Note(Last20Characters(m)),
+		Note(util.Last20Characters(m)),
 		Content("\" for filtering with OpenAI"))
 
 	// If message is blank, return
@@ -47,14 +50,14 @@ func OpenAIFilter(m string) bool {
 		return false
 	}
 	client := openai.NewClient(
-		option.WithAPIKey(config.Filters.OpenAI.APIKey),
+		option.WithAPIKey(Config.Filters.OpenAI.APIKey),
 	)
-	if config.Filters.OpenAI.SystemPrompt != "" {
-		OpenAISystemPrompt = config.Filters.OpenAI.SystemPrompt
+	if Config.Filters.OpenAI.SystemPrompt != "" {
+		OpenAISystemPrompt = Config.Filters.OpenAI.SystemPrompt
 	}
 	openAIModel := openai.ChatModelGPT4o
-	if config.Filters.OpenAI.Model != "" {
-		openAIModel = config.Filters.OpenAI.Model
+	if Config.Filters.OpenAI.Model != "" {
+		openAIModel = Config.Filters.OpenAI.Model
 	}
 
 	log.Debug(Aside("calling OpenAI model "), Note(openAIModel))
@@ -62,7 +65,7 @@ func OpenAIFilter(m string) bool {
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
 				openai.SystemMessage(OpenAISystemPrompt),
-				openai.SystemMessage(config.Filters.OpenAI.UserPrompt),
+				openai.SystemMessage(Config.Filters.OpenAI.UserPrompt),
 				openai.SystemMessage(OpenAIFinalInstructions),
 				openai.UserMessage(m),
 			}),
@@ -89,7 +92,7 @@ func OpenAIFilter(m string) bool {
 	}
 	start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
 	content := chatCompletion.Choices[0].Message.Content[start:end]
-	content = SanitizeJSONString(content)
+	content = util.SanitizeJSONString(content)
 	err = json.Unmarshal([]byte(content), &r)
 
 	if err != nil {
@@ -105,7 +108,7 @@ func OpenAIFilter(m string) bool {
 	log.Info(Content("OpenAI decision: "),
 		action[decision],
 		Content(" for message ending in: \""),
-		Note(Last20Characters(m)),
+		Note(util.Last20Characters(m)),
 		Content("\", reasoning: "),
 		Emphasised(r.Reasoning))
 	return decision

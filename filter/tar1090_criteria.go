@@ -1,4 +1,10 @@
-package main
+package filter
+
+import (
+	. "github.com/tyzbit/acars-processor/config"
+	. "github.com/tyzbit/acars-processor/tar1090"
+	"github.com/tyzbit/acars-processor/util"
+)
 
 type TAR1090CriteriaFilter struct {
 }
@@ -12,7 +18,7 @@ var (
 	TAR1090FilterFunctions = map[string]func(tar Tar1090AircraftJSON) bool{
 		"MatchesTailCode": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.Filters.Generic.TailCode == NormalizeAircraftRegistration(aircraft.Registration) {
+				if Config.Filters.Generic.TailCode == util.NormalizeAircraftRegistration(aircraft.Registration) {
 					result = true
 					break
 				}
@@ -21,7 +27,7 @@ var (
 		},
 		"MatchesFlightNumber": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.Filters.Generic.FlightNumber == aircraft.AircraftTailCode {
+				if Config.Filters.Generic.FlightNumber == aircraft.AircraftTailCode {
 					result = true
 					break
 				}
@@ -30,7 +36,7 @@ var (
 		},
 		"AboveMinimumSignal": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.Filters.Generic.AboveSignaldBm <= aircraft.RSSISignalPowerdBm {
+				if Config.Filters.Generic.AboveSignaldBm <= aircraft.RSSISignalPowerdBm {
 					result = true
 					break
 				}
@@ -39,7 +45,7 @@ var (
 		},
 		"BelowMaximumSignal": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.Filters.Generic.BelowSignaldBm >= aircraft.RSSISignalPowerdBm {
+				if Config.Filters.Generic.BelowSignaldBm >= aircraft.RSSISignalPowerdBm {
 					result = true
 					break
 				}
@@ -48,7 +54,7 @@ var (
 		},
 		"AboveMinimumDistance": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.Filters.Generic.AboveDistanceNm <= aircraft.DistanceFromReceiverNm {
+				if Config.Filters.Generic.AboveDistanceNm <= aircraft.DistanceFromReceiverNm {
 					result = true
 					break
 				}
@@ -57,7 +63,7 @@ var (
 		},
 		"BelowMaximumDistance": func(tar Tar1090AircraftJSON) (result bool) {
 			for _, aircraft := range tar.Aircraft {
-				if config.Filters.Generic.BelowDistanceNm >= aircraft.DistanceFromReceiverNm {
+				if Config.Filters.Generic.BelowDistanceNm >= aircraft.DistanceFromReceiverNm {
 					result = true
 					break
 				}
@@ -77,9 +83,9 @@ var (
 )
 
 // Return true if a message passes a filter, false otherwise
-func (t Tar1090AircraftJSON) Filter(tar Tar1090AircraftJSON) (ok bool, failedFilters []string) {
+func Filter(tar Tar1090AircraftJSON) (ok bool, failedFilters []string) {
 	ok = true
-	for _, filter := range enabledFilters {
+	for _, filter := range EnabledFilters {
 		if !TAR1090FilterFunctions[filter](tar) {
 			ok = false
 			failedFilters = append(failedFilters, filter)

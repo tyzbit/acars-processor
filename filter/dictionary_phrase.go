@@ -1,10 +1,11 @@
-package main
+package filter
 
 import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/words"
+	. "github.com/tyzbit/acars-processor/decorate"
 )
 
 // Unoptomized asf

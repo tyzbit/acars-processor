@@ -1,14 +1,15 @@
-package main
+package decorate
 
 import (
 	"fmt"
 
 	"github.com/fatih/color"
+	. "github.com/tyzbit/acars-processor/config"
 )
 
 // Render n strings using c color, returning a string with color escape sequences
 func ColorSprintf(c color.Color, n ...any) (rs string) {
-	if config.ACARSProcessorSettings.ColorOutput {
+	if Config.ACARSProcessorSettings.ColorOutput {
 		c.EnableColor()
 	}
 	if len(n) == 1 {

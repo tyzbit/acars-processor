@@ -1,20 +1,83 @@
-package main
+package annotator
 
 import (
+	"fmt"
 	"slices"
 	"strings"
-	"time"
 
-	"gorm.io/gorm"
+	"github.com/tyzbit/acars-processor/acarshub"
+	. "github.com/tyzbit/acars-processor/config"
+	"github.com/tyzbit/acars-processor/util"
 )
+
+const (
+	FlightAwareRoot   = "https://flightaware.com/live/flight/"
+	FlightAwarePhotos = "https://www.flightaware.com/photos/aircraft/"
+)
+
+type ACARSAnnotator interface {
+	Name() string
+	AnnotateACARSMessage(acarshub.ACARSMessage) Annotation
+}
+
+type ACARSAnnotatorHandler struct {
+}
 
 type VDLM2Annotator interface {
 	Name() string
-	AnnotateVDLM2Message(VDLM2Message) Annotation
-	SelectFields(Annotation) Annotation
+	AnnotateVDLM2Message(acarshub.VDLM2Message) Annotation
 }
 
 type VDLM2AnnotatorHandler struct {
+}
+
+func (a ACARSAnnotatorHandler) Name() string {
+	return "acars"
+}
+
+func (a ACARSAnnotatorHandler) DefaultFields() []string {
+	// ACARS
+	fields := []string{}
+	for field := range a.AnnotateACARSMessage(acarshub.ACARSMessage{}) {
+		fields = append(fields, field)
+	}
+	slices.Sort(fields)
+	return fields
+}
+
+// Interface function to satisfy ACARSHandler
+func (a ACARSAnnotatorHandler) AnnotateACARSMessage(m acarshub.ACARSMessage) (annotation Annotation) {
+	// Chop off leading periods
+	tailcode, _ := strings.CutPrefix(m.AircraftTailCode, ".")
+	text := m.MessageText
+	// Please update Config example values if changed
+	annotation = Annotation{
+		"acarsFrequencyMHz":     m.FrequencyMHz,
+		"acarsChannel":          m.Channel,
+		"acarsErrorCode":        m.ErrorCode,
+		"acarsSignaldBm":        m.SignaldBm,
+		"acarsTimestamp":        m.Timestamp,
+		"acarsAppName":          m.App.Name,
+		"acarsAppVersion":       m.App.Version,
+		"acarsAppProxied":       m.App.Proxied,
+		"acarsAppProxiedBy":     m.App.ProxiedBy,
+		"acarsAppRouterVersion": m.App.ACARSRouterVersion,
+		"acarsAppRouterUUID":    m.App.ACARSRouterUUID,
+		"acarsStationID":        m.StationID,
+		"acarsASSStatus":        m.ASSStatus,
+		"acarsMode":             m.Mode,
+		"acarsLabel":            m.Label,
+		"acarsBlockID":          m.BlockID,
+		"acarsAcknowledge":      fmt.Sprint(m.Acknowledge),
+		"acarsAircraftTailCode": tailcode,
+		"acarsMessageFrom":      util.AircraftOrTower(m.FlightNumber),
+		"acarsMessageText":      text,
+		"acarsMessageNumber":    m.MessageNumber,
+		"acarsFlightNumber":     m.FlightNumber,
+		"acarsExtraURL":         FlightAwareRoot + tailcode,
+		"acarsExtraPhotos":      FlightAwarePhotos + tailcode,
+	}
+	return annotation
 }
 
 func (v VDLM2AnnotatorHandler) Name() string {
@@ -22,12 +85,12 @@ func (v VDLM2AnnotatorHandler) Name() string {
 }
 
 func (v VDLM2AnnotatorHandler) SelectFields(annotation Annotation) Annotation {
-	if config.Annotators.VDLM2.SelectedFields == nil {
+	if Config.Annotators.VDLM2.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if slices.Contains(config.Annotators.VDLM2.SelectedFields, field) {
+		if slices.Contains(Config.Annotators.VDLM2.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}
@@ -37,76 +100,17 @@ func (v VDLM2AnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 func (v VDLM2AnnotatorHandler) DefaultFields() []string {
 	// ACARS
 	fields := []string{}
-	for field := range v.AnnotateVDLM2Message(VDLM2Message{}) {
+	for field := range v.AnnotateVDLM2Message(acarshub.VDLM2Message{}) {
 		fields = append(fields, field)
 	}
 	slices.Sort(fields)
 	return fields
 }
 
-// This is the format ACARSHub sends
-type VDLM2Message struct {
-	gorm.Model
-	ProcessingStartedAt time.Time
-	VDL2                struct {
-		App struct {
-			Name               string `json:"name"`
-			Version            string `json:"ver"`
-			Proxied            bool   `json:"proxied"`
-			ProxiedBy          string `json:"proxied_by"`
-			ACARSRouterVersion string `json:"acars_router_version"`
-			ACARSRouterUUID    string `json:"acars_router_uuid"`
-		} `json:"app" gorm:"embedded"`
-		AVLC struct {
-			CR          string `json:"cr"`
-			Destination struct {
-				Address string `json:"addr"`
-				Type    string `json:"type"`
-			} `json:"dst" gorm:"embedded"`
-			FrameType string `json:"frame_type"`
-			Source    struct {
-				Address string `json:"addr"`
-				Type    string `json:"type"`
-				Status  string `json:"status"`
-			} `json:"src" gorm:"embedded"`
-			RSequence int  `json:"rseq"`
-			SSequence int  `json:"sseq"`
-			Poll      bool `json:"poll"`
-			ACARS     struct {
-				Error                 bool   `json:"err"`
-				CRCOK                 bool   `json:"crc_ok"`
-				More                  bool   `json:"more"`
-				Registration          string `json:"reg"`
-				Mode                  string `json:"mode"`
-				Label                 string `json:"label"`
-				BlockID               string `json:"blk_id"`
-				Acknowledge           any    `json:"ack" gorm:"type:string"`
-				FlightNumber          string `json:"flight"`
-				MessageNumber         string `json:"msg_num"`
-				MessageNumberSequence string `json:"msg_num_seq"`
-				MessageText           string `json:"msg_text"`
-			} `json:"acars" gorm:"embedded"`
-		} `json:"avlc" gorm:"embedded"`
-		BurstLengthOctets    int     `json:"burst_len_octets"`
-		FrequencyHz          int     `json:"freq"`
-		Index                int     `json:"idx"`
-		FrequencySkew        float64 `json:"freq_skew"`
-		HDRBitsFixed         int     `json:"hdr_bits_fixed"`
-		NoiseLevel           float64 `json:"noise_level"`
-		OctetsCorrectedByFEC int     `json:"octets_corrected_by_fec"`
-		SignalLevel          float64 `json:"sig_level"`
-		Station              string  `json:"station"`
-		Timestamp            struct {
-			UnixTimestamp int `json:"sec"`
-			Microseconds  int `json:"usec"`
-		} `json:"t" gorm:"embedded"`
-	} `json:"vdl2" gorm:"embedded"`
-}
-
 // Interface function to satisfy ACARSHandler
 // Although this is the ACARS annotator, we must support ACARS and VLM2
 // message types
-func (v VDLM2AnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+func (v VDLM2AnnotatorHandler) AnnotateVDLM2Message(m acarshub.VDLM2Message) (annotation Annotation) {
 	tailcode, _ := strings.CutPrefix(m.VDL2.AVLC.ACARS.Registration, ".")
 	text := m.VDL2.AVLC.ACARS.MessageText
 	// Please update config example values if changed
@@ -148,7 +152,7 @@ func (v VDLM2AnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsBlockID":               m.VDL2.AVLC.ACARS.BlockID,
 		"acarsAcknowledge":           m.VDL2.AVLC.ACARS.Acknowledge,
 		"acarsFlightNumber":          m.VDL2.AVLC.ACARS.FlightNumber,
-		"acarsMessageFrom":           AircraftOrTower(m.VDL2.AVLC.ACARS.FlightNumber),
+		"acarsMessageFrom":           util.AircraftOrTower(m.VDL2.AVLC.ACARS.FlightNumber),
 		"acarsMessageNumber":         m.VDL2.AVLC.ACARS.MessageNumber,
 		"acarsMessageNumberSequence": m.VDL2.AVLC.ACARS.MessageNumberSequence,
 		"acarsMessageText":           text,

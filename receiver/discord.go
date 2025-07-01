@@ -1,4 +1,4 @@
-package main
+package receiver
 
 import (
 	"bytes"
@@ -11,6 +11,9 @@ import (
 	"sort"
 
 	log "github.com/sirupsen/logrus"
+	"github.com/tyzbit/acars-processor/annotator"
+	. "github.com/tyzbit/acars-processor/config"
+	. "github.com/tyzbit/acars-processor/decorate"
 )
 
 type DiscordHandlerReciever struct {
@@ -45,7 +48,7 @@ func (d DiscordHandlerReciever) Name() string {
 	return "discord"
 }
 
-func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
+func (d DiscordHandlerReciever) SubmitACARSAnnotations(a annotator.Annotation) error {
 	keys := make([]string, 0, len(a))
 	for k := range a {
 		keys = append(keys, k)
@@ -55,7 +58,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 	var content string
 	requiredFieldsPresent := true
-	for _, requiredField := range config.Receivers.DiscordWebhook.RequiredFields {
+	for _, requiredField := range Config.Receivers.DiscordWebhook.RequiredFields {
 		if !slices.Contains(keys, requiredField) && a[requiredField] != "" {
 			requiredFieldsPresent = false
 		}
@@ -68,7 +71,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		r, _ := regexp.Compile(".*Text")
 		textField := r.MatchString(key)
 		v := a[key]
-		if config.Receivers.DiscordWebhook.FormatText &&
+		if Config.Receivers.DiscordWebhook.FormatText &&
 			v != "" && textField {
 			v = fmt.Sprintf("```%s```", v)
 		}
@@ -84,7 +87,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", config.Receivers.DiscordWebhook.URL, buff)
+	req, err := http.NewRequest("POST", Config.Receivers.DiscordWebhook.URL, buff)
 	if err != nil {
 		return err
 	}

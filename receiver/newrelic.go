@@ -1,4 +1,4 @@
-package main
+package receiver
 
 import (
 	"context"
@@ -6,6 +6,9 @@ import (
 
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
 	log "github.com/sirupsen/logrus"
+	"github.com/tyzbit/acars-processor/annotator"
+	. "github.com/tyzbit/acars-processor/config"
+	. "github.com/tyzbit/acars-processor/decorate"
 )
 
 const ACARSCustomEventType = "CustomACARS"
@@ -20,10 +23,10 @@ func (n NewRelicHandlerReciever) Name() string {
 }
 
 // Must satisfy Receiver interface
-func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error) {
+func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a annotator.Annotation) (err error) {
 	// Create a new harvester for sending telemetry data.
 	harvester, err := telemetry.NewHarvester(
-		telemetry.ConfigAPIKey(config.Receivers.NewRelic.APIKey),
+		telemetry.ConfigAPIKey(Config.Receivers.NewRelic.APIKey),
 	)
 	if err != nil {
 		log.Error(Attention("Error creating harvester:", err))
@@ -31,8 +34,8 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 
 	// Allow overriding the custom event type if set
 	eventType := ACARSCustomEventType
-	if config.Receivers.NewRelic.CustomEventType != "" {
-		eventType = config.Receivers.NewRelic.CustomEventType
+	if Config.Receivers.NewRelic.CustomEventType != "" {
+		eventType = Config.Receivers.NewRelic.CustomEventType
 	}
 
 	event := telemetry.Event{

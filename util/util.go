@@ -1,4 +1,4 @@
-package main
+package util
 
 import (
 	"fmt"
@@ -6,8 +6,6 @@ import (
 	"regexp"
 	"strings"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type RetriableError struct {
@@ -32,33 +30,36 @@ func NormalizeAircraftRegistration(reg string) string {
 	return strings.ToLower(reg)
 }
 
-func ReadFile(filePath string) []byte {
+func ReadFile(filePath string) ([]byte, error) {
 	// Read the content of the file
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			log.Error(Attention("Error reading the file: %v", err))
-			os.Exit(1)
+			return nil, fmt.Errorf("Error reading the file: %v", err)
 		}
 	}
-	return content
+	return content, nil
 }
 
-func WriteFile(filePath string, contents []byte) {
+func WriteFile(filePath string, contents []byte) error {
 	err := os.WriteFile(filePath, contents, 0644)
 	if err != nil {
-		log.Error(Attention("Error writing file: %s", err))
+		return fmt.Errorf("Error writing file: %s", err)
 	}
+	return nil
 }
 
 // Saves a file and returns true if the file changed
-func UpdateFile(filePath string, contents []byte) (changed bool) {
-	file := ReadFile(filePath)
-	err := os.WriteFile(filePath, contents, 0644)
+func UpdateFile(filePath string, contents []byte) (changed bool, e error) {
+	file, err := ReadFile(filePath)
 	if err != nil {
-		log.Error(Attention("Error writing file: %s", err))
+		return false, fmt.Errorf("Error reading file: %s", err)
 	}
-	return string(file) != string(contents)
+	err = os.WriteFile(filePath, contents, 0644)
+	if err != nil {
+		return false, fmt.Errorf("Error writing file: %s", err)
+	}
+	return string(file) != string(contents), nil
 }
 
 func MergeMaps(m1, m2 map[string]any) map[string]any {

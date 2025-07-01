@@ -1,4 +1,4 @@
-package main
+package annotator
 
 import (
 	"context"
@@ -13,6 +13,10 @@ import (
 	"github.com/avast/retry-go"
 	api "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
+	"github.com/tyzbit/acars-processor/acarshub"
+	. "github.com/tyzbit/acars-processor/config"
+	. "github.com/tyzbit/acars-processor/decorate"
+	"github.com/tyzbit/acars-processor/util"
 )
 
 var (
@@ -91,12 +95,12 @@ func (a OllamaAnnotatorHandler) Name() string {
 }
 
 func (a OllamaAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
-	if config.Annotators.Ollama.SelectedFields == nil {
+	if Config.Annotators.Ollama.SelectedFields == nil {
 		return annotation
 	}
 	selectedFields := Annotation{}
 	for field, value := range annotation {
-		if slices.Contains(config.Annotators.Ollama.SelectedFields, field) {
+		if slices.Contains(Config.Annotators.Ollama.SelectedFields, field) {
 			selectedFields[field] = value
 		}
 	}
@@ -106,33 +110,33 @@ func (a OllamaAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
 func (o OllamaAnnotatorHandler) DefaultFields() []string {
 	// ACARS
 	fields := []string{}
-	for field := range o.AnnotateACARSMessage(ACARSMessage{}) {
+	for field := range o.AnnotateACARSMessage(acarshub.ACARSMessage{}) {
 		fields = append(fields, field)
 	}
 	slices.Sort(fields)
 	return fields
 }
 
-func (o OllamaAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
+func (o OllamaAnnotatorHandler) AnnotateACARSMessage(m acarshub.ACARSMessage) (annotation Annotation) {
 	return o.AnnotateMessage(m.MessageText)
 }
 
-func (o OllamaAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
+func (o OllamaAnnotatorHandler) AnnotateVDLM2Message(m acarshub.VDLM2Message) (annotation Annotation) {
 	return o.AnnotateMessage(m.VDL2.AVLC.ACARS.MessageText)
 }
 
 func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation) {
-	enabled := config.Annotators.Ollama.Enabled
+	enabled := Config.Annotators.Ollama.Enabled
 	// If message is blank, return
 	if enabled && (regexp.MustCompile(`^\s*$`).MatchString(m)) {
 		log.Debug(Aside("message was blank, not annotating with Ollama"))
 		return
 	}
-	if enabled && config.Annotators.Ollama.Model == "" || enabled && config.Annotators.Ollama.UserPrompt == "" {
+	if enabled && Config.Annotators.Ollama.Model == "" || enabled && Config.Annotators.Ollama.UserPrompt == "" {
 		log.Warn(Attention("OllamaAnnotator model and prompt are required to use the Ollama annotator"))
 		return
 	}
-	url, err := url.Parse(config.Annotators.Ollama.URL)
+	url, err := url.Parse(Config.Annotators.Ollama.URL)
 	if enabled && err != nil {
 		log.Error(Attention("OllamaAnnotator url could not be parsed: %s", err))
 		return
@@ -143,17 +147,17 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		return
 	}
 
-	if config.Annotators.Ollama.SystemPrompt != "" {
-		OllamaAnnotatorFirstInstructions = config.Annotators.Ollama.SystemPrompt
+	if Config.Annotators.Ollama.SystemPrompt != "" {
+		OllamaAnnotatorFirstInstructions = Config.Annotators.Ollama.SystemPrompt
 	}
-	if config.Annotators.Ollama.Timeout != 0 {
-		OllamaAnnotatorTimeout = config.Annotators.Ollama.Timeout
+	if Config.Annotators.Ollama.Timeout != 0 {
+		OllamaAnnotatorTimeout = Config.Annotators.Ollama.Timeout
 	}
-	if config.Annotators.Ollama.MaxRetryAttempts != 0 {
-		OllamaAnnotatorMaxRetryAttempts = config.Annotators.Ollama.MaxRetryAttempts
+	if Config.Annotators.Ollama.MaxRetryAttempts != 0 {
+		OllamaAnnotatorMaxRetryAttempts = Config.Annotators.Ollama.MaxRetryAttempts
 	}
-	if config.Annotators.Ollama.MaxRetryDelaySeconds != 0 {
-		OllamaAnnotatorRetryDelaySeconds = config.Annotators.Ollama.MaxRetryDelaySeconds
+	if Config.Annotators.Ollama.MaxRetryDelaySeconds != 0 {
+		OllamaAnnotatorRetryDelaySeconds = Config.Annotators.Ollama.MaxRetryDelaySeconds
 	}
 
 	stream := false
@@ -164,14 +168,14 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 	}
 
 	opts := map[string]any{}
-	for _, opt := range config.Annotators.Ollama.Options {
+	for _, opt := range Config.Annotators.Ollama.Options {
 		opts[opt.Name] = opt.Value
 	}
 
 	req := &api.GenerateRequest{
-		Model:  config.Annotators.Ollama.Model,
+		Model:  Config.Annotators.Ollama.Model,
 		Format: requestedFormatJson,
-		System: OllamaAnnotatorFirstInstructions + config.Annotators.Ollama.UserPrompt +
+		System: OllamaAnnotatorFirstInstructions + Config.Annotators.Ollama.UserPrompt +
 			OllamaAnnotatorFinalInstructions,
 		Stream:  &stream,
 		Prompt:  `Here is the message to evaluate:\n` + m,
@@ -192,7 +196,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
 		content := resp.Response[start:end]
 
-		content = SanitizeJSONString(content)
+		content = util.SanitizeJSONString(content)
 		err = json.Unmarshal([]byte(content), &r)
 		log.Debug(Aside("Ollama annotator done reason: %s, response: %s", resp.DoneReason, resp.Response))
 		if err != nil {
@@ -204,11 +208,11 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaAnnotatorTimeout)*time.Second)
 	defer cancel()
-	log.Debug(Aside("calling OllamaAnnotator, model "), Note(config.Annotators.Ollama.Model))
+	log.Debug(Aside("calling OllamaAnnotator, model "), Note(Config.Annotators.Ollama.Model))
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
-			return &RetriableError{
+			return &util.RetriableError{
 				Err:        fmt.Errorf("error using OllamaAnnotator: %s", err),
 				RetryAfter: time.Duration(OllamaAnnotatorRetryDelaySeconds) * time.Second,
 			}
@@ -222,7 +226,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		}),
 	)
 
-	if config.Annotators.Ollama.FilterWithQuestion {
+	if Config.Annotators.Ollama.FilterWithQuestion {
 		if !r.Question {
 			log.Info(Note("Ollama annotation response did not qualify according to " +
 				"user requirements, not returning any output"))

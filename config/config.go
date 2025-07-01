@@ -1,20 +1,216 @@
-package main
+package config
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/ghodss/yaml"
+	"github.com/invopop/jsonschema"
+	"github.com/mcuadros/go-defaults"
 	log "github.com/sirupsen/logrus"
+	"github.com/tyzbit/acars-processor/util"
 	"gomodules.xyz/envsubst"
 )
+
+const (
+	WebhookUserAgent = "github.com/tyzbit/acars-processor"
+)
+
+var (
+	Config         = new(Configuration)
+	ConfigFilePath = "config.yaml"
+	configExample  = "config_example.yaml"
+	schemaLine     = `# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
+# This file (and schema.json) are automatically generated 
+# from the code by running ./acars-processor -s
+
+`
+)
+
+// TODO: FIXME
+// // These are called when jsonschema Reflects, so we don't need to call these.
+// func (ACARSAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+// 	s, ok := j.Properties.Get("SelectedFields")
+// 	if !ok {
+// 		log.Error("couldn't get selectedfields for acars annotator config type")
+// 		return
+// 	}
+// 	fields := []string{}
+// 	for field := range annotator.AnnotateACARSMessage() {
+// 		fields = append(fields, field)
+// 	}
+// 	sort.Strings(fields)
+// 	s.Examples = append(s.Examples, fields)
+// 	j.Properties.Set("SelectedFields", s)
+// }
+
+// func (VDLM2AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+// 	s, ok := j.Properties.Get("SelectedFields")
+// 	if !ok {
+// 		log.Error("couldn't get selectedfields for vdlm2 annotator config type")
+// 		return
+// 	}
+// 	a := VDLM2AnnotatorHandler{}
+// 	fields := []string{}
+// 	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+// 		fields = append(fields, field)
+// 	}
+// 	sort.Strings(fields)
+// 	s.Examples = append(s.Examples, fields)
+// 	j.Properties.Set("SelectedFields", s)
+// }
+
+// func (OllamaAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+// 	s, ok := j.Properties.Get("SelectedFields")
+// 	if !ok {
+// 		log.Error("couldn't get selectedfields for ollama annotator config type")
+// 		return
+// 	}
+// 	a := OllamaAnnotatorHandler{}
+// 	// For Ollama, ACARS and VDLM2 fields are the same
+// 	// This is not necessarily true for all annotators
+// 	fields := []string{}
+// 	for field := range a.Annotateannotator.ACARSMessage(annotator.ACARSMessage{}) {
+// 		fields = append(fields, field)
+// 	}
+// 	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+// 		fields = append(fields, field)
+// 	}
+// 	sort.Strings(fields)
+// 	s.Examples = append(s.Examples, fields)
+// 	j.Properties.Set("SelectedFields", s)
+// }
+
+// func (Tar1090AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+// 	s, ok := j.Properties.Get("SelectedFields")
+// 	if !ok {
+// 		log.Error("couldn't get selectedfields for tar1090 annotator config type")
+// 		return
+// 	}
+// 	a := Tar1090AnnotatorHandler{}
+// 	// For tar1090, ACARS and VDLM2 fields are the same
+// 	// This is not necessarily true for all annotators
+// 	fields := []string{}
+// 	for field := range a.Annotateannotator.ACARSMessage(annotator.ACARSMessage{}) {
+// 		fields = append(fields, field)
+// 	}
+// 	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+// 		fields = append(fields, field)
+// 	}
+// 	sort.Strings(fields)
+// 	s.Examples = append(s.Examples, fields)
+// 	j.Properties.Set("SelectedFields", s)
+// }
+
+// func (ADSBExchangeAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+// 	s, ok := j.Properties.Get("SelectedFields")
+// 	if !ok {
+// 		log.Error("couldn't get selectedfields for vdlm2 annotator config type")
+// 		return
+// 	}
+// 	a := ADSBAnnotatorHandler{}
+// 	// For adsb, ACARS and VDLM2 fields are the same
+// 	// This is not necessarily true for all annotators
+// 	fields := []string{}
+// 	for field := range a.Annotateannotator.ACARSMessage(annotator.ACARSMessage{}) {
+// 		fields = append(fields, field)
+// 	}
+// 	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
+// 		fields = append(fields, field)
+// 	}
+// 	sort.Strings(fields)
+// 	s.Examples = append(s.Examples, fields)
+// 	j.Properties.Set("SelectedFields", s)
+
+// }
+
+func GenerateSchema(schemaPath string) {
+	var configUpdated, schemaUpdated bool
+	log.Info("Generating schema")
+	// Generate an example config
+	var defaultConfig Configuration
+	// We need to do this to set an example value since Options is a slice.
+	defaultConfig.Receivers.Webhook.Headers = []WebHookReceiverConfigHeaders{{
+		Name:  "APIKey",
+		Value: "1234abcdef",
+	}}
+	// We need to do this to set an example value since Options is a slice.
+	defaultConfig.Annotators.Ollama.Options = []OllamaOptionsConfig{{
+		Name:  "num_predict",
+		Value: 512,
+	}}
+	// We need to do this to set an example value since Options is a slice.
+	defaultConfig.Filters.Ollama.Options = []OllamaOptionsConfig{{
+		Name:  "num_predict",
+		Value: 512,
+	}}
+
+	// Squelch errors
+	log.SetLevel(log.FatalLevel)
+	// Get defaults for the example config for all fields with SelectFields
+	// TODO: FIXME
+	// defaultConfig.Annotators.ACARS.SelectedFields = annotator.ACARSAnnotatorHandler{}.DefaultFields()
+	// defaultConfig.Annotators.VDLM2.SelectedFields = annotator.VDLM2AnnotatorHandler{}.DefaultFields()
+	// defaultConfig.Annotators.ADSBExchange.SelectedFields = annotator.ADSBAnnotatorHandler{}.DefaultFields()
+	// defaultConfig.Annotators.Ollama.SelectedFields = annotator.OllamaAnnotatorHandler{}.DefaultFields()
+	// defaultConfig.Annotators.Tar1090.SelectedFields = annotator.Tar1090AnnotatorHandler{}.DefaultFields()
+
+	// Set the values for defaultConfig to the defaults defined in the struct tags
+	defaults.SetDefaults(&defaultConfig)
+	configYaml, err := yaml.Marshal(defaultConfig)
+	if err != nil {
+		// Squelch errors
+		log.Fatal("Error marshaling YAML:", err)
+	}
+	// Add the schema line so editors can use it
+	configYaml = append([]byte(schemaLine), configYaml...)
+	if changed, err := util.UpdateFile(configExample, configYaml); err != nil {
+		log.Fatalf("Error updating %s: %s", configExample, err)
+	} else {
+		if changed {
+			configUpdated = true
+			log.SetLevel(log.InfoLevel)
+			log.Info("Updated example config")
+			log.SetLevel(log.FatalLevel)
+		}
+	}
+
+	// First we generate the schema from the Config type with comments
+	r := new(jsonschema.Reflector)
+	err = r.AddGoComments("main", "./", jsonschema.WithFullComment())
+	if err != nil {
+		log.Fatalf("unable to add comments to schema, %s", err)
+	}
+
+	// Now we generate the schema and save it
+	r.RequiredFromJSONSchemaTags = true
+	schema := r.Reflect(&Configuration{})
+	// Suppress further for clean output
+	log.SetLevel(log.InfoLevel)
+	json, _ := schema.MarshalJSON()
+	if changed, err := util.UpdateFile(fmt.Sprintf("./%s", schemaPath), json); err != nil {
+		log.Fatalf("Error updating %s: %s", schemaPath, err)
+	} else {
+		if changed {
+			schemaUpdated = true
+			log.Infof("Updated schema at %s", schemaPath)
+		}
+	}
+	if configUpdated || schemaUpdated {
+		log.Info("Files were updated, so exiting with status of 100")
+		os.Exit(100)
+	}
+	log.Info("Schema and example config are up to date")
+}
 
 func ConfigureLogging() {
 	log.SetFormatter(&log.TextFormatter{
 		FullTimestamp:    true,
-		ForceColors:      config.ACARSProcessorSettings.ColorOutput,
-		DisableTimestamp: config.ACARSProcessorSettings.LogHideTimestamps,
+		ForceColors:      Config.ACARSProcessorSettings.ColorOutput,
+		DisableTimestamp: Config.ACARSProcessorSettings.LogHideTimestamps,
 	})
-	loglevel := strings.ToLower(config.ACARSProcessorSettings.LogLevel)
+	loglevel := strings.ToLower(Config.ACARSProcessorSettings.LogLevel)
 	if l, err := log.ParseLevel(loglevel); err == nil {
 		log.SetLevel(l)
 	} else {
@@ -22,24 +218,28 @@ func ConfigureLogging() {
 	}
 }
 
-func LoadConfig() {
+func LoadConfig() error {
 	// Load config file, if present
-	cb := ReadFile(configFilePath)
+	cb, err := util.ReadFile(ConfigFilePath)
+	if err != nil {
+		return err
+	}
 
 	// Replace environment variables, if present
 	envEvalYaml, err := envsubst.EvalEnv(string(cb))
 	if err != nil {
-		log.Fatalf("there was a problem replacing environment variables: %s", err)
+		return fmt.Errorf("there was a problem replacing environment variables: %s", err)
 	}
 
 	// Marshal the YAML config into the config struct
-	if err := yaml.Unmarshal([]byte(envEvalYaml), &config); err != nil {
-		log.Fatalf("unable to load config from %s, err: %s", configFilePath, err)
+	if err := yaml.Unmarshal([]byte(envEvalYaml), Config); err != nil {
+		return fmt.Errorf("unable to load config from %s, err: %s", ConfigFilePath, err)
 	}
+	return nil
 }
 
 // Main configuration for acars-processor. Have fun!
-type Config struct {
+type Configuration struct {
 	// These control acars-processor
 	ACARSProcessorSettings ACARSProcessorSettings `jsonschema:"required"`
 	// Services that receive raw ACARS/VDLM2 messages and return more information, usually after a lookup or additional processing.
