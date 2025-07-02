@@ -23,10 +23,10 @@ Thank you for your interest in contributing to ACARS processor! This guide provi
 **Required software**:
 - Go 1.24 or later
 - Git
+
+**Optional but recommended**:
 - Docker and Docker Compose (for integration testing)
 - A code editor with Go support (VS Code recommended)
-
-**Recommended tools**:
 - golangci-lint for code quality checks
 - pre-commit for automated code quality enforcement
 - Air for live reloading during development
@@ -47,16 +47,19 @@ Thank you for your interest in contributing to ACARS processor! This guide provi
    # Install dependencies
    go mod download
    
-   # Install development tools
-   make dev-setup  # Or follow manual setup below
+   # Install development tools if available
+   # Note: No automated tests exist yet, but manual testing is important
    ```
 
-3. **Run tests to verify setup**:
+3. **Verify your build**:
    ```bash
-   go test ./...
+   go build -o acars-processor
+   ./acars-processor -s  # Test schema generation
    ```
 
 4. **Make your changes and submit a pull request** (see detailed workflow below)
+
+> **Note**: This project currently has limited test coverage. Contributors are encouraged to test manually and submit features without comprehensive test suites, though testing improvements are welcome.
 
 ## Development environment setup
 
@@ -204,13 +207,6 @@ acars-processor/
 
 ## Development workflow
 
-### Branch naming conventions
-
-- **Feature branches**: `feature/description-of-feature`
-- **Bug fixes**: `fix/issue-number-short-description`
-- **Documentation**: `docs/topic-being-documented`
-- **Refactoring**: `refactor/component-being-refactored`
-
 ### Development process
 
 1. **Create feature branch**:
@@ -327,7 +323,7 @@ tail -f acars-processor.log | jq .  # If using JSON logging
 **Unit tests**:
 - Test individual functions and methods
 - Mock external dependencies
-- Focus on business logic correctness
+- Focus on core functionality correctness
 
 **Integration tests**:
 - Test component interactions
@@ -480,11 +476,10 @@ func TestConfig() *Config {
 
 1. **Package organization**:
    ```go
-   // Good: focused package with clear responsibility
+   // Good: focused functionality with clear responsibility  
    package annotators
    
-   // Avoid: generic "utils" or "helpers" packages
-   package utils
+   // Note: All code currently in main package
    ```
 
 2. **Error handling**:
@@ -500,14 +495,13 @@ func TestConfig() *Config {
    result, _ := externalAPI.Call()
    ```
 
-3. **Context usage**:
+3. **Documentation**:
    ```go
-   // Good: pass context for cancellation
-   func (a *Annotator) ProcessMessage(ctx context.Context, msg Message) error {
-       ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-       defer cancel()
-       
-       return a.httpClient.DoRequestWithContext(ctx, req)
+   // Good: clear function documentation
+   // NormalizeAircraftRegistration standardizes aircraft registration codes
+   // by removing common separators and converting to lowercase
+   func NormalizeAircraftRegistration(reg string) string {
+       // Implementation...
    }
    ```
 
@@ -567,7 +561,7 @@ type Config struct {
 
 ### Linting configuration
 
-**golangci-lint configuration** (`.golangci.yml`):
+This file doesn't exist. Standard Go linting however devs want to do it is fine. If you want to keep this, please also create a `.golangci.yml`
 ```yaml
 linters-settings:
   gocyclo:

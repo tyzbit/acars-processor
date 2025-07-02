@@ -15,18 +15,22 @@ A high-performance Go daemon that processes Aircraft Communication Addressing an
 ### Docker (Recommended)
 
 ```bash
-# Download example files
-curl -o docker-compose.yml https://raw.githubusercontent.com/tyzbit/acars-processor/main/docker-compose.example.yml
-curl -o .env https://raw.githubusercontent.com/tyzbit/acars-processor/main/.env.example
+# Create a docker-compose.yml file based on the example
+# Download configuration examples
+curl -o config.yaml https://raw.githubusercontent.com/tyzbit/acars-processor/main/config_example.yaml
 
 # Configure your environment
-nano .env
+nano config.yaml
 
-# Start services
-docker-compose up -d
+# Build and run with Docker
+docker build -t acars-processor .
+docker run -d --name acars-processor \
+  -v $(pwd)/config.yaml:/app/config.yaml \
+  -v $(pwd)/data:/app/data \
+  acars-processor
 
 # Monitor logs
-docker-compose logs -f acars-processor
+docker logs -f acars-processor
 ```
 
 ### Binary Installation
@@ -127,7 +131,6 @@ Filters:
 ## Documentation
 
 - **[Architecture](docs/ARCHITECTURE.md)** - System design, components, and data flow
-- **[API Reference](docs/API.md)** - Interfaces, data structures, and external APIs  
 - **[Configuration](docs/CONFIGURATION.md)** - Complete configuration reference and examples
 - **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment and operations
 - **[Development Tools](docs/DEVELOPMENT.md)** - Development workflow and tooling

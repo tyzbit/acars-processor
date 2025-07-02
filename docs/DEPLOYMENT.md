@@ -710,9 +710,7 @@ metadata:
 ```yaml
 ACARSProcessorSettings:
   LogLevel: info
-  ColorOutput: false
-  LogFormat: json  # Future enhancement
-  LogOutput: stdout
+  ColorOutput: false  # Plain output for log aggregation
 ```
 
 **Fluentd configuration for log shipping**:
@@ -732,24 +730,21 @@ ACARSProcessorSettings:
 </match>
 ```
 
-### Metrics collection
+### Log monitoring
 
-**Prometheus metrics (future enhancement)**:
-```yaml
-# prometheus.yml
-global:
-  scrape_interval: 15s
+**Application logs**:
+```bash
+# Follow application logs
+docker-compose logs -f acars-processor
 
-scrape_configs:
-  - job_name: 'acars-processor'
-    static_configs:
-      - targets: ['acars-processor:8080']
-    metrics_path: /metrics
-    scrape_interval: 30s
+# View recent errors
+docker-compose logs --tail=100 acars-processor | grep -i error
+
+# Check startup messages
+docker-compose logs acars-processor | head -50
 ```
 
-**Grafana dashboard configuration**:
-```json
+**Log aggregation setup**:
 {
   "dashboard": {
     "title": "ACARS Processor Metrics",
@@ -946,7 +941,7 @@ services:
 1. **High CPU usage**:
    - Monitor Ollama model performance
    - Check concurrent request settings
-   - Profile application with pprof (future enhancement)
+   - Review message processing rate
 
 2. **High memory usage**:
    - Review Ollama model size

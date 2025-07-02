@@ -84,16 +84,10 @@ Annotators:
   ACARS:
     Enabled: true
     SelectedFields:
-      - acarsFlightNumber              # Flight identifier
-      - acarsAircraftTailCode          # Aircraft registration
-      - acarsMessageText               # Message content
-      - acarsFrequencyMHz              # Communication frequency
-      - acarsSignaldBm                 # Signal strength
-      - acarsTimestamp                 # Message timestamp
-      - acarsLabel                     # ACARS message label
-      - acarsBlockID                   # Block identifier
-      - acarsMode                      # Transmission mode
-      - acarsStationID                 # Ground station
+      # See config_example.yaml for complete list of available fields
+      - acarsFlightNumber
+      - acarsAircraftTailCode  
+      - acarsMessageText
 ```
 
 #### VDLM2 protocol annotator
@@ -214,7 +208,7 @@ Filters:
     Enabled: true
     APIKey: "${OPENAI_API_KEY}"
     Model: "gpt-4"
-    SystemPrompt: "You are an aviation expert. Respond only YES or NO."
+    SystemPrompt: "Respond only YES or NO based on message significance."
     UserPrompt: "Is this message about emergencies or significant events?"
     Timeout: 15
 ```
@@ -249,7 +243,7 @@ Receivers:
       - acarsFlightNumber
 ```
 
-#### New Relic telemetry
+#### New Relic receiver
 
 ```yaml
   NewRelic:
@@ -283,8 +277,11 @@ The application generates JSON schema for configuration validation:
 # Generate schema
 ./acars-processor -s
 
-# Validate configuration (requires jsonschema tool)
-jsonschema -i config.yaml schema.json
+# Install validator (requires Node.js)
+npm install -g ajv-cli
+
+# Validate configuration
+ajv validate -s schema.json -d config.yaml
 ```
 
 **IDE integration**:

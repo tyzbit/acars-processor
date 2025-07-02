@@ -50,8 +50,8 @@ ajv validate -s schema.json -d config.yaml
 # Test YAML parsing
 python3 -c "import yaml; yaml.safe_load(open('config.yaml'))"
 
-# Test environment variable substitution
-./acars-processor -c config.yaml --dry-run  # Future enhancement
+# Test configuration by running with help
+./acars-processor -c config.yaml -h  # Help shows if config parses correctly
 ```
 
 ### Health checks
