@@ -1,118 +1,149 @@
-# acars-processor
+# ACARS Processor
 
-A simple daemon that, in order:
+A high-performance Go daemon that processes Aircraft Communication Addressing and Reporting System (ACARS) and VHF Data Link Mode 2 (VDLM2) messages in real-time. Connect to ACARSHub, filter and enrich messages with AI-powered analysis, and deliver results to Discord, monitoring systems, or custom endpoints.
 
-1.  Listens to ACARS/VDLM2 messages from ACARSHub,
-    optionally saving them to resume or review.
-3.  Filters them according to various criteria from various providers
-4.  Hydrates them with additional data via external lookups from various
-    providers
-5.  Submits the message to a specified receiver such as a Discord webhook
-    or others.
+## Features
 
-Configuration is done with `config.yaml` and there is a schema to help you
-fill it out. See below.
+- **Real-time processing** of ACARS/VDLM2 message streams from ACARSHub
+- **Intelligent filtering** with AI classification (OpenAI, local Ollama) and configurable criteria
+- **Data enrichment** from ADS-B Exchange, tar1090, and custom annotations
+- **Flexible delivery** to Discord webhooks, New Relic, and custom endpoints
+- **Production-ready** with Docker support, database options, and comprehensive monitoring
 
-## Available filters
+## Quick Start
 
-See the configuration section, but at a high level:
+### Docker (Recommended)
 
-- ACARS and VDLM2: Just message similarity at the moment. Many more in `Generic`
-- Generic: Filter on aspects of the message such as if an emergency was
-  specified or if the message has additional message text.
-- Ollama: Provide a yes/no or affirmative/negative prompt and Ollama will
-  evalutate the message and decide if it should be filtered.
-- OpenAI: Provide a yes/no or affirmative/negative prompt and OpenAI will
-  evalutate the message and decide if it should be filtered.
+```bash
+# Download example files
+curl -o docker-compose.yml https://raw.githubusercontent.com/tyzbit/acars-processor/main/docker-compose.example.yml
+curl -o .env https://raw.githubusercontent.com/tyzbit/acars-processor/main/.env.example
 
-### A Note on Filters
+# Configure your environment
+nano .env
 
-Filters fail **CLOSED** by default which means if they fail (only when something
-goes wrong), **by default they do not filter the message**.
+# Start services
+docker-compose up -d
 
-## Available annotators
+# Monitor logs
+docker-compose logs -f acars-processor
+```
 
-- ACARS: This will add key/value fields for all data in the original ACARS
-  message
+### Binary Installation
 
-- VDLM2: Same as above but for VDLM2 messages
+```bash
+# Download and setup
+wget https://github.com/tyzbit/acars-processor/releases/latest/download/acars-processor-linux-amd64
+chmod +x acars-processor-linux-amd64
+wget https://raw.githubusercontent.com/tyzbit/acars-processor/main/config_example.yaml -O config.yaml
 
-- ADS-B Exchange: Adds geolocation information for the transmitter of the
-  message and optionally calculates distance to a configurable geolocation.
+# Configure and run
+nano config.yaml
+./acars-processor-linux-amd64 -c config.yaml
+```
 
-- Tar1090: Adds a lot of information from a tar1090 instance including location.
-  It's advised to use one running in the same geographical location as the
-  ACARS/VDLM2 receiver.
+## Configuration
 
-- Ollama: Uses Ollama and it will return a processed response based on your
-  instructions. you can also ask a question about the message, which can be used
-  to annotate and filter in one step. This is likely not as effective as just
-  using the Ollama filter itself.
+ACARS processor uses YAML configuration with environment variable substitution:
 
-## Available receivers
+```yaml
+ACARSProcessorSettings:
+  ACARSHub:
+    ACARS:
+      Host: "${ACARSHUB_HOST}"
+      Port: 15550
+  Database:
+    Type: sqlite
+    SQLiteDatabasePath: ./messages.db
+  LogLevel: info
 
-- New Relic: Sends custom events to New Relic
-- Discord: Calls a Discord webhook to post messages in a channel.
-- Custom Webhook: Calls a webhook however you want - See below for usage
+Annotators:
+  ACARS:
+    Enabled: true
+  ADSBExchange:
+    Enabled: true
+    APIKey: "${ADSB_API_KEY}"
 
-### General Configuration
+Filters:
+  Generic:
+    HasText: true
+    Emergency: true
 
-Check `config_example.yaml` for all possible settings and illustrative values.
-You can duplicate it to `config.yaml` and edit it or copy it but only keep the
-first line. This will let you auto-complete the file if your editor supports it.
+Receivers:
+  DiscordWebhook:
+    Enabled: true
+    URL: "${DISCORD_WEBHOOK_URL}"
+```
 
-You can use environment variables (`${apikey}`) in the config and they will
-be substituted from the environment before the app starts. It's highly 
-recommended to quote your values in case substitution fails so you don't
-chase misleading errors.
+**Environment variables**:
+```bash
+export ACARSHUB_HOST="your-acarshub-host"
+export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
+export ADSB_API_KEY="your-adsb-exchange-key"
+```
 
-### A Note on Using Large Language Models for Filters
+**Generate schema for IDE support**:
+```bash
+./acars-processor -s  # Creates schema.json
+```
 
-OpenAI's gpt3.5 and higher do well with the system prompt. With OllamaFilter,
-the model you choose will greatly impact the quality of the filtering.
-I recommend `gemma3:4b`. It uses about 8GB at runtime but is similar in
-effectiveness to OpenAI's models.
+## Usage Examples
 
-If you're not seeing great results out of your model, be verbose, explicit and
-include examples of what you want to see and not see. you can also try
-a different one or try overriding the system prompt with
-`FILTER_OLLAMA_SYSTEM_PROMPT`. If acars-processor isn't able to pull a JSON
-object from the response, it'll log what it got from the model at a
-`DEBUG` level for troubleshooting. If your performance isn't great,
-reduce `FILTER_OLLAMA_MAX_PREDICTION_TOKENS` and/or increase
-`ACARSHUB_MAX_CONCURRENT_REQUESTS_PER_SUBSCRIBER` as well as review your OllamaFilter
-configuration for improvements (such as number of parallel requests)
+### Emergency Monitoring
+```yaml
+Filters:
+  Generic:
+    Emergency: true
+  OpenAI:
+    Enabled: true
+    UserPrompt: "Is this an aircraft emergency?"
+    Model: "gpt-4"
+Receivers:
+  DiscordWebhook:
+    URL: "${EMERGENCY_WEBHOOK_URL}"
+```
 
-#### Webhooks
+### Regional Aircraft Tracking
+```yaml
+Annotators:
+  Tar1090:
+    URL: "http://local-tar1090/"
+    ReferenceGeolocation: "40.7128,-74.0060"
+Filters:
+  Generic:
+    BelowDistanceNm: 100.0  # Within 100nm
+    AboveSignaldBm: -60.0   # Strong signals only
+```
 
-In order to define the payload for your webhook, edit `receiver_webhook.tpl`
-and add the fields and values that you need with
-[valid Go template syntax](https://pkg.go.dev/text/template).
-An example is provided which shows a very simple webhook payload
-that uses annotations from the ACARS annotator.
+### Maintenance Detection
+```yaml
+Filters:
+  Ollama:
+    Enabled: true
+    Model: "gemma2:9b"
+    UserPrompt: "Does this discuss aircraft maintenance or technical issues?"
+```
 
-# Contributing
+## Documentation
 
-First off, thanks for your interest! All contributions are welcome. Here's
-some info to help you get a good start:
+- **[Architecture](docs/ARCHITECTURE.md)** - System design, components, and data flow
+- **[API Reference](docs/API.md)** - Interfaces, data structures, and external APIs  
+- **[Configuration](docs/CONFIGURATION.md)** - Complete configuration reference and examples
+- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment and operations
+- **[Development Tools](docs/DEVELOPMENT.md)** - Development workflow and tooling
+- **[Utilities](docs/UTILITIES.md)** - Template system and utility functions
+- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Diagnostic procedures and issue resolution
+- **[Contributing](docs/CONTRIBUTING.md)** - Development setup and guidelines
 
-- Check go.mod for which Go version we're using. As of this writing, that's 1.24
-- Install the pre-commit hook by installing
-  [pre-commit](https://pre-commit.com/#install) and then running
-  `pre-commit install` in the root directory of the repo.
-- If you use VSCode, there's already an example launch config for debugging.
-- Although large language model use is strongly discouraged, it is not forbidden
-  (but this could change at any time). you will not be given special leniency
-  for counterfeit code that must be tediously tweaked after you make your PR
-  due to inept AI. Weigh the efficacy of your tools against the new, additional
-  work they make for you by using them.
-- Colors should follow the general guide below to help with accessibility.
+## Support
 
-| Type of event                    | Recommended color | Example message                                      |
-| -------------------------------- | ----------------- | ---------------------------------------------------- |
-| Success                          | Green             | Connected successfully                               |
-| Information                      | White             | 10 filters enabled                                   |
-| Unusual, but all is OK           | Cyan              | No info back from annotators                         |
-| Unusual, might need looking into | Yellow            | No receivers configured                              |
-| Verbose, raw output              | Black             | "++86501,N8867Q,B7378MAX,250608,WN0393...."          |
-| Sidenote or additional info      | Bold & Italic     | "Filtering due to excessive use of exclamations!!!!" |
+- **Issues**: [GitHub Issues](https://github.com/tyzbit/acars-processor/issues) for bugs and feature requests
+- **Discussions**: [GitHub Discussions](https://github.com/tyzbit/acars-processor/discussions) for questions and support
+
+## License
+
+GPL v3 - see [LICENSE](LICENSE) for details.
+
+---
+
+⚠️ **Security Note**: This software processes aviation communications which may contain sensitive operational information. Ensure appropriate security measures for your deployment environment.
