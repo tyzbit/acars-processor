@@ -559,61 +559,10 @@ type Config struct {
 }
 ```
 
-### Linting configuration
+### Code quality
 
-This file doesn't exist. Standard Go linting however devs want to do it is fine. If you want to keep this, please also create a `.golangci.yml`
-```yaml
-linters-settings:
-  gocyclo:
-    min-complexity: 15
-  
-  govet:
-    check-shadowing: true
-  
-  lll:
-    line-length: 120
-  
-  misspell:
-    locale: US
-
-linters:
-  enable:
-    - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - errcheck
-    - gocyclo
-    - gofmt
-    - goimports
-    - golint
-    - gomnd
-    - goprintffuncname
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - lll
-    - misspell
-    - nakedret
-    - rowserrcheck
-    - staticcheck
-    - structcheck
-    - stylecheck
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - varcheck
-    - whitespace
-
-issues:
-  exclude-rules:
-    - path: _test\.go
-      linters:
-        - gosec
-        - lll
-```
+**Linting**:
+Standard Go linting is recommended for code quality. Developers can use their preferred linting tools and configurations.
 
 ### Security considerations
 
@@ -886,7 +835,7 @@ If you have ideas about how this could be implemented, include them here.
 - Writing documentation drafts
 
 **What to avoid**:
-- Generating complex business logic
+- Generating complex application logic
 - Security-sensitive code
 - Performance-critical sections
 - Integration code for external APIs

@@ -85,9 +85,7 @@ Annotators:
     Enabled: true
     SelectedFields:
       # See config_example.yaml for complete list of available fields
-      - acarsFlightNumber
-      - acarsAircraftTailCode  
-      - acarsMessageText
+      # Many fields available - reference config_example.yaml for all options
 ```
 
 #### VDLM2 protocol annotator
@@ -208,7 +206,7 @@ Filters:
     Enabled: true
     APIKey: "${OPENAI_API_KEY}"
     Model: "gpt-4"
-    SystemPrompt: "Respond only YES or NO based on message significance."
+    # Note: SystemPrompt should preserve required response format
     UserPrompt: "Is this message about emergencies or significant events?"
     Timeout: 15
 ```
@@ -219,7 +217,7 @@ Filters:
     Enabled: true
     URL: "http://ollama:11434"
     Model: "gemma2:9b"
-    SystemPrompt: "Classify aviation messages as significant or routine."
+    # Note: SystemPrompt should preserve required response format
     UserPrompt: "Is this an emergency or maintenance issue? YES/NO"
     MaxPredictionTokens: 50
     FilterOnFailure: false              # Don't filter if AI fails
@@ -244,6 +242,8 @@ Receivers:
 ```
 
 #### New Relic receiver
+
+Send messages as custom events to New Relic for searching, processing and dashboarding.
 
 ```yaml
   NewRelic:
@@ -277,7 +277,7 @@ The application generates JSON schema for configuration validation:
 # Generate schema
 ./acars-processor -s
 
-# Install validator (requires Node.js)
+# Install jsonschema validator (requires Node.js and ajv-cli package)
 npm install -g ajv-cli
 
 # Validate configuration
@@ -286,7 +286,7 @@ ajv validate -s schema.json -d config.yaml
 
 **IDE integration**:
 The generated `schema.json` provides:
-- Real-time validation in VS Code, IntelliJ, and other editors
+- Real-time validation in VS Code, IntelliJ, and other editors  
 - Autocomplete for configuration options
 - Inline documentation for all settings
 - Type checking and format validation
