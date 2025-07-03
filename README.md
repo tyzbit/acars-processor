@@ -1,12 +1,12 @@
 # ACARS Processor
 
-A Go daemon that processes ACARS and VDL Mode 2 messages in real-time. Connects to ACARSHub, filters and enriches messages with AI analysis, then delivers results to Discord, New Relic, or custom endpoints.
+A Go app/daemon that processes ACARS and VDL Mode 2 messages in real-time. Connects to ACARSHub, filters and enriches messages with (optional) AI analysis, then delivers results to Discord or custom endpoints. 
 
 ## Features
 
 - Real-time ACARS/VDLM2 message processing from ACARSHub
-- AI-powered filtering (OpenAI, local Ollama) and configurable criteria  
-- Data enrichment from ADS-B Exchange, tar1090, and custom annotations
+- **Optional** AI-powered filtering (OpenAI, local Ollama) and configurable criteria 
+- Data enrichment from ADS-B Exchange, tar1090, and custom annotations (ADSBx API required for enrichment -- works just fine without it) 
 - Output to Discord webhooks, New Relic, and custom endpoints
 - Docker support with SQLite and MariaDB database options
 
@@ -18,7 +18,7 @@ A Go daemon that processes ACARS and VDL Mode 2 messages in real-time. Connects 
 # Get configuration template
 curl -o config.yaml https://raw.githubusercontent.com/tyzbit/acars-processor/main/config_example.yaml
 
-# Edit configuration
+# Edit configuration (Nano is what is used, but feel free to use whatever edit you like obviously) 
 nano config.yaml
 
 # Build and run
@@ -47,7 +47,7 @@ nano config.yaml
 
 ## Configuration
 
-ACARS processor uses YAML configuration with environment variable substitution:
+ACARS processor uses .yaml configuration with environment variable substitution:
 
 ```yaml
 ACARSProcessorSettings:
@@ -145,5 +145,3 @@ Filters:
 GPL v3 - see [LICENSE](LICENSE) for details.
 
 ---
-
-⚠️ **Security Note**: This software processes aviation communications which may contain sensitive operational information. Ensure appropriate security measures for your deployment environment.
