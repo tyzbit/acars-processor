@@ -28,9 +28,8 @@ wget https://raw.githubusercontent.com/tyzbit/acars-processor/main/config_exampl
 ./acars-processor-linux-amd64 -c config.yaml
 ```
 
-## Configuration examples
+## Setup examples
 
-### Development setup
 ```yaml
 ACARSProcessorSettings:
   ACARSHub:
@@ -55,44 +54,12 @@ Receivers:
     URL: "${DISCORD_WEBHOOK_URL}"
 ```
 
-### Production setup
-```yaml
-ACARSProcessorSettings:
-  ACARSHub:
-    ACARS:
-      Host: "${ACARSHUB_HOST}"
-      Port: 15550
-  Database:
-    Type: mariadb
-    ConnectionString: "${DB_CONNECTION_STRING}"
-  LogLevel: info
-
-Annotators:
-  ACARS:
-    Enabled: true
-  ADSBExchange:
-    Enabled: true
-    APIKey: "${ADSB_API_KEY}"
-
-Filters:
-  Generic:
-    HasText: true
-    Emergency: true
-
-Receivers:
-  DiscordWebhook:
-    URL: "${DISCORD_WEBHOOK_URL}"
-  NewRelic:
-    Enabled: true
-    APIKey: "${NEWRELIC_API_KEY}"
-```
-
 ## Database setup
 
-### SQLite (development)
+### SQLite
 Default configuration creates SQLite database automatically.
 
-### MariaDB (production)
+### MariaDB
 Create database and user:
 ```sql
 CREATE DATABASE acars_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
