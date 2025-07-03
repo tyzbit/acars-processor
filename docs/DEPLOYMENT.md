@@ -28,7 +28,7 @@ wget https://raw.githubusercontent.com/tyzbit/acars-processor/main/config_exampl
 ./acars-processor-linux-amd64 -c config.yaml
 ```
 
-## Setup examples
+## Setup example
 
 ```yaml
 ACARSProcessorSettings:
