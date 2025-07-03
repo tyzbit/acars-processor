@@ -106,7 +106,7 @@ Key functions:
 
 **Receiver types**:
 - **Discord webhook** (`receiver_discord.go`): Posts formatted messages to Discord channels
-- **New Relic** (`receiver_newrelic.go`): Sends telemetry data for monitoring
+- **New Relic** (`receiver_newrelic.go`): Receiver that takes annotations and creates custom New Relic events for searching, processing and dashboarding. 
 - **Custom webhook** (`reciever_webhook.go`): Flexible HTTP endpoint integration with templating
 
 **Template system**: Custom webhooks use Go's `text/template` package with `receiver_webhook.tpl` for payload customization.
@@ -115,10 +115,6 @@ Key functions:
 
 **Location**: `db.go`
 **Purpose**: Provides message storage and retrieval capabilities
-
-**Supported databases**:
-- **SQLite**: Default for development and single-instance deployments
-- **MySQL/MariaDB**: Recommended for production and multi-instance deployments
 
 **Schema management**: Uses GORM for automatic schema migration and ORM capabilities.
 
