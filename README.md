@@ -1,6 +1,6 @@
 # ACARS Processor
 
-A Go app/daemon that processes ACARS and VDL Mode 2 messages in real-time. Connects to ACARSHub, filters and enriches messages with (optional) AI analysis, then delivers results to Discord or custom endpoints. 
+A Go daemon that processes ACARS and VDL Mode 2 messages in real-time. Connects to ACARSHub, filters and enriches messages with (optional) AI analysis, then delivers results to Discord or custom endpoints. 
 
 ## Features
 
