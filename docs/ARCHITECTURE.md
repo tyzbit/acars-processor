@@ -13,12 +13,12 @@ ACARS processor is a Go message processing pipeline that handles ACARS and VDL M
 │   ACARSHub      │    │  ACARS Processor │    │   Receivers     │
 │                 │    │                  │    │                 │
 │ ┌─────────────┐ │    │ ┌──────────────┐ │    │ ┌─────────────┐ │
-│ │ ACARS Port  │─┼────┼─│   Ingestion  │─┼────┼─│   Discord   │ │
+│ │ ACARS Port  │ │    │ |   Ingestion  │─┼────┼─│   Discord   │ │
 │ │   :15550    │ │    │ │              │ │    │ │   Webhook   │ │
 │ └─────────────┘ │    │ └──────┬───────┘ │    │ └─────────────┘ │
-│                 │    │        │         │    │                 │
+│                ─┼────┼─       │         │    │                 │
 │ ┌─────────────┐ │    │ ┌──────▼───────┐ │    │ ┌─────────────┐ │
-│ │ VDLM2 Port  │─┼────┼─│   Filters    │ │    │ │  New Relic  │ │
+│ │ VDLM2 Port  │ │    │ │   Filters    │ │    │ │  New Relic  │ │
 │ │   :15555    │ │    │ │              │ │    │ │             │ │
 │ └─────────────┘ │    │ └──────┬───────┘ │    │ └─────────────┘ │
 └─────────────────┘    │        │         │    │                 │
