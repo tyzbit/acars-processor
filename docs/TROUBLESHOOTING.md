@@ -36,21 +36,22 @@ Test configuration loading:
 
 ## Common issues
 
-**No messages received**: Check ACARSHub connection and port availability.
+**No messages received**: Check ACARSHub connection and port availability -- if you're running ACARSHub in Docker, make sure your docker-compose has the ports open. Ensure you've set ACARSHub to send outputs to ACARS Processor.
 
-**AI filtering not working**: Verify API keys and model availability.
+**AI filtering not working**: Verify API keys and model availability -- including system status. If you're still having a problem open an issue. 
 
-**Discord webhook failing**: Check webhook URL and Discord server permissions.
+**Discord webhook failing**: Check webhook URL -- ensure you aren't including any extra characters (you'd be surprised). Ensure you copied the correct webhook. 
 
-**Database errors**: Ensure database file is writable (SQLite) or connection details are correct (MariaDB).
+**Database errors**: Ensure database file is writable (SQLite) or connection details are correct (MariaDB). Ensure permissions are set correctly. 
 
-**High CPU usage**: Reduce filter complexity or enable message rate limiting.
+**If you run into a problem you can't fix, please open an issue!) 
 
 ## Getting help
 
-1. Enable debug logging
-2. Check logs for error messages
-3. [Open an issue](https://github.com/tyzbit/acars-processor/issues) with:
-   - Configuration (remove sensitive data)
+1. Check logs for error messages
+2. [Open an issue](https://github.com/tyzbit/acars-processor/issues) with:
+   - Configuration (remove sensitive data like webhook URLs or API keys)
    - Log snippets showing the problem
    - Steps to reproduce
+   - What steps you've already tried are a good bonus
+   - Your OS + specs
