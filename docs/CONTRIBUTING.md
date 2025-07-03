@@ -2,7 +2,25 @@
 
 ## Getting started
 
-You'll need Go 1.24+ and Git. Docker is optional for container testing.
+First off, thanks for your interest! All contributions are welcome. Here's some info to help you get a good start:
+
+* Check go.mod for which Go version we're using. As of this writing, that's 1.24
+* Install the pre-commit hook by installing pre-commit and then running pre-commit install in the root directory of the repo.
+*  If you use VSCode, there's already an example launch config for debugging.
+*  Although large language model use is strongly discouraged, it is not forbidden (but this could change at any time). you will not be given special leniency for counterfeit code that must be tediously tweaked after you make your PR due to inept AI. Weigh the efficacy of your tools against the new, additional work they make for you by using them.
+ * Colors should follow the general guide below to help with accessibility.
+
+| Function     | Color         | Purpose / Usage Description                             |
+|--------------|---------------|----------------------------------------------------------|
+| `Success`    | Green         | Indicates a successful operation or positive result.     |
+| `Content`    | Magenta       | Used for general output or primary message content.      |
+| `Note`       | Cyan          | Marks informational notes or helpful context.            |
+| `Attention`  | Yellow        | Highlights warnings, required actions, or caution areas. |
+| `Aside`      | Dark Grey     | Used for less important info or inline side notes.       |
+| `Emphasised` | Bold + Italic | Emphasizes important text via formatting (not color).    |
+| `Custom`     | Custom Color  | Allows specifying any custom color for special use.      |
+
+
 
 ### Setup
 
