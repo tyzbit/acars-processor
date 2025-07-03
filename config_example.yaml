@@ -197,6 +197,7 @@ Receivers:
   DiscordWebhook:
     Enabled: true
     FormatText: true
+    FormatTimestamps: true
     RequiredFields:
     - acarsMessageText
     URL: https://discord.com/api/webhooks/1234321/unique_id1234

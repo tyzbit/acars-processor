@@ -64,13 +64,19 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		log.Info(Content("one or more required fields not present, not calling discord"))
 		return nil
 	}
+	r, _ := regexp.Compile(".*Text")
+	t, _ := regexp.Compile(".*Timestamp")
 	for _, key := range keys {
-		r, _ := regexp.Compile(".*Text")
 		textField := r.MatchString(key)
+		timeField := t.MatchString(key)
 		v := a[key]
 		if config.Receivers.DiscordWebhook.FormatText &&
 			v != "" && textField {
 			v = fmt.Sprintf("```%s```", v)
+		}
+		if config.Receivers.DiscordWebhook.FormatTimestamps &&
+			v != "" && timeField {
+			v = fmt.Sprintf("<t:%d:R>", v)
 		}
 		content = fmt.Sprintf("%s\n**%s**: %v", content, key, v)
 	}

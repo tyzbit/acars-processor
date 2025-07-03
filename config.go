@@ -313,6 +313,8 @@ type DiscordWebhookReceiverConfig struct {
 	URL string `jsonschema:"required" default:"https://discord.com/api/webhooks/1234321/unique_id1234"`
 	// Surround fields with message content with backticks so they are monospaced and stand out.
 	FormatText bool `jsonschema:"default=true" default:"true"`
+	// Add Discord-specific formatting to show human-readable instants from timestamps
+	FormatTimestamps bool `jsonschema:"default=true" default:"true"`
 	// Require a specific field to be populated or else no message will be sent
 	RequiredFields []string `default:"[acarsMessageText]"`
 }
