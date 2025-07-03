@@ -8,7 +8,7 @@ You'll need Go 1.24+ and Git. Docker is optional for container testing.
 
 1. Fork and clone:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/acars-processor.git
+   git clone https://github.com/tyzbit/acars-processor.git
    cd acars-processor
    ```
 
