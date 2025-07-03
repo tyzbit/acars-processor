@@ -18,30 +18,9 @@ This creates:
 - `schema.json` - JSON schema for IDE autocomplete and validation
 - `config_example.yaml` - Complete example configuration
 
-### Environment variable substitution
-
-Use `${VARIABLE_NAME}` syntax for environment variables:
-
-```yaml
-ACARSProcessorSettings:
-  ACARSHub:
-    ACARS:
-      Host: "${ACARSHUB_HOST}"
-      Port: 15550
-  
-Receivers:
-  DiscordWebhook:
-    URL: "${DISCORD_WEBHOOK_URL}"
-```
-
-Variable handling:
-- Variables resolve at startup
-- Missing variables become empty strings
-- Quote values containing variables to prevent YAML parsing issues
-
 ## Core configuration sections
 
-### ACARSProcessorSettings
+### ACARS Processor Settings
 
 Central application configuration for database, logging, and ACARSHub connectivity.
 
@@ -294,7 +273,6 @@ The generated `schema.json` provides:
 
 **Configuration loading errors**:
 - Invalid YAML syntax causes immediate startup failure
-- Missing environment variables result in empty string values
 - Invalid enum values (log levels, database types) cause startup failure
 - Network connectivity issues to external services are logged as warnings
 
@@ -305,29 +283,6 @@ The generated `schema.json` provides:
 
 ## Best practices
 
-### Security considerations
-
-1. **Environment variables for secrets**:
-   ```bash
-   # Good - secrets in environment
-   export OPENAI_API_KEY="sk-your-secret-key"
-   export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
-   
-   # Bad - secrets in config file
-   # APIKey: "sk-your-secret-key"  # Never do this
-   ```
-
-2. **File permissions**:
-   ```bash
-   # Restrict config file access
-   chmod 600 config.yaml
-   ```
-
-3. **Database security**:
-   ```yaml
-   Database:
-     ConnectionString: "${DB_USER}:${DB_PASS}@tcp(${DB_HOST}:3306)/${DB_NAME}?charset=utf8mb4&parseTime=True&loc=Local&tls=true"
-   ```
 
 ### Performance optimization
 
@@ -335,7 +290,7 @@ The generated `schema.json` provides:
    ```yaml
    ACARSProcessorSettings:
      ACARSHub:
-       MaxConcurrentRequests: 20  # Tune based on CPU cores and network capacity
+       MaxConcurrentRequests: 20  # This is split between the number of messages that can be processed at once with ACARS and VDLM2. For example, this setting is 20. That means 10 ACARS and 10 VDLM2 messages can process concurrently.
    ```
 
 2. **AI service timeouts**:
