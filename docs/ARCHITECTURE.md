@@ -2,7 +2,7 @@
 
 ## Overview
 
-ACARS processor is a Go-based message processing pipeline designed to handle Aircraft Communication Addressing and Reporting System (ACARS) and VHF Data Link Mode 2 (VDLM2) messages in real-time. The application follows a modular, plugin-based architecture that enables flexible message processing through configurable filters, annotators, and receivers.
+ACARS processor is a Go message processing pipeline that handles ACARS and VDL Mode 2 messages in real-time. It uses a modular architecture with configurable filters, annotators, and receivers.
 
 ## System architecture
 
@@ -39,15 +39,15 @@ ACARS processor is a Go-based message processing pipeline designed to handle Air
 
 #### 1. Message ingestion subsystem
 
-**Location**: `acarshub.go`
-**Purpose**: Establishes persistent TCP connections to ACARSHub for real-time message streaming
+**Location**: `acarshub.go`  
+**Purpose**: Establishes TCP connections to ACARSHub for real-time message streaming
 
-**Key functions**:
-- `SubscribeToACARSHub()`: Orchestrates connection establishment
-- `ReadACARSHubACARSMessages()`: Handles ACARS message stream
-- `ReadACARSHubVDLM2Messages()`: Handles VDLM2 message stream
-- `HandleACARSJSONMessages()`: Processes ACARS messages through the pipeline
-- `HandleVDLM2JSONMessages()`: Processes VDLM2 messages through the pipeline
+Key functions:
+- `SubscribeToACARSHub()` - Connection setup
+- `ReadACARSHubACARSMessages()` - ACARS message stream handling  
+- `ReadACARSHubVDLM2Messages()` - VDLM2 message stream handling
+- `HandleACARSJSONMessages()` - ACARS message processing
+- `HandleVDLM2JSONMessages()` - VDLM2 message processing
 
 **Design patterns**:
 - **Producer-Consumer**: Message readers produce events, handlers consume from queues
@@ -330,7 +330,7 @@ type ACARSFilter interface {
 
 **Monitoring integration**:
 - New Relic integration for application performance monitoring
-- Custom metrics and events for business logic monitoring
+- Custom metrics and events for message processing
 - Health check endpoints for container orchestration
 
 ### Failure recovery

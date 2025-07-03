@@ -2,26 +2,25 @@
 
 ## Overview
 
-ACARS processor uses a comprehensive YAML-based configuration system with automatic JSON schema generation and IDE support. The configuration supports environment variable substitution and provides extensive validation to ensure proper application startup.
+ACARS processor uses YAML configuration with automatic JSON schema generation and environment variable substitution.
 
 ## Configuration structure
 
 ### Schema generation
 
-The application automatically generates configuration schemas using Go struct reflection:
+Generate configuration schema and examples:
 
-**Generate schema and example configuration**:
 ```bash
 ./acars-processor -s
 ```
 
 This creates:
 - `schema.json` - JSON schema for IDE autocomplete and validation
-- `config_example.yaml` - Complete example configuration with all options
+- `config_example.yaml` - Complete example configuration
 
 ### Environment variable substitution
 
-All configuration values support environment variable substitution using the `${VARIABLE_NAME}` syntax:
+Use `${VARIABLE_NAME}` syntax for environment variables:
 
 ```yaml
 ACARSProcessorSettings:
@@ -35,16 +34,16 @@ Receivers:
     URL: "${DISCORD_WEBHOOK_URL}"
 ```
 
-**Environment variable handling**:
-- Variables are resolved at application startup
-- Missing variables result in empty strings (not startup failure)
-- Use quotes around values containing variables to prevent YAML parsing issues
+Variable handling:
+- Variables resolve at startup
+- Missing variables become empty strings
+- Quote values containing variables to prevent YAML parsing issues
 
 ## Core configuration sections
 
 ### ACARSProcessorSettings
 
-Central application configuration including database, logging, and ACARSHub connectivity.
+Central application configuration for database, logging, and ACARSHub connectivity.
 
 ```yaml
 ACARSProcessorSettings:
@@ -375,5 +374,3 @@ ACARSProcessorSettings:
     Type: mysql                  # Production database
     ConnectionString: "${DATABASE_URL}"
 ```
-
-This configuration system provides comprehensive control over all aspects of ACARS processor operation while maintaining security best practices and development workflow efficiency.

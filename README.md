@@ -1,42 +1,41 @@
 # ACARS Processor
 
-A high-performance Go daemon that processes Aircraft Communication Addressing and Reporting System (ACARS) and VHF Data Link Mode 2 (VDLM2) messages in real-time. Connect to ACARSHub, filter and enrich messages with AI-powered analysis, and deliver results to Discord, monitoring systems, or custom endpoints.
+A Go daemon that processes ACARS and VDL Mode 2 messages in real-time. Connects to ACARSHub, filters and enriches messages with AI analysis, then delivers results to Discord, New Relic, or custom endpoints.
 
 ## Features
 
-- **Real-time processing** of ACARS/VDLM2 message streams from ACARSHub
-- **Intelligent filtering** with AI classification (OpenAI, local Ollama) and configurable criteria
-- **Data enrichment** from ADS-B Exchange, tar1090, and custom annotations
-- **Flexible delivery** to Discord webhooks, New Relic, and custom endpoints
-- **Production-ready** with Docker support, database options, and comprehensive monitoring
+- Real-time ACARS/VDLM2 message processing from ACARSHub
+- AI-powered filtering (OpenAI, local Ollama) and configurable criteria  
+- Data enrichment from ADS-B Exchange, tar1090, and custom annotations
+- Output to Discord webhooks, New Relic, and custom endpoints
+- Docker support with SQLite and MariaDB database options
 
-## Quick Start
+## Quick start
 
-### Docker (Recommended)
+### Docker
 
 ```bash
-# Create a docker-compose.yml file based on the example
-# Download configuration examples
+# Get configuration template
 curl -o config.yaml https://raw.githubusercontent.com/tyzbit/acars-processor/main/config_example.yaml
 
-# Configure your environment
+# Edit configuration
 nano config.yaml
 
-# Build and run with Docker
+# Build and run
 docker build -t acars-processor .
 docker run -d --name acars-processor \
   -v $(pwd)/config.yaml:/app/config.yaml \
   -v $(pwd)/data:/app/data \
   acars-processor
 
-# Monitor logs
+# View logs
 docker logs -f acars-processor
 ```
 
-### Binary Installation
+### Binary
 
 ```bash
-# Download and setup
+# Download binary and config
 wget https://github.com/tyzbit/acars-processor/releases/latest/download/acars-processor-linux-amd64
 chmod +x acars-processor-linux-amd64
 wget https://raw.githubusercontent.com/tyzbit/acars-processor/main/config_example.yaml -O config.yaml
@@ -79,21 +78,21 @@ Receivers:
     URL: "${DISCORD_WEBHOOK_URL}"
 ```
 
-**Environment variables**:
+Set environment variables:
 ```bash
 export ACARSHUB_HOST="your-acarshub-host"
 export DISCORD_WEBHOOK_URL="https://discord.com/api/webhooks/..."
 export ADSB_API_KEY="your-adsb-exchange-key"
 ```
 
-**Generate schema for IDE support**:
+Generate schema for IDE support:
 ```bash
 ./acars-processor -s  # Creates schema.json
 ```
 
-## Usage Examples
+## Examples
 
-### Emergency Monitoring
+Emergency monitoring:
 ```yaml
 Filters:
   Generic:
@@ -107,7 +106,7 @@ Receivers:
     URL: "${EMERGENCY_WEBHOOK_URL}"
 ```
 
-### Regional Aircraft Tracking
+Regional tracking:
 ```yaml
 Annotators:
   Tar1090:
@@ -119,7 +118,7 @@ Filters:
     AboveSignaldBm: -60.0   # Strong signals only
 ```
 
-### Maintenance Detection
+Maintenance detection:
 ```yaml
 Filters:
   Ollama:
@@ -130,18 +129,16 @@ Filters:
 
 ## Documentation
 
-- **[Architecture](docs/ARCHITECTURE.md)** - System design, components, and data flow
-- **[Configuration](docs/CONFIGURATION.md)** - Complete configuration reference and examples
-- **[Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment and operations
-- **[Development Tools](docs/DEVELOPMENT.md)** - Development workflow and tooling
-- **[Utilities](docs/UTILITIES.md)** - Template system and utility functions
-- **[Troubleshooting](docs/TROUBLESHOOTING.md)** - Diagnostic procedures and issue resolution
-- **[Contributing](docs/CONTRIBUTING.md)** - Development setup and guidelines
+- [Configuration](docs/CONFIGURATION.md) - Complete configuration reference  
+- [Architecture](docs/ARCHITECTURE.md) - System design and data flow
+- [Deployment](docs/DEPLOYMENT.md) - Installation and deployment
+- [Troubleshooting](docs/TROUBLESHOOTING.md) - Common issues and fixes
+- [Contributing](docs/CONTRIBUTING.md) - Bug reports and contributions
 
 ## Support
 
-- **Issues**: [GitHub Issues](https://github.com/tyzbit/acars-processor/issues) for bugs and feature requests
-- **Discussions**: [GitHub Discussions](https://github.com/tyzbit/acars-processor/discussions) for questions and support
+- [GitHub Issues](https://github.com/tyzbit/acars-processor/issues) for bugs and feature requests
+- [GitHub Discussions](https://github.com/tyzbit/acars-processor/discussions) for questions and support
 
 ## License
 
