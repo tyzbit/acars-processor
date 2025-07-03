@@ -65,17 +65,22 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		return nil
 	}
 	r, _ := regexp.Compile(".*Text")
-	t, _ := regexp.Compile(".*Timestamp")
+	ta, _ := regexp.Compile("acarsTimestamp")
+	tv, _ := regexp.Compile(".*Timestamp")
 	for _, key := range keys {
 		textField := r.MatchString(key)
-		timeField := t.MatchString(key)
+		acarsTimeField := ta.MatchString(key)
+		vdlm2TimeField := tv.MatchString(key)
 		v := a[key]
 		if config.Receivers.DiscordWebhook.FormatText &&
 			v != "" && textField {
 			v = fmt.Sprintf("```%s```", v)
 		}
+		if acarsTimeField {
+			v = int(v.(float64))
+		}
 		if config.Receivers.DiscordWebhook.FormatTimestamps &&
-			v != "" && timeField {
+			v != "" && (vdlm2TimeField || acarsTimeField) {
 			v = fmt.Sprintf("<t:%d:R>", v)
 		}
 		content = fmt.Sprintf("%s\n**%s**: %v", content, key, v)
