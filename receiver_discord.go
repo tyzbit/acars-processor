@@ -66,7 +66,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	}
 	r, _ := regexp.Compile(".*Text")
 	ta, _ := regexp.Compile("acarsTimestamp")
-	tv, _ := regexp.Compile(".*Timestamp")
+	tv, _ := regexp.Compile("vdlm2Timestamp")
 	for _, key := range keys {
 		textField := r.MatchString(key)
 		acarsTimeField := ta.MatchString(key)
