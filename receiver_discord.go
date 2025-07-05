@@ -87,7 +87,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 			v = int(v.(float64))
 		}
 		if config.Receivers.DiscordWebhook.FormatTimestamps &&
-			v != "" && (vdlm2TimeField || acarsTimeField) {
+			(vdlm2TimeField || acarsTimeField) {
 			v = fmt.Sprintf("<t:%d:R>", v)
 		}
 		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
