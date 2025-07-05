@@ -195,6 +195,8 @@ Filters:
     Enabled: true
 Receivers:
   DiscordWebhook:
+    Embed: true
+    EmbedColorFacetField: acarsAircraftTailCode
     Enabled: true
     FormatText: true
     FormatTimestamps: true

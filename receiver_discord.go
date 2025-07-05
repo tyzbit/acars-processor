@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"net/http"
 	"regexp"
 	"slices"
@@ -12,6 +14,8 @@ import (
 
 	log "github.com/sirupsen/logrus"
 )
+
+const defaultEmbedColor = "1150122" // cyan, base 10
 
 type DiscordHandlerReciever struct {
 	Payload any
@@ -46,6 +50,9 @@ func (d DiscordHandlerReciever) Name() string {
 }
 
 func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
+	if config.Receivers.DiscordWebhook.URL == "" {
+		log.Panic(Attention("Discord webhook URL not specified"))
+	}
 	keys := make([]string, 0, len(a))
 	for k := range a {
 		keys = append(keys, k)
@@ -53,7 +60,6 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 	sort.Strings(keys)
 
-	var content string
 	requiredFieldsPresent := true
 	for _, requiredField := range config.Receivers.DiscordWebhook.RequiredFields {
 		if !slices.Contains(keys, requiredField) && a[requiredField] != "" {
@@ -64,13 +70,14 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		log.Info(Content("one or more required fields not present, not calling discord"))
 		return nil
 	}
+	buff := new(bytes.Buffer)
 	r, _ := regexp.Compile(".*Text")
-	ta, _ := regexp.Compile("acarsTimestamp")
-	tv, _ := regexp.Compile("vdlm2Timestamp")
+	var embeds []DiscordEmbed
+	var title, content, color string
 	for _, key := range keys {
 		textField := r.MatchString(key)
-		acarsTimeField := ta.MatchString(key)
-		vdlm2TimeField := tv.MatchString(key)
+		acarsTimeField := key == "acarsTimestamp"
+		vdlm2TimeField := key == "vdlm2Timestamp"
 		v := a[key]
 		if config.Receivers.DiscordWebhook.FormatText &&
 			v != "" && textField {
@@ -83,14 +90,53 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 			v != "" && (vdlm2TimeField || acarsTimeField) {
 			v = fmt.Sprintf("<t:%d:R>", v)
 		}
-		content = fmt.Sprintf("%s\n**%s**: %v", content, key, v)
+		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 	}
+	if config.Receivers.DiscordWebhook.Embed {
+		var tailcode, transmitter, url, embedContent string
 
+		for _, key := range keys {
+			v := fmt.Sprintf("%v", a[key])
+			if key == "acarsAircraftTailCode" {
+				tailcode = "(" + v + ")"
+			}
+			if key == "acarsMessageFrom" {
+				transmitter = v
+				if v == "Tower" {
+					if slices.Contains(keys, "acarsFlightNumber") {
+						tailcode = "(to flight " + a["acarsFlightNumber"].(string) + ")"
+					}
+				}
+			}
+			if key == config.Receivers.DiscordWebhook.EmbedColorFacetField {
+				color = GetRGBForString(v)
+			}
+			if key == "acarsExtraPhotos" {
+				url = v
+				embedContent = embedContent + "\n" + v
+			}
+			content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
+		}
+
+		embeds = append(embeds, DiscordEmbed{
+			Title:       fmt.Sprintf("ACARS %s Message %s", transmitter, tailcode),
+			Description: content,
+			Color:       color,
+			URL:         url,
+		})
+		content = embedContent
+
+	}
+	// "Plain" message
+	if !config.Receivers.DiscordWebhook.Embed {
+		title = "# ACARS Message\n"
+	}
 	message := DiscordWebhookMessage{
-		Content: "# ACARS Message\n" + content,
+		Content: title + content,
+		// This will be an empty slice if embeds are not enabled
+		Embeds: embeds,
 	}
 
-	buff := new(bytes.Buffer)
 	err := json.NewEncoder(buff).Encode(message)
 	if err != nil {
 		return err
@@ -119,4 +165,11 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		log.Debug(Aside("discord api returned: %s", response))
 	}
 	return err
+}
+
+func GetRGBForString(s string) (rgb string) {
+	sha := sha256.New()
+	sha.Write([]byte(s))
+	hash := sha.Sum(nil)
+	return fmt.Sprintf("%d", int(big.NewInt(0).SetBytes(hash[0:3]).Uint64()))
 }

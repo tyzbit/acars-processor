@@ -20,6 +20,9 @@ func (n WebhookHandlerReciever) Name() string {
 
 // Must satisfy Receiver interface
 func (n WebhookHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error) {
+	if config.Receivers.Webhook.URL == "" {
+		log.Panic(Attention("Webhook URL not specified"))
+	}
 	t, err := template.ParseFiles("receiver_webhook.tpl")
 	if err != nil {
 		log.Fatal(Attention(err))
