@@ -109,6 +109,12 @@ type VDLM2Message struct {
 func (v VDLM2AnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
 	tailcode, _ := strings.CutPrefix(m.VDL2.AVLC.ACARS.Registration, ".")
 	text := m.VDL2.AVLC.ACARS.MessageText
+	var thumbnail, link string
+	img := getImageByRegistration(tailcode)
+	if img != nil {
+		thumbnail = img.ThumbnailLarge.Src
+		link = img.Link
+	}
 	// Please update config example values if changed
 	annotation = Annotation{
 		"vdlm2AppName":               m.VDL2.App.Name,
@@ -154,6 +160,8 @@ func (v VDLM2AnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsMessageText":           text,
 		"acarsExtraURL":              FlightAwareRoot + tailcode,
 		"acarsExtraPhotos":           FlightAwarePhotos + tailcode,
+		"acarsExtraThumbnail":        thumbnail,
+		"acarsExtraImageLink":        link,
 	}
 	return annotation
 }

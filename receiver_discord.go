@@ -93,12 +93,15 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 	}
 	if config.Receivers.DiscordWebhook.Embed {
-		var tailcode, transmitter, url, embedContent string
+		var tailcode, transmitter, url, embedContent, thumbnail string
 
 		for _, key := range keys {
 			v := fmt.Sprintf("%v", a[key])
 			if key == "acarsAircraftTailCode" {
 				tailcode = "(" + v + ")"
+			}
+			if key == "acarsExtraThumbnail" {
+				thumbnail = v
 			}
 			if key == "acarsMessageFrom" {
 				transmitter = v
@@ -111,11 +114,6 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 			if key == config.Receivers.DiscordWebhook.EmbedColorFacetField {
 				color = GetRGBForString(v)
 			}
-			if key == "acarsExtraPhotos" {
-				url = v
-				embedContent = embedContent + "\n" + v
-			}
-			content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 		}
 
 		embeds = append(embeds, DiscordEmbed{
@@ -123,6 +121,9 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 			Description: content,
 			Color:       color,
 			URL:         url,
+			Thumbnail: DiscordThumbnail{
+				URL: thumbnail,
+			},
 		})
 		content = embedContent
 

@@ -79,6 +79,12 @@ func (a ACARSAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation 
 	// Chop off leading periods
 	tailcode, _ := strings.CutPrefix(m.AircraftTailCode, ".")
 	text := m.MessageText
+	var thumbnail, link string
+	img := getImageByRegistration(tailcode)
+	if img != nil {
+		thumbnail = img.ThumbnailLarge.Src
+		link = img.Link
+	}
 	// Please update config example values if changed
 	annotation = Annotation{
 		"acarsFrequencyMHz":     m.FrequencyMHz,
@@ -105,6 +111,8 @@ func (a ACARSAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation 
 		"acarsFlightNumber":     m.FlightNumber,
 		"acarsExtraURL":         FlightAwareRoot + tailcode,
 		"acarsExtraPhotos":      FlightAwarePhotos + tailcode,
+		"acarsExtraThumbnail":   thumbnail,
+		"acarsExtraImageLink":   link,
 	}
 	return annotation
 }

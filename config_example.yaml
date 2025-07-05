@@ -33,7 +33,9 @@ Annotators:
     - acarsBlockID
     - acarsChannel
     - acarsErrorCode
+    - acarsExtraImageLink
     - acarsExtraPhotos
+    - acarsExtraThumbnail
     - acarsExtraURL
     - acarsFlightNumber
     - acarsFrequencyMHz
@@ -111,7 +113,9 @@ Annotators:
     - acarsBlockID
     - acarsCRCOK
     - acarsErrorCode
+    - acarsExtraImageLink
     - acarsExtraPhotos
+    - acarsExtraThumbnail
     - acarsExtraURL
     - acarsFlightNumber
     - acarsLabel
