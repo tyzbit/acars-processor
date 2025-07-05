@@ -200,7 +200,8 @@ Filters:
 Receivers:
   DiscordWebhook:
     Embed: true
-    EmbedColorFacetField: acarsAircraftTailCode
+    EmbedColorFacetFields:
+    - acarsAircraftTailCode
     Enabled: true
     FormatText: true
     FormatTimestamps: true

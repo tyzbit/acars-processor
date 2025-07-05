@@ -111,8 +111,8 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 					}
 				}
 			}
-			if key == config.Receivers.DiscordWebhook.EmbedColorFacetField {
-				color = GetRGBForString(v)
+			if slices.Contains(config.Receivers.DiscordWebhook.EmbedColorFacetFields, key) {
+				color = GetRGBForString(color + v)
 			}
 		}
 

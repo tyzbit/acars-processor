@@ -317,8 +317,8 @@ type DiscordWebhookReceiverConfig struct {
 	URL string `jsonschema:"required" default:"https://discord.com/api/webhooks/1234321/unique_id1234"`
 	// Should an embed be sent instead of a simpler message?
 	Embed bool `jsonschema:"default=true" default:"true"`
-	// Pick a field that deterministically determines the embed color
-	EmbedColorFacetField string `default:"acarsAircraftTailCode"`
+	// Pick one or more fields that deterministically determines the embed color
+	EmbedColorFacetFields []string `default:"[acarsAircraftTailCode]"`
 	// Surround fields with message content with backticks so they are monospaced and stand out.
 	FormatText bool `jsonschema:"default=true" default:"true"`
 	// Add Discord-specific formatting to show human-readable instants from timestamps
