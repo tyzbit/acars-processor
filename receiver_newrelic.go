@@ -21,6 +21,9 @@ func (n NewRelicHandlerReciever) Name() string {
 
 // Must satisfy Receiver interface
 func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error) {
+	if config.Receivers.NewRelic.APIKey == "" {
+		log.Panic(Attention("New Relic API key not specified"))
+	}
 	// Create a new harvester for sending telemetry data.
 	harvester, err := telemetry.NewHarvester(
 		telemetry.ConfigAPIKey(config.Receivers.NewRelic.APIKey),
