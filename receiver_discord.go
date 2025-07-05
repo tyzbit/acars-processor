@@ -73,7 +73,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	buff := new(bytes.Buffer)
 	r, _ := regexp.Compile(".*Text")
 	var embeds []DiscordEmbed
-	var title, content, color string
+	var title, content string
 	for _, key := range keys {
 		textField := r.MatchString(key)
 		acarsTimeField := key == "acarsTimestamp"
@@ -93,7 +93,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 	}
 	if config.Receivers.DiscordWebhook.Embed {
-		var tailcode, transmitter, url, embedContent, thumbnail string
+		var tailcode, transmitter, url, embedContent, thumbnail, embedColorString string
 
 		for _, key := range keys {
 			v := fmt.Sprintf("%v", a[key])
@@ -112,14 +112,14 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 				}
 			}
 			if slices.Contains(config.Receivers.DiscordWebhook.EmbedColorFacetFields, key) {
-				color = GetRGBForString(color + v)
+				embedColorString = embedColorString + v
 			}
 		}
 
 		embeds = append(embeds, DiscordEmbed{
 			Title:       fmt.Sprintf("ACARS %s Message %s", transmitter, tailcode),
 			Description: content,
-			Color:       color,
+			Color:       GetRGBForString(embedColorString),
 			URL:         url,
 			Thumbnail: DiscordThumbnail{
 				URL: thumbnail,
