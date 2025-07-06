@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"net/url"
 	"slices"
 	"strings"
 	"time"
@@ -158,10 +160,11 @@ func (v VDLM2AnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation 
 		"acarsMessageNumber":         m.VDL2.AVLC.ACARS.MessageNumber,
 		"acarsMessageNumberSequence": m.VDL2.AVLC.ACARS.MessageNumberSequence,
 		"acarsMessageText":           text,
-		"acarsExtraURL":              FlightAwareRoot + tailcode,
-		"acarsExtraPhotos":           FlightAwarePhotos + tailcode,
-		"acarsExtraThumbnail":        thumbnail,
+		"acarsExtraTrackingLink":     FlightAwareRoot + tailcode,
+		"acarsExtraPhotosLink":       FlightAwarePhotos + tailcode,
+		"acarsExtraThumbnailLink":    thumbnail,
 		"acarsExtraImageLink":        link,
+		"acarsExtraTranslateLink":    fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(text)),
 	}
 	return annotation
 }

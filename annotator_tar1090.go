@@ -187,7 +187,6 @@ func (a Tar1090AnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotatio
 		}
 		navmodes = navmodes + mode
 	}
-	// Please update config example values if changed
 	event := Annotation{
 		"tar1090ReferenceGeolocation":                        config.Annotators.Tar1090.ReferenceGeolocation,
 		"tar1090ReferenceGeolocationLatitude":                olat,

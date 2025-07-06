@@ -34,9 +34,10 @@ Annotators:
     - acarsChannel
     - acarsErrorCode
     - acarsExtraImageLink
-    - acarsExtraPhotos
-    - acarsExtraThumbnail
-    - acarsExtraURL
+    - acarsExtraPhotosLink
+    - acarsExtraThumbnailLink
+    - acarsExtraTrackingLink
+    - acarsExtraTranslateLink
     - acarsFlightNumber
     - acarsFrequencyMHz
     - acarsLabel
@@ -114,9 +115,10 @@ Annotators:
     - acarsCRCOK
     - acarsErrorCode
     - acarsExtraImageLink
-    - acarsExtraPhotos
-    - acarsExtraThumbnail
-    - acarsExtraURL
+    - acarsExtraPhotosLink
+    - acarsExtraThumbnailLink
+    - acarsExtraTrackingLink
+    - acarsExtraTranslateLink
     - acarsFlightNumber
     - acarsLabel
     - acarsMessageFrom

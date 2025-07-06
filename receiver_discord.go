@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"slices"
 	"sort"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -72,16 +73,23 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	}
 	buff := new(bytes.Buffer)
 	r, _ := regexp.Compile(".*Text")
+	l, _ := regexp.Compile(".*Link")
 	var embeds []DiscordEmbed
 	var title, content string
 	for _, key := range keys {
 		textField := r.MatchString(key)
+		linkField := l.MatchString(key)
 		acarsTimeField := key == "acarsTimestamp"
 		vdlm2TimeField := key == "vdlm2Timestamp"
 		v := a[key]
 		if config.Receivers.DiscordWebhook.FormatText &&
 			v != "" && textField {
 			v = fmt.Sprintf("```%s```", v)
+		}
+		if linkField {
+			linkType := strings.TrimPrefix(key, "acarsExtra")
+			linkType = strings.TrimSuffix(linkType, "Link")
+			v = fmt.Sprintf("[%s](%s)", linkType, v)
 		}
 		if acarsTimeField {
 			v = int(v.(float64))
@@ -93,18 +101,17 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 	}
 	if config.Receivers.DiscordWebhook.Embed {
-		var tailcode, transmitter, url, embedContent, thumbnail, embedColorString string
+		var tailcode, transmitter, url, thumbnail, embedColorString string
 
 		for _, key := range keys {
 			v := fmt.Sprintf("%v", a[key])
 			if key == "acarsAircraftTailCode" {
 				tailcode = "(" + v + ")"
 			}
-			if key == "acarsExtraThumbnail" {
+			if key == "acarsExtraThumbnailLink" {
 				thumbnail = v
 			}
 			if key == "acarsMessageFrom" {
-				transmitter = v
 				if v == "Tower" {
 					if slices.Contains(keys, "acarsFlightNumber") {
 						tailcode = "(to flight " + a["acarsFlightNumber"].(string) + ")"
@@ -125,7 +132,6 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 				URL: thumbnail,
 			},
 		})
-		content = embedContent
 
 	}
 	// "Plain" message

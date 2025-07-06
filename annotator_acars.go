@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"net/url"
 	"slices"
 	"strings"
 	"time"
@@ -87,32 +88,33 @@ func (a ACARSAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation 
 	}
 	// Please update config example values if changed
 	annotation = Annotation{
-		"acarsFrequencyMHz":     m.FrequencyMHz,
-		"acarsChannel":          m.Channel,
-		"acarsErrorCode":        m.ErrorCode,
-		"acarsSignaldBm":        m.SignaldBm,
-		"acarsTimestamp":        m.Timestamp,
-		"acarsAppName":          m.App.Name,
-		"acarsAppVersion":       m.App.Version,
-		"acarsAppProxied":       m.App.Proxied,
-		"acarsAppProxiedBy":     m.App.ProxiedBy,
-		"acarsAppRouterVersion": m.App.ACARSRouterVersion,
-		"acarsAppRouterUUID":    m.App.ACARSRouterUUID,
-		"acarsStationID":        m.StationID,
-		"acarsASSStatus":        m.ASSStatus,
-		"acarsMode":             m.Mode,
-		"acarsLabel":            m.Label,
-		"acarsBlockID":          m.BlockID,
-		"acarsAcknowledge":      fmt.Sprint(m.Acknowledge),
-		"acarsAircraftTailCode": tailcode,
-		"acarsMessageFrom":      AircraftOrTower(m.FlightNumber),
-		"acarsMessageText":      text,
-		"acarsMessageNumber":    m.MessageNumber,
-		"acarsFlightNumber":     m.FlightNumber,
-		"acarsExtraURL":         FlightAwareRoot + tailcode,
-		"acarsExtraPhotos":      FlightAwarePhotos + tailcode,
-		"acarsExtraThumbnail":   thumbnail,
-		"acarsExtraImageLink":   link,
+		"acarsFrequencyMHz":       m.FrequencyMHz,
+		"acarsChannel":            m.Channel,
+		"acarsErrorCode":          m.ErrorCode,
+		"acarsSignaldBm":          m.SignaldBm,
+		"acarsTimestamp":          m.Timestamp,
+		"acarsAppName":            m.App.Name,
+		"acarsAppVersion":         m.App.Version,
+		"acarsAppProxied":         m.App.Proxied,
+		"acarsAppProxiedBy":       m.App.ProxiedBy,
+		"acarsAppRouterVersion":   m.App.ACARSRouterVersion,
+		"acarsAppRouterUUID":      m.App.ACARSRouterUUID,
+		"acarsStationID":          m.StationID,
+		"acarsASSStatus":          m.ASSStatus,
+		"acarsMode":               m.Mode,
+		"acarsLabel":              m.Label,
+		"acarsBlockID":            m.BlockID,
+		"acarsAcknowledge":        fmt.Sprint(m.Acknowledge),
+		"acarsAircraftTailCode":   tailcode,
+		"acarsMessageFrom":        AircraftOrTower(m.FlightNumber),
+		"acarsMessageText":        text,
+		"acarsMessageNumber":      m.MessageNumber,
+		"acarsFlightNumber":       m.FlightNumber,
+		"acarsExtraTrackingLink":  FlightAwareRoot + tailcode,
+		"acarsExtraPhotosLink":    FlightAwarePhotos + tailcode,
+		"acarsExtraThumbnailLink": thumbnail,
+		"acarsExtraImageLink":     link,
+		"acarsExtraTranslateLink": fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(m.MessageText)),
 	}
 	return annotation
 }
