@@ -132,6 +132,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 				URL: thumbnail,
 			},
 		})
+		content = ""
 
 	}
 	// "Plain" message
