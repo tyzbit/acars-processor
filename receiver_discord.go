@@ -86,7 +86,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 			v != "" && textField {
 			v = fmt.Sprintf("```%s```", v)
 		}
-		if linkField {
+		if linkField && v != "" {
 			linkType := strings.TrimPrefix(key, "acarsExtra")
 			linkType = strings.TrimSuffix(linkType, "Link")
 			v = fmt.Sprintf("[%s](%s)", linkType, v)
