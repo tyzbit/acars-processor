@@ -4,11 +4,12 @@ A simple daemon that, in order:
 
 1.  Listens to ACARS/VDLM2 messages from ACARSHub,
     optionally saving them to resume or review.
-3.  Filters them according to various criteria from various providers
-4.  Hydrates them with additional data via external lookups from various
-    providers
-5.  Submits the message to a specified receiver such as a Discord webhook
-    or others.
+2.  Filters them according to various criteria from various providers, including
+    LLMs
+3.  Adds additional information (annotates) using lookups from messages, like
+    aircraft tail numbers.
+4.  Submits the message to one or more specified receivers such as a Discord
+    webhook or others.
 
 Configuration is done with `config.yaml` and there is a schema to help you
 fill it out. See below.
@@ -62,7 +63,7 @@ You can duplicate it to `config.yaml` and edit it or copy it but only keep the
 first line. This will let you auto-complete the file if your editor supports it.
 
 You can use environment variables (`${apikey}`) in the config and they will
-be substituted from the environment before the app starts. It's highly 
+be substituted from the environment before the app starts. It's highly
 recommended to quote your values in case substitution fails so you don't
 chase misleading errors.
 
@@ -101,18 +102,19 @@ some info to help you get a good start:
   [pre-commit](https://pre-commit.com/#install) and then running
   `pre-commit install` in the root directory of the repo.
 - If you use VSCode, there's already an example launch config for debugging.
-- Although large language model use is strongly discouraged, it is not forbidden
-  (but this could change at any time). you will not be given special leniency
-  for counterfeit code that must be tediously tweaked after you make your PR
-  due to inept AI. Weigh the efficacy of your tools against the new, additional
-  work they make for you by using them.
-- Colors should follow the general guide below to help with accessibility.
+- LLM output is not permitted to be added to this codebase. Any PR that seems
+  like it has LLM output will be closed. Any PR where you do not understand the
+  code you're trying to commit will be closed.
 
-| Type of event                    | Recommended color | Example message                                      |
-| -------------------------------- | ----------------- | ---------------------------------------------------- |
-| Success                          | Green             | Connected successfully                               |
-| Information                      | White             | 10 filters enabled                                   |
-| Unusual, but all is OK           | Cyan              | No info back from annotators                         |
-| Unusual, might need looking into | Yellow            | No receivers configured                              |
-| Verbose, raw output              | Black             | "++86501,N8867Q,B7378MAX,250608,WN0393...."          |
-| Sidenote or additional info      | Bold & Italic     | "Filtering due to excessive use of exclamations!!!!" |
+Colors for log messages should follow the general guide below to help with
+accessibility.
+
+| Function   | Type of event                         | Color         | Example message                                      |
+| ---------- | ------------------------------------- | ------------- | ---------------------------------------------------- |
+| Success    | A likely desired state is achieved.   | Green         | Connected successfully                               |
+| Content    | Meaningful info to the user.          | Magenta       | 10 filters enabled                                   |
+| Note       | Important info.                       | Cyan          | No info back from annotators                         |
+| Attention  | Information about a possible problem. | Yellow        | No receivers configured                              |
+| Aside      | Less important, perhaps verbose info. | Grey          | "++86501,N8867Q,B7378MAX,250608,WN0393...."          |
+| Emphasized | Output or results.                    | Bold & Italic | "Filtering due to excessive use of exclamations!!!!" |
+| Custom     | Special and specific. Discouraged.    | Any           | N/A                                                  |
