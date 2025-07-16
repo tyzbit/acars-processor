@@ -16,7 +16,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const defaultEmbedColor = "1150122" // cyan, base 10
+const (
+	defaultEmbedColor = "1150122" // cyan, base 10
+	footer            = "-# Message generated with [acars-processor](<https://github.com/tyzbit/acars-processor>)"
+)
 
 type DiscordHandlerReciever struct {
 	Payload any
@@ -100,22 +103,26 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		}
 		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 	}
+	content = content + footer
 	if config.Receivers.DiscordWebhook.Embed {
-		var tailcode, transmitter, url, thumbnail, embedColorString string
+		var url, transmitter, thumbnail, embedColorString string
 
 		for _, key := range keys {
 			v := fmt.Sprintf("%v", a[key])
 			if key == "acarsAircraftTailCode" {
-				tailcode = "(" + v + ")"
+				transmitter = v
 			}
 			if key == "acarsExtraThumbnailLink" {
 				thumbnail = v
 			}
 			if key == "acarsMessageFrom" {
+				direction := " from "
 				if v == "Tower" {
-					if slices.Contains(keys, "acarsFlightNumber") {
-						tailcode = "(to flight " + a["acarsFlightNumber"].(string) + ")"
-					}
+					direction = " to "
+				}
+				// If the tailcode field isn't present, do not append this to the title
+				if transmitter != "" {
+					transmitter = direction + transmitter
 				}
 			}
 			if slices.Contains(config.Receivers.DiscordWebhook.EmbedColorFacetFields, key) {
@@ -124,7 +131,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		}
 
 		embeds = append(embeds, DiscordEmbed{
-			Title:       fmt.Sprintf("ACARS %s Message %s", transmitter, tailcode),
+			Title:       fmt.Sprintf("ACARS Message%s", transmitter),
 			Description: content,
 			Color:       GetRGBForString(embedColorString),
 			URL:         url,
