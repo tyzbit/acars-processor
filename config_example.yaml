@@ -33,6 +33,7 @@ Annotators:
     - acarsBlockID
     - acarsChannel
     - acarsErrorCode
+    - acarsExtraACARSDramaTailNumberLink
     - acarsExtraImageLink
     - acarsExtraPhotosLink
     - acarsExtraThumbnailLink
@@ -114,6 +115,7 @@ Annotators:
     - acarsBlockID
     - acarsCRCOK
     - acarsErrorCode
+    - acarsExtraACARSDramaTailNumberLink
     - acarsExtraImageLink
     - acarsExtraPhotosLink
     - acarsExtraThumbnailLink
