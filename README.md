@@ -46,9 +46,12 @@ goes wrong), **by default they do not filter the message**.
   ACARS/VDLM2 receiver.
 
 - Ollama: Uses Ollama and it will return a processed response based on your
-  instructions. you can also ask a question about the message, which can be used
-  to annotate and filter in one step. This is likely not as effective as just
-  using the Ollama filter itself.
+  instructions. You can ask it to make a numerical evaluation, such as "How
+  much danger does this message indicate?". You can also ask a question about
+  the message. Both the question and the numerical evaluation can annotate and
+  filter in one step (if filtered, it won't produce any fields from the
+  annotator). This is likely not as effective as just using the Ollama filter
+  itself.
 
 ## Available receivers
 
