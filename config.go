@@ -319,7 +319,7 @@ type DiscordWebhookReceiverConfig struct {
 	Embed bool `jsonschema:"default=true" default:"true"`
 	// Pick one or more fields that deterministically determines the embed color
 	EmbedColorFacetFields []string `default:"[acarsAircraftTailCode]"`
-	// Pick one or more fields that determines the embed color according to this field, which should be a float between 0.0 and 1.0
+	// Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
 	EmbedColorGradientField string `default:"ollamaProcessedValue"`
 	// Surround fields with message content with backticks so they are monospaced and stand out.
 	FormatText bool `jsonschema:"default=true" default:"true"`
