@@ -64,6 +64,8 @@ Annotators:
     - adsbOriginGeolocationLongitude
   Ollama:
     Enabled: true
+    FilterGreaterThan: 1
+    FilterLessThan: 100
     FilterWithQuestion: true
     MaxRetryAttempts: 5
     MaxRetryDelaySeconds: 5
@@ -72,9 +74,10 @@ Annotators:
     - Name: num_predict
       Value: 512
     SelectedFields:
-    - OllamaEditActions
-    - OllamaProcessedText
-    - OllamaQuestion
+    - ollamaModelFeedbackText
+    - ollamaProcessedText
+    - ollamaProcessedValue
+    - ollamaQuestion
     SystemPrompt: Answer like a pirate
     Timeout: 5
     URL: http://ollama-service:11434
@@ -206,6 +209,7 @@ Receivers:
     Embed: true
     EmbedColorFacetFields:
     - acarsAircraftTailCode
+    EmbedColorGradientField: ollamaProcessedValue
     Enabled: true
     FormatText: true
     FormatTimestamps: true

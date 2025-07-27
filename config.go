@@ -178,6 +178,10 @@ type OllamaAnnotatorConfig struct {
 	UserPrompt string `jsonschema:"required,example=Is there prose in this message? If present\\, prose will be the last section of a message. Return any prose if found."`
 	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
 	FilterWithQuestion bool `default:"true"`
+	// Any number calculation less than this will be filtered.
+	FilterLessThan int `default:"100"`
+	// Any number calculation greater than this will be filtered.
+	FilterGreaterThan int `default:"1"`
 	// Fields to provide to receivers from this annotator.
 	SelectedFields []string
 }
@@ -319,6 +323,8 @@ type DiscordWebhookReceiverConfig struct {
 	Embed bool `jsonschema:"default=true" default:"true"`
 	// Pick one or more fields that deterministically determines the embed color
 	EmbedColorFacetFields []string `default:"[acarsAircraftTailCode]"`
+	// Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
+	EmbedColorGradientField string `default:"ollamaProcessedValue"`
 	// Surround fields with message content with backticks so they are monospaced and stand out.
 	FormatText bool `jsonschema:"default=true" default:"true"`
 	// Add Discord-specific formatting to show human-readable instants from timestamps
