@@ -16,28 +16,29 @@ import (
 )
 
 var (
-	OllamaAnnotatorFirstInstructions = `you are an expert at precisely
-	processing text according to instructions. you will be provided 
-	instructions and then a communication message. you may also be asked a
-	question about the message.
+	OllamaAnnotatorFirstInstructions = `You will be provided 
+	instructions and then a communication message.
 
-	you will answer any questions that may have been asked about the message.
-	you will use your skills and any examples or rules provided to edit, select,
-	transform or otherwise process the text strictly according to the directions
-	given. Only make additions or subtractions from the original text. Do not
-	replace or transform words such as to modify case unless specifically
-	instructed to.
+	Answer any questions that may have been asked about the message.
+
+	If asked to process the message, you will use your skills and any examples
+	or rules provided to edit, select, transform, evaluate or otherwise process
+	the text strictly according to the directions given. Only make additions or
+	subtractions from the original text. Do not replace or transform words such
+	as to modify case unless specifically instructed to.
+
+	If asked to evaluate the message numerically, use your skills and any
+	examples rules or criteria given to calculate a numerical result for the
+	message.
 
 	Here's the criteria:
 	`
 	OllamaAnnotatorFinalInstructions = `
-	If you were asked a question, return true or false corresponding to the
-	answer in the 'question' field. If you weren't asked a question,
-	return true in the 'question' field.
-
-,Note each action you took to process the text in 'edit_actions'.
-
+	Return true or false corresponding to the answer in the 'question' field.
 	Return the processed text in the 'processed_text' field.
+	Return any numerical evaluation in the 'processed_value' field.
+	Provide feedback summarizing your actions or commentary in the
+	'model_feedback' field.
 	`
 	OllamaAnnotatorTimeout           = 120
 	OllamaAnnotatorMaxRetryAttempts  = 6
@@ -45,9 +46,10 @@ var (
 )
 
 type OllamaAnnotatorResponse struct {
-	Question      bool   `json:"question"`
-	EditActions   string `json:"edit_actions"`
-	ProcessedText string `json:"processed_text"`
+	Question       bool   `json:"question"`
+	ModelFeedback  string `json:"model_feedback"`
+	ProcessedText  string `json:"processed_text"`
+	ProcessedValue int    `json:"processed_value"`
 }
 
 type OllamaAnnotatorResponseFormat struct {
@@ -57,9 +59,10 @@ type OllamaAnnotatorResponseFormat struct {
 }
 
 type OllamaAnnotatorResponseFormatRequestedProperties struct {
-	ProcessedText OllamaAnnotatorResponseFormatRequestedProperty `json:"processed_text"`
-	EditActions   OllamaAnnotatorResponseFormatRequestedProperty `json:"edit_actions"`
-	Question      OllamaAnnotatorResponseFormatRequestedProperty `json:"question"`
+	ProcessedText  OllamaAnnotatorResponseFormatRequestedProperty `json:"processed_text"`
+	ProcessedValue OllamaAnnotatorResponseFormatRequestedProperty `json:"processed_value"`
+	ModelFeedback  OllamaAnnotatorResponseFormatRequestedProperty `json:"model_feedback"`
+	Question       OllamaAnnotatorResponseFormatRequestedProperty `json:"question"`
 }
 
 type OllamaAnnotatorResponseFormatRequestedProperty struct {
@@ -72,14 +75,17 @@ var OllamaAnnotatorResponseRequestedFormat = OllamaAnnotatorResponseFormat{
 		Question: OllamaAnnotatorResponseFormatRequestedProperty{
 			Type: "boolean",
 		},
-		EditActions: OllamaAnnotatorResponseFormatRequestedProperty{
+		ModelFeedback: OllamaAnnotatorResponseFormatRequestedProperty{
 			Type: "string",
 		},
 		ProcessedText: OllamaAnnotatorResponseFormatRequestedProperty{
 			Type: "string",
 		},
+		ProcessedValue: OllamaAnnotatorResponseFormatRequestedProperty{
+			Type: "integer",
+		},
 	},
-	Required: []string{"question", "edit_actions", "processed_text"},
+	Required: []string{"question", "model_feedback", "processed_text", "processed_value"},
 }
 
 type OllamaAnnotatorHandler struct {
@@ -194,7 +200,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 
 		content = SanitizeJSONString(content)
 		err = json.Unmarshal([]byte(content), &r)
-		log.Debug(Aside("Ollama annotator done reason: %s, response: %s", resp.DoneReason, resp.Response))
+		log.Debug(Aside("Ollama annotator done reason: %s, response: ", resp.DoneReason), Aside(resp.Response))
 		if err != nil {
 			err = fmt.Errorf("%s, Ollama full response: %s", err, resp.Response)
 			return err
@@ -229,14 +235,15 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 			return annotation
 		}
 	}
-	if enabled && r.ProcessedText == "" && len(r.EditActions) == 0 {
+	if enabled && (r == OllamaAnnotatorResponse{}) {
 		log.Info(Attention("Ollama annotator response was empty"))
 	} else {
 		// Please update config example values if changed
 		annotation = Annotation{
-			"OllamaProcessedText": r.ProcessedText,
-			"OllamaEditActions":   r.EditActions,
-			"OllamaQuestion":      r.Question,
+			"ollamaProcessedText":  r.ProcessedText,
+			"ollamaProcessedValue": r.ProcessedValue,
+			"ollamaModelFeedback":  r.ModelFeedback,
+			"ollamaQuestion":       r.Question,
 		}
 	}
 
