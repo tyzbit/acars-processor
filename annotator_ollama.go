@@ -236,7 +236,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		}
 	}
 	if config.Annotators.Ollama.FilterGreaterThan > 0 {
-		if r.ProcessedValue <= config.Annotators.Ollama.FilterGreaterThan {
+		if r.ProcessedValue >= config.Annotators.Ollama.FilterGreaterThan {
 			log.Info(Note("Ollama annotation response did not qualify according to "+
 				"user requirements for %d being greater than %d, "+
 				"not returning any output", r.ProcessedValue, config.Annotators.Ollama.FilterGreaterThan))
@@ -244,7 +244,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		}
 	}
 	if config.Annotators.Ollama.FilterLessThan != 0 {
-		if r.ProcessedValue >= config.Annotators.Ollama.FilterLessThan {
+		if r.ProcessedValue <= config.Annotators.Ollama.FilterLessThan {
 			log.Info(Note("Ollama annotation response did not qualify according to "+
 				"user requirements for %d being less than %d, "+
 				"not returning any output", r.ProcessedValue, config.Annotators.Ollama.FilterLessThan))

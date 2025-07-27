@@ -179,9 +179,9 @@ type OllamaAnnotatorConfig struct {
 	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
 	FilterWithQuestion bool `default:"true"`
 	// Any number calculation less than this will be filtered.
-	FilterLessThan int `default:"100"`
+	FilterLessThan int `default:"1"`
 	// Any number calculation greater than this will be filtered.
-	FilterGreaterThan int `default:"1"`
+	FilterGreaterThan int `default:"100"`
 	// Fields to provide to receivers from this annotator.
 	SelectedFields []string
 }
