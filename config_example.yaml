@@ -72,9 +72,10 @@ Annotators:
     - Name: num_predict
       Value: 512
     SelectedFields:
-    - OllamaEditActions
-    - OllamaProcessedText
-    - OllamaQuestion
+    - ollamaModelFeedback
+    - ollamaProcessedText
+    - ollamaProcessedValue
+    - ollamaQuestion
     SystemPrompt: Answer like a pirate
     Timeout: 5
     URL: http://ollama-service:11434
@@ -206,6 +207,7 @@ Receivers:
     Embed: true
     EmbedColorFacetFields:
     - acarsAircraftTailCode
+    EmbedColorGradientField: ollamaProcessedValue
     Enabled: true
     FormatText: true
     FormatTimestamps: true
