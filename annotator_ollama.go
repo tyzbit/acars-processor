@@ -231,7 +231,23 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 	if config.Annotators.Ollama.FilterWithQuestion {
 		if !r.Question {
 			log.Info(Note("Ollama annotation response did not qualify according to " +
-				"user requirements, not returning any output"))
+				"user requirements for the question, not returning any output"))
+			return annotation
+		}
+	}
+	if config.Annotators.Ollama.FilterGreaterThan > 0 {
+		if r.ProcessedValue <= config.Annotators.Ollama.FilterGreaterThan {
+			log.Info(Note("Ollama annotation response did not qualify according to "+
+				"user requirements for %d being greater than %d, "+
+				"not returning any output", r.ProcessedValue, config.Annotators.Ollama.FilterGreaterThan))
+			return annotation
+		}
+	}
+	if config.Annotators.Ollama.FilterLessThan != 0 {
+		if r.ProcessedValue >= config.Annotators.Ollama.FilterLessThan {
+			log.Info(Note("Ollama annotation response did not qualify according to "+
+				"user requirements for %d being less than %d, "+
+				"not returning any output", r.ProcessedValue, config.Annotators.Ollama.FilterLessThan))
 			return annotation
 		}
 	}
@@ -240,10 +256,10 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 	} else {
 		// Please update config example values if changed
 		annotation = Annotation{
-			"ollamaProcessedText":  r.ProcessedText,
-			"ollamaProcessedValue": r.ProcessedValue,
-			"ollamaModelFeedback":  r.ModelFeedback,
-			"ollamaQuestion":       r.Question,
+			"ollamaProcessedText":     r.ProcessedText,
+			"ollamaProcessedValue":    r.ProcessedValue,
+			"ollamaModelFeedbackText": r.ModelFeedback,
+			"ollamaQuestion":          r.Question,
 		}
 	}
 

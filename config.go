@@ -178,6 +178,10 @@ type OllamaAnnotatorConfig struct {
 	UserPrompt string `jsonschema:"required,example=Is there prose in this message? If present\\, prose will be the last section of a message. Return any prose if found."`
 	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
 	FilterWithQuestion bool `default:"true"`
+	// Any number calculation less than this will be filtered.
+	FilterLessThan int `default:"100"`
+	// Any number calculation greater than this will be filtered.
+	FilterGreaterThan int `default:"1"`
 	// Fields to provide to receivers from this annotator.
 	SelectedFields []string
 }

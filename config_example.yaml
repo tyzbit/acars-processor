@@ -64,6 +64,8 @@ Annotators:
     - adsbOriginGeolocationLongitude
   Ollama:
     Enabled: true
+    FilterGreaterThan: 1
+    FilterLessThan: 100
     FilterWithQuestion: true
     MaxRetryAttempts: 5
     MaxRetryDelaySeconds: 5
@@ -72,7 +74,7 @@ Annotators:
     - Name: num_predict
       Value: 512
     SelectedFields:
-    - ollamaModelFeedback
+    - ollamaModelFeedbackText
     - ollamaProcessedText
     - ollamaProcessedValue
     - ollamaQuestion
