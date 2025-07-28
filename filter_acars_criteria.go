@@ -56,6 +56,9 @@ var (
 		"DictionaryPhraseLengthMinimum": func(m ACARSMessage) bool {
 			return int64(config.Filters.Generic.DictionaryPhraseLengthMinimum) <= LongestDictionaryWordPhraseLength(m.MessageText)
 		},
+		"FreetextTermPresent": func(m ACARSMessage) bool {
+			return FreetextTermPresent(m.MessageText)
+		},
 		"OpenAIPromptFilter": func(m ACARSMessage) bool {
 			return OpenAIFilter(m.MessageText)
 		},

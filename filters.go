@@ -55,6 +55,9 @@ func ConfigureFilters() {
 	if config.Filters.Generic.DictionaryPhraseLengthMinimum > 0 {
 		enabledFilters = append(enabledFilters, "DictionaryPhraseLengthMinimum")
 	}
+	if config.Filters.Generic.FreetextTermPresent {
+		enabledFilters = append(enabledFilters, "FreetextTermPresent")
+	}
 	if config.Filters.OpenAI.Enabled && config.Filters.OpenAI.APIKey != "" {
 		enabledFilters = append(enabledFilters, "OpenAIPromptFilter")
 	}
