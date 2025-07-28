@@ -8,7 +8,6 @@ var freetextTerms = []string{
 	"COMMENTS",
 	"CONFIRM",
 	"DEFECT",
-	"DISP",
 	"EVENING",
 	"FREETEXT",
 	"FTM",
@@ -26,7 +25,8 @@ var freetextTerms = []string{
 
 func FreetextTermPresent(m string) (present bool) {
 	for _, term := range freetextTerms {
-		if strings.Contains(m, term) {
+		// Some messages have DISP in them but are automated
+		if strings.Contains(m, term) || strings.HasPrefix(m, "DISP") {
 			present = true
 			break
 		}
