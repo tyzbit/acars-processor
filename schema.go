@@ -137,6 +137,23 @@ func GenerateSchema(schemaPath string) {
 		Name:  "num_predict",
 		Value: 512,
 	}}
+	defaultConfig.Receivers.DiscordWebhook.EmbedColorGradientSteps = []Color{
+		{
+			R: 0,
+			G: 255,
+			B: 0,
+		},
+		{
+			R: 255,
+			G: 255,
+			B: 0,
+		},
+		{
+			R: 255,
+			G: 0,
+			B: 0,
+		},
+	}
 
 	// Squelch errors
 	log.SetLevel(log.FatalLevel)

@@ -225,21 +225,29 @@ func GetColorForInt(value int) int {
 		value = 100
 	}
 
-	colors := []Color{
-		{0x64, 0x8F, 0xFF}, // #648FFF
-		{0x78, 0x5E, 0xF0}, // #785EF0
-		{0xFF, 0xB0, 0x00}, // #FFB000
-		{0xFE, 0x61, 0x00}, // #FE6100
-		{0xDC, 0x26, 0x7F}, // #DC267F
+	var colors []Color
+	if config.Receivers.DiscordWebhook.EmbedColorGradientSteps != nil {
+		colors = config.Receivers.DiscordWebhook.EmbedColorGradientSteps
+	} else {
+		colors = []Color{
+			{0x64, 0x8F, 0xFF}, // #648FFF
+			{0xFF, 0xB0, 0x00}, // #FFB000
+			{0xFE, 0x61, 0x00}, // #FE6100
+			{0xDC, 0x26, 0x7F}, // #DC267F
+		}
 	}
 
-	// Total number of segments is 4 (between 5 colors)
 	segmentSize := 100 / (len(colors) - 1)
-	segment := (value - 1) / segmentSize
+	segment := ((value - 1) / segmentSize)
 	t := float64((value-1)%segmentSize) / float64(segmentSize)
 
-	c1 := colors[segment]
-	c2 := colors[segment+1]
+	var c1, c2 Color
+	c1 = colors[segment]
+	if value-1 == segment*segmentSize {
+		c2 = colors[segment]
+	} else {
+		c2 = colors[segment+1]
+	}
 	interp := interpolateLinearly(c1, c2, t)
 
 	// Return color as 0xRRGGBB integer
