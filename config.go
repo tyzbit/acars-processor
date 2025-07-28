@@ -168,7 +168,7 @@ type OllamaCommonConfig struct {
 	// How long to wait until giving up on any request to Ollama.
 	Timeout int `default:"5"`
 	// Whether to surround the returned message field with backticks.
-	Options []OllamaOptionsConfig
+	Options []OllamaOptionsConfig // The default for this is set in schema.go
 }
 
 type OllamaAnnotatorConfig struct {
@@ -274,7 +274,7 @@ type OllamaFilterConfig struct {
 	// How long to wait until giving up on any request to Ollama.
 	Timeout int `default:"5"`
 	// Additional options to provide to the model. This is specific to each model, so no defaults are provided
-	Options []OllamaOptionsConfig
+	Options []OllamaOptionsConfig // The default for this is set in schema.go
 }
 
 type OpenAIFilterConfig struct {
@@ -314,7 +314,7 @@ type WebHookReceiverConfig struct {
 	// Method when calling webhook (GET,POST,PUT etc).
 	Method string `jsonschema:"required,default=POST" default:"POST"`
 	// Additional headers to send along with the request.
-	Headers []WebHookReceiverConfigHeaders `default:"{{name:APIKey, value:1234abcdef}}"`
+	Headers []WebHookReceiverConfigHeaders // The default for this is set in schema.go
 }
 
 type DiscordWebhookReceiverConfig struct {
@@ -327,6 +327,8 @@ type DiscordWebhookReceiverConfig struct {
 	EmbedColorFacetFields []string `default:"[acarsAircraftTailCode]"`
 	// Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
 	EmbedColorGradientField string `default:"ollamaProcessedValue"`
+	// An array of colors that corresponds with EmbedColorGradientField values
+	EmbedColorGradientSteps []Color `default:"{{R:0,G:100,B:0}}"`
 	// Surround fields with message content with backticks so they are monospaced and stand out.
 	FormatText bool `jsonschema:"default=true" default:"true"`
 	// Add Discord-specific formatting to show human-readable instants from timestamps
