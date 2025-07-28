@@ -172,6 +172,7 @@ Filters:
     DictionaryPhraseLengthMinimum: 5
     Emergency: true
     FlightNumber: "1234"
+    FreetextTermPresent: false
     Frequency: 136.95
     FromAircraft: true
     FromTower: true

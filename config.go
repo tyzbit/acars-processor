@@ -237,6 +237,8 @@ type GenericFilterConfig struct {
 	Emergency bool `default:"true"`
 	// Only process messages that have at least this many valid dictionary words in a row.
 	DictionaryPhraseLengthMinimum int `default:"5"`
+	// Only process messages that have common freetext terms in them
+	FreetextTermPresent bool `default:"false"`
 }
 
 type ACARSFilterConfig struct {
