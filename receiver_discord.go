@@ -113,6 +113,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		var url, transmitter, thumbnail, embedColorString string
 		var embedColorValue int
 
+		direction := " "
 		for _, key := range keys {
 			v := fmt.Sprintf("%v", a[key])
 			if key == "acarsAircraftTailCode" {
@@ -122,7 +123,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 				thumbnail = v
 			}
 			if key == "acarsMessageFrom" {
-				direction := " from "
+				direction = " from "
 				if v == "Tower" {
 					direction = " to "
 				}
