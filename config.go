@@ -174,7 +174,7 @@ type OllamaCommonConfig struct {
 type OllamaAnnotatorConfig struct {
 	ModuleCommonConfig
 	OllamaCommonConfig
-	// Instructions for Ollama for processing messages. More detail produces better results. you can include a question and Ollama will respond yes/no which can also be used to filter the message.
+	// Instructions for Ollama for processing messages. You can ask questions which can also be used to filter the message in one step using FilterWithQuestion. You can also include instructions for rating messages, filterable with FilterLessThan and FilterGreaterThan.
 	UserPrompt string `jsonschema:"required,example=Is there prose in this message? If present\\, prose will be the last section of a message. Return any prose if found."`
 	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
 	FilterWithQuestion bool `default:"true"`
