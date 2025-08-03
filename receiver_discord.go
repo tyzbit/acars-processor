@@ -2,17 +2,16 @@ package main
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io"
-	"math/big"
 	"net/http"
 	"regexp"
 	"slices"
 	"sort"
 	"strings"
 
+	hue "codeberg.org/tyzbit/huenique"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,11 +46,6 @@ type DiscordField struct {
 
 type DiscordThumbnail struct {
 	URL string `json:"url,omitempty"`
-}
-
-// Color represents an RGB color.
-type Color struct {
-	R, G, B uint8
 }
 
 func (d DiscordHandlerReciever) Name() string {
@@ -142,10 +136,10 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 		var color string
 		if config.Receivers.DiscordWebhook.EmbedColorFacetFields != nil {
-			color = GetColorForString(embedColorString)
+			color = hue.GetRGBCodeForString(embedColorString)
 		}
 		if embedColorValue != 0 {
-			color = fmt.Sprintf("%d", GetColorForInt(embedColorValue))
+			color = fmt.Sprintf("%d", hue.GetColorForInt(embedColorValue))
 		}
 		embeds = append(embeds, DiscordEmbed{
 			Title:       fmt.Sprintf("ACARS Message%s", transmitter),
@@ -197,61 +191,4 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 		log.Debug(Aside("discord api returned: %s", response))
 	}
 	return err
-}
-
-// Takes a string and returns a deterministic RGB value for it, expressed as
-// an integer string.
-// No collision avoidance or distribution considerations.
-func GetColorForString(s string) (rgb string) {
-	sha := sha256.New()
-	sha.Write([]byte(s))
-	hash := sha.Sum(nil)
-	return fmt.Sprintf("%d", int(big.NewInt(0).SetBytes(hash[0:3]).Uint64()))
-}
-
-// interpolateLinearly interpolates between two colors.
-func interpolateLinearly(c1, c2 Color, t float64) Color {
-	return Color{
-		R: uint8(float64(c1.R)*(1-t) + float64(c2.R)*t),
-		G: uint8(float64(c1.G)*(1-t) + float64(c2.G)*t),
-		B: uint8(float64(c1.B)*(1-t) + float64(c2.B)*t),
-	}
-}
-
-// getColorInt returns a smoothly interpolated color (as int) for input in range 1–100.
-func GetColorForInt(value int) int {
-	if value < 1 {
-		value = 1
-	} else if value > 100 {
-		value = 100
-	}
-
-	var colors []Color
-	if config.Receivers.DiscordWebhook.EmbedColorGradientSteps != nil {
-		colors = config.Receivers.DiscordWebhook.EmbedColorGradientSteps
-	} else {
-		colors = []Color{
-			{0x64, 0x8F, 0xFF}, // #648FFF
-			{0x78, 0x5E, 0xF0}, // #785EF0
-			{0xFF, 0xB0, 0x00}, // #FFB000
-			{0xFE, 0x61, 0x00}, // #FE6100
-			{0xDC, 0x26, 0x7F}, // #DC267F
-		}
-	}
-
-	segmentSize := 100 / (len(colors) - 1)
-	segment := ((value - 1) / segmentSize)
-	t := float64((value-1)%segmentSize) / float64(segmentSize)
-
-	var c1, c2 Color
-	c1 = colors[segment]
-	if value-1 == segment*segmentSize {
-		c2 = colors[segment]
-	} else {
-		c2 = colors[segment+1]
-	}
-	interp := interpolateLinearly(c1, c2, t)
-
-	// Return color as 0xRRGGBB integer
-	return (int(interp.R) << 16) | (int(interp.G) << 8) | int(interp.B)
 }

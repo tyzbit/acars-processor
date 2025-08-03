@@ -1,3 +1,5 @@
+codeberg.org/tyzbit/huenique v0.0.0-20250803202517-c555412913e5 h1:fRr1BxHJucWXE1N1FqlseMJjhafADLdzWZ++1j2TGaU=
+codeberg.org/tyzbit/huenique v0.0.0-20250803202517-c555412913e5/go.mod h1:rIha/XDb8n3egDOg/P+kYGqNfrpz89PqgYsIgRdc0DA=
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
 github.com/adrg/strutil v0.3.1 h1:OLvSS7CSJO8lBii4YmBt8jiK9QOtB9CzCzwl4Ic/Fz4=

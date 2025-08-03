@@ -1,6 +1,6 @@
 module github.com/tyzbit/acars-processor
 
-go 1.24.0
+go 1.24.5
 
 require (
 	github.com/adrg/strutil v0.3.1
@@ -22,6 +22,7 @@ require (
 )
 
 require (
+	codeberg.org/tyzbit/huenique v0.0.0-20250803202517-c555412913e5 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect

@@ -3,6 +3,7 @@ package main
 import (
 	"strings"
 
+	hue "codeberg.org/tyzbit/huenique"
 	"github.com/fatih/color"
 	"github.com/ghodss/yaml"
 	log "github.com/sirupsen/logrus"
@@ -328,7 +329,7 @@ type DiscordWebhookReceiverConfig struct {
 	// Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
 	EmbedColorGradientField string `default:"ollamaProcessedValue"`
 	// An array of colors that corresponds with EmbedColorGradientField values
-	EmbedColorGradientSteps []Color `default:"{{R:0,G:100,B:0}}"`
+	EmbedColorGradientSteps []hue.Color `default:"{{R:0,G:100,B:0}}"`
 	// Surround fields with message content with backticks so they are monospaced and stand out.
 	FormatText bool `jsonschema:"default=true" default:"true"`
 	// Add Discord-specific formatting to show human-readable instants from timestamps

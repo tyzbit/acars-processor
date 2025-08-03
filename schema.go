@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 
+	hue "codeberg.org/tyzbit/huenique"
 	"github.com/ghodss/yaml"
 	"github.com/invopop/jsonschema"
 	"github.com/mcuadros/go-defaults"
@@ -137,7 +138,7 @@ func GenerateSchema(schemaPath string) {
 		Name:  "num_predict",
 		Value: 512,
 	}}
-	defaultConfig.Receivers.DiscordWebhook.EmbedColorGradientSteps = []Color{
+	defaultConfig.Receivers.DiscordWebhook.EmbedColorGradientSteps = []hue.Color{
 		{
 			R: 0,
 			G: 255,
