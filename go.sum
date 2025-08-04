@@ -4,6 +4,8 @@ codeberg.org/tyzbit/huenique v0.0.0-20250803202517-c555412913e5 h1:fRr1BxHJucWXE
 codeberg.org/tyzbit/huenique v0.0.0-20250803202517-c555412913e5/go.mod h1:rIha/XDb8n3egDOg/P+kYGqNfrpz89PqgYsIgRdc0DA=
 codeberg.org/tyzbit/huenique v0.1.0 h1:jv471/6R09gq/W4lpbV/j5lrysLP9J+4IzIy2lGxWdA=
 codeberg.org/tyzbit/huenique v0.1.0/go.mod h1:rIha/XDb8n3egDOg/P+kYGqNfrpz89PqgYsIgRdc0DA=
+codeberg.org/tyzbit/huenique v0.2.0 h1:1fWJKYUjIGgcHMrfC1ZLq3OBhnh+rUkYOqxKPtDA9N8=
+codeberg.org/tyzbit/huenique v0.2.0/go.mod h1:rIha/XDb8n3egDOg/P+kYGqNfrpz89PqgYsIgRdc0DA=
 dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7gZCb22OMCxBHrMx7a5I7Hp++hsVxbQ4BYO7hU=
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=

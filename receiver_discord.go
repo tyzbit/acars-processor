@@ -136,10 +136,10 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 		var color string
 		if config.Receivers.DiscordWebhook.EmbedColorFacetFields != nil {
-			color = hue.GetRGBCodeForString(embedColorString)
+			color = fmt.Sprintf("%s", hue.GetRGBValueForString(embedColorString))
 		}
 		if embedColorValue != 0 {
-			color = fmt.Sprintf("%d", hue.GetColorForInt(embedColorValue))
+			color = fmt.Sprintf("%d", hue.PickRGBValueForInt(embedColorValue))
 		}
 		embeds = append(embeds, DiscordEmbed{
 			Title:       fmt.Sprintf("ACARS Message%s", transmitter),

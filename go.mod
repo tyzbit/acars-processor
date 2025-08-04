@@ -3,7 +3,7 @@ module github.com/tyzbit/acars-processor
 go 1.24.5
 
 require (
-	codeberg.org/tyzbit/huenique v0.1.0
+	codeberg.org/tyzbit/huenique v0.2.0
 	github.com/adrg/strutil v0.3.1
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/fatih/color v1.18.0
