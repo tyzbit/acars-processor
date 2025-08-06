@@ -61,9 +61,10 @@ goes wrong), **by default they do not filter the message**.
 
 ### General Configuration
 
-Check `config_example.yaml` for all possible settings and illustrative values.
-You can duplicate it to `config.yaml` and edit it or copy it but only keep the
-first line. This will let you auto-complete the file if your editor supports it.
+Check `config_all_options.yaml` for all possible settings and illustrative
+values. You can duplicate it to `config.yaml` and edit it or copy it but only
+keep the first line. This will let you auto-complete the file if your editor
+supports it.
 
 You can use environment variables (`${apikey}`) in the config and they will
 be substituted from the environment before the app starts. It's highly

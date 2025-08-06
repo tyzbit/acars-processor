@@ -3,238 +3,39 @@
 # from the code by running ./acars-processor -s
 
 ACARSProcessorSettings:
+  ColorOutput: true
+  LogLevel: info
+  Database:
+    Enabled: true
+    SQLiteDatabasePath: ./messages.db
+    Type: mariadb
   ACARSHub:
     ACARS:
       Host: acarshub
       Port: 15550
-    MaxConcurrentRequests: 0
     VDLM2:
       Host: acarshub
       Port: 15555
-  ColorOutput: true
-  Database:
-    ConnectionString: user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
-    SQLiteDatabasePath: ./messages.db
-    Type: sqlite
-  LogLevel: info
+Filters:
+  Ollama:
+    Model: llama3.2
+    URL: http://ollama-service:11434
+    UserPrompt: Is there prose in this message?
 Annotators:
   ACARS:
     Enabled: true
     SelectedFields:
-    - acarsASSStatus
-    - acarsAcknowledge
-    - acarsAircraftTailCode
-    - acarsAppName
-    - acarsAppProxied
-    - acarsAppProxiedBy
-    - acarsAppRouterUUID
-    - acarsAppRouterVersion
-    - acarsAppVersion
-    - acarsBlockID
-    - acarsChannel
-    - acarsErrorCode
-    - acarsExtraACARSDramaTailNumberLink
-    - acarsExtraImageLink
-    - acarsExtraPhotosLink
-    - acarsExtraThumbnailLink
-    - acarsExtraTrackingLink
-    - acarsExtraTranslateLink
-    - acarsFlightNumber
-    - acarsFrequencyMHz
-    - acarsLabel
-    - acarsMessageFrom
-    - acarsMessageNumber
-    - acarsMessageText
-    - acarsMode
-    - acarsSignaldBm
-    - acarsStationID
-    - acarsTimestamp
-  ADSBExchange:
-    APIKey: example_key
+      - acarsMessageText
+      - acarsAircraftTailCode
+  VDLM2:
     Enabled: true
-    ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields:
-    - adsbAircraftDistanceKm
-    - adsbAircraftDistanceMi
-    - adsbAircraftGeolocation
-    - adsbAircraftLatitude
-    - adsbAircraftLongitude
-    - adsbOriginGeolocation
-    - adsbOriginGeolocationLatitude
-    - adsbOriginGeolocationLongitude
-  Ollama:
-    Enabled: true
-    FilterGreaterThan: 100
-    FilterLessThan: 1
-    FilterWithQuestion: true
-    MaxRetryAttempts: 5
-    MaxRetryDelaySeconds: 5
-    Model: llama3.2
-    Options:
-    - Name: num_predict
-      Value: 512
-    SelectedFields:
-    - ollamaModelFeedbackText
-    - ollamaProcessedText
-    - ollamaProcessedValue
-    - ollamaQuestion
-    SystemPrompt: Answer like a pirate
-    Timeout: 5
-    URL: http://ollama-service:11434
-    UserPrompt: ""
   Tar1090:
-    Enabled: true
-    ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields:
-    - tar1090AircraftADSBMessageCount
-    - tar1090AircraftAltimeterBarometerFeet
-    - tar1090AircraftAltimeterBarometerRateFeetPerSecond
-    - tar1090AircraftAltimeterGeometricFeet
-    - tar1090AircraftDescription
-    - tar1090AircraftDirectionDegrees
-    - tar1090AircraftDistanceKm
-    - tar1090AircraftDistanceMi
-    - tar1090AircraftDistanceNm
-    - tar1090AircraftEmergency
-    - tar1090AircraftFlightNumber
-    - tar1090AircraftGeolocation
-    - tar1090AircraftHexCode
-    - tar1090AircraftLatitude
-    - tar1090AircraftLongitude
-    - tar1090AircraftNavModes
-    - tar1090AircraftOwnerOperator
-    - tar1090AircraftRSSIdBm
-    - tar1090AircraftType
-    - tar1090AircraftYearOfManufacture
-    - tar1090ReferenceGeolocation
-    - tar1090ReferenceGeolocationLatitude
-    - tar1090ReferenceGeolocationLongitude
-    URL: http://tar1090/
-  VDLM2:
-    Enabled: true
-    SelectedFields:
-    - acarsAcknowledge
-    - acarsAircraftTailCode
-    - acarsBlockID
-    - acarsCRCOK
-    - acarsErrorCode
-    - acarsExtraACARSDramaTailNumberLink
-    - acarsExtraImageLink
-    - acarsExtraPhotosLink
-    - acarsExtraThumbnailLink
-    - acarsExtraTrackingLink
-    - acarsExtraTranslateLink
-    - acarsFlightNumber
-    - acarsLabel
-    - acarsMessageFrom
-    - acarsMessageNumber
-    - acarsMessageNumberSequence
-    - acarsMessageText
-    - acarsMode
-    - acarsMore
-    - vdlm2AppName
-    - vdlm2AppProxied
-    - vdlm2AppProxiedBy
-    - vdlm2AppRouterUUID
-    - vdlm2AppRouterVersion
-    - vdlm2AppVersion
-    - vdlm2BurstLengthOctets
-    - vdlm2FrequencyHz
-    - vdlm2FrequencySkew
-    - vdlm2HDRBitsFixed
-    - vdlm2Index
-    - vdlm2NoiseLevel
-    - vdlm2OctetsCorrectedByFEC
-    - vdlm2SignalLeveldBm
-    - vdlm2Station
-    - vdlm2Timestamp
-    - vdlm2TimestampMicroseconds
-    - vdlmCR
-    - vdlmDestinationAddress
-    - vdlmDestinationType
-    - vdlmFrameType
-    - vdlmPoll
-    - vdlmRSequence
-    - vdlmSSequence
-    - vdlmSourceAddress
-    - vdlmSourceStatus
-    - vdlmSourceType
-Filters:
-  ACARS:
-    DuplicateMessageSimilarity: 0.9
-    Enabled: true
-  Generic:
-    ASSStatus: anything
-    AboveDistanceNm: 15.5
-    AboveSignaldBm: -9.9
-    BelowDistanceNm: 15.5
-    BelowSignaldBm: -9.9
-    DictionaryPhraseLengthMinimum: 5
-    Emergency: true
-    FlightNumber: "1234"
-    FreetextTermPresent: false
-    Frequency: 136.95
-    FromAircraft: true
-    FromTower: true
-    HasText: true
-    More: true
-    StationID: N12346
-    TailCode: "1234"
+    URL: http://tar1090
   Ollama:
-    Enabled: true
-    FilterOnFailure: true
-    MaxPredictionTokens: 512
-    MaxRetryAttempts: 5
-    MaxRetryDelaySeconds: 5
     Model: llama3.2
-    Options:
-    - Name: num_predict
-      Value: 512
-    SystemPrompt: Answer like a pirate
-    Timeout: 5
     URL: http://ollama-service:11434
-    UserPrompt: ""
-  OpenAI:
-    APIKey: example_key
-    Enabled: true
-    Model: gpt-4o
-    SystemPrompt: Answer like a pirate
-    Timeout: 5
-    UserPrompt: Does this message talk about coffee makers or lavatories (shortand
-      LAV is sometimes used)?
-  VDLM2:
-    DuplicateMessageSimilarity: 0.9
-    Enabled: true
+    UserPrompt: Is there prose in this message? If present, prose will be the last section of a message. Return any prose if found. Surround it with triple backticks.
 Receivers:
   DiscordWebhook:
-    Embed: true
-    EmbedColorFacetFields:
-    - acarsAircraftTailCode
-    EmbedColorGradientField: ollamaProcessedValue
-    EmbedColorGradientSteps:
-    - B: 0
-      G: 255
-      R: 0
-    - B: 0
-      G: 255
-      R: 255
-    - B: 0
-      G: 0
-      R: 255
-    Enabled: true
-    FormatText: true
-    FormatTimestamps: true
-    RequiredFields:
-    - acarsMessageText
     URL: https://discord.com/api/webhooks/1234321/unique_id1234
-  NewRelic:
-    APIKey: api_key
-    CustomEventType: CustomACARS
-    Enabled: true
-  Webhook:
-    Enabled: true
-    Headers:
-    - Name: APIKey
-      Value: 1234abcdef
-    Method: POST
-    URL: https://webhook:8443/webhook/?enable_feature=yes
+    FormatText: true

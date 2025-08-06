@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	configExample = "config_example.yaml"
+	configExample = "config_all_options.yaml"
 	schemaLine    = `# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
 # This file (and schema.json) are automatically generated 
 # from the code by running ./acars-processor -s
@@ -177,7 +177,7 @@ func GenerateSchema(schemaPath string) {
 	if UpdateFile(configExample, configYaml) {
 		configUpdated = true
 		log.SetLevel(log.InfoLevel)
-		log.Info(Success("Updated example config"))
+		log.Info(Success("Updated %s", configExample))
 		log.SetLevel(log.FatalLevel)
 	}
 
@@ -202,5 +202,5 @@ func GenerateSchema(schemaPath string) {
 		log.Info(Note("Files were updated, so exiting with status of 100"))
 		os.Exit(100)
 	}
-	log.Info(Content("Schema and example config are up to date"))
+	log.Info(Content("Schema and %s are up to date", configExample))
 }
