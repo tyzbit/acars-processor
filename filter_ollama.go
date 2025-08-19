@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"regexp"
 	"time"
 
@@ -39,6 +40,17 @@ var (
 	OllamaFilterMaxRetryAttempts    = 6
 	OllamaFilterRetryDelaySeconds   = 5
 )
+
+type OllamaFilterer struct {
+	Filterer
+	// Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
+	FilterOnFailure bool `default:"true"`
+	OllamaCommonConfig
+}
+
+func (o OllamaFilterer) Name() string {
+	return reflect.TypeOf(o).Name()
+}
 
 type OllamaFilterResponse struct {
 	MessageMatchesCriteria bool   `json:"message_matches_criteria"`
@@ -89,63 +101,67 @@ type OllamaFilterResult struct {
 }
 
 // Return true if a message passes a filter, false otherwise
-func OllamaFilter(m string) bool {
+func (o OllamaFilterer) Filter(m APMessage) (filter bool, reason string, err error) {
+	if reflect.DeepEqual(o, OllamaFilterer{}) {
+		return false, "", nil
+	}
+	ms := GetAPMessageCommonFieldAsString(m, "message_text")
 	log.Debug(Content("submitting message ending in \""),
-		Note(Last20Characters(m)),
+		Note(Last20Characters(ms)),
 		Content("\" for filtering with Ollama"))
-	// If message is blank, return
-	if regexp.MustCompile(`^\s*$`).MatchString(m) {
-		log.Debug(Content("message was blank, filtering without calling Ollama"))
-		return false
-	}
-	if config.Filters.Ollama.Model == "" || config.Filters.Ollama.UserPrompt == "" {
+	if o.Model == "" || o.UserPrompt == "" {
 		log.Warn(Attention("OllamaFilter model and prompt are required to use the Ollama filter"))
-		return true
+		return false, "", nil
 	}
-	url, err := url.Parse(config.Filters.Ollama.URL)
+	// If message is blank, return
+	if regexp.MustCompile(`^\s*$`).MatchString(ms) {
+		log.Debug(Content("message was blank, filtering without calling Ollama"))
+		return true, "message blank", nil
+	}
+	url, err := url.Parse(o.URL)
 	if err != nil {
 		log.Error(Attention("OllamaFilter url could not be parsed: %s", err))
-		return true
+		return o.FilterOnFailure, "", err
 	}
 	client := api.NewClient(url, &http.Client{})
 	if err != nil {
 		log.Error(Attention("error initializing OllamaFilter: %s", err))
-		return true
+		return o.FilterOnFailure, "", err
 	}
 
-	if config.Filters.Ollama.SystemPrompt != "" {
-		OllamaFilterFirstInstructions = config.Filters.Ollama.SystemPrompt
+	if o.SystemPrompt != "" {
+		OllamaFilterFirstInstructions = o.SystemPrompt
 	}
-	if config.Filters.Ollama.Timeout != 0 {
-		OllamaFilterTimeout = config.Filters.Ollama.Timeout
+	if o.Timeout != 0 {
+		OllamaFilterTimeout = o.Timeout
 	}
-	if config.Filters.Ollama.MaxRetryAttempts != 0 {
-		OllamaFilterMaxRetryAttempts = config.Filters.Ollama.MaxRetryAttempts
+	if o.MaxRetryAttempts != 0 {
+		OllamaFilterMaxRetryAttempts = o.MaxRetryAttempts
 	}
-	if config.Filters.Ollama.MaxRetryDelaySeconds != 0 {
-		OllamaFilterRetryDelaySeconds = config.Filters.Ollama.MaxRetryDelaySeconds
+	if o.MaxRetryDelaySeconds != 0 {
+		OllamaFilterRetryDelaySeconds = o.MaxRetryDelaySeconds
 	}
 
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaFilterResponseRequestedFormat)
 	if err != nil {
 		log.Error(Attention("error setting Ollama response format: %s", err))
-		return true
+		return false, "", err
 	}
 
 	opts := map[string]any{}
-	for _, opt := range config.Filters.Ollama.Options {
+	for _, opt := range o.Options {
 		opts[opt.Name] = opt.Value
 	}
 
-	systemPrompt := OllamaFilterFirstInstructions + config.Filters.Ollama.UserPrompt +
+	systemPrompt := OllamaFilterFirstInstructions + o.UserPrompt +
 		OllamaFilterFinalInstructions
 	req := &api.GenerateRequest{
-		Model:   config.Filters.Ollama.Model,
+		Model:   o.Model,
 		Format:  requestedFormatJson,
 		System:  systemPrompt,
 		Stream:  &stream,
-		Prompt:  `Here is the message to evaluate:\n` + m,
+		Prompt:  `Here is the message to evaluate:\n` + ms,
 		Options: opts,
 	}
 
@@ -170,13 +186,13 @@ func OllamaFilter(m string) bool {
 			return err
 		}
 		ofr := OllamaFilterResult{
-			ACARSMessage: m,
+			ACARSMessage: ms,
 			OllamaFilterRequest: OllamaFilterRequest{
-				Model:                               config.Filters.Ollama.Model,
+				Model:                               o.Model,
 				OllamaSystemPromptFirstInstructions: OllamaFilterFirstInstructions,
-				OllamaUserPrompt:                    config.Filters.Ollama.UserPrompt,
+				OllamaUserPrompt:                    o.UserPrompt,
 				OllamaSystemPromptFinalInstructions: OllamaFilterFinalInstructions,
-				ACARSMessage:                        m,
+				ACARSMessage:                        ms,
 			},
 			OllamaFilterResponse: r,
 		}
@@ -186,7 +202,7 @@ func OllamaFilter(m string) bool {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaFilterTimeout)*time.Second)
 	defer cancel()
-	log.Debug(Content("calling OllamaFilter, model "), Note(config.Filters.Ollama.Model))
+	log.Debug(Content("calling OllamaFilter, model "), Note(o.Model))
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
@@ -211,16 +227,20 @@ func OllamaFilter(m string) bool {
 
 	if err != nil {
 		log.Error(Attention("too many failures calling OllamaFilter, giving up and "),
-			action[!config.Filters.Ollama.FilterOnFailure],
+			action[!o.FilterOnFailure],
 			Attention("ing: %s", err))
-		return !config.Filters.Ollama.FilterOnFailure
+		return o.FilterOnFailure, "", err
 	}
 
 	log.Info(Content("Ollama decision: "),
 		action[r.MessageMatchesCriteria],
 		Content(" for message ending in \""),
-		Note(Last20Characters(m)),
+		Note(Last20Characters(ms)),
 		Content("\", reasoning: "),
 		Emphasised(r.Reasoning))
-	return r.MessageMatchesCriteria
+	return !r.MessageMatchesCriteria, "final decision", nil
+}
+
+func (f OllamaFilterer) Configured() bool {
+	return !reflect.DeepEqual(f, OllamaFilterer{})
 }

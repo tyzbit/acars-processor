@@ -1,41 +1,59 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
-# This file (and schema.json) are automatically generated 
-# from the code by running ./acars-processor -s
 
+# See config_all_options.yaml for everything you can set here as well as
+# more information about each setting.
 ACARSProcessorSettings:
-  ColorOutput: true
-  LogLevel: info
   Database:
     Enabled: true
     SQLiteDatabasePath: ./messages.db
-    Type: mariadb
+    Type: sqlite
   ACARSHub:
+    # One or more of these must be enabled in order to process messages
     ACARS:
-      Host: acarshub
+      Host: &ac acarshub
       Port: 15550
     VDLM2:
-      Host: acarshub
+      Host: *ac
       Port: 15555
-Filters:
-  Ollama:
-    Model: llama3.2
-    URL: http://ollama-service:11434
-    UserPrompt: Is there prose in this message?
-Annotators:
-  ACARS:
-    Enabled: true
-    SelectedFields:
-      - acarsMessageText
-      - acarsAircraftTailCode
-  VDLM2:
-    Enabled: true
-  Tar1090:
-    URL: http://tar1090
-  Ollama:
-    Model: llama3.2
-    URL: http://ollama-service:11434
-    UserPrompt: Is there prose in this message? If present, prose will be the last section of a message. Return any prose if found. Surround it with triple backticks.
-Receivers:
-  DiscordWebhook:
-    URL: https://discord.com/api/webhooks/1234321/unique_id1234
-    FormatText: true
+
+# Each step here will be run in sequence. You can filter, annotate and send
+# to a receiver all in one step if you wish.
+Steps:
+  - Filter:
+      Builtin:
+        HasText: true
+        FromAircraft: true
+        PreviousMessageSimilarity:
+          Similarity: 0.9
+  - Annotate:
+      Tar1090:
+        URL: http://tar1090
+        ReferenceGeolocation: 50,50
+  - Filter:
+      Builtin:
+        FilterOnFailure: false
+        BelowDistanceMi: 100.0
+  - Filter:
+      Ollama:
+        Model: &ollamamodel qwen3:30b-a3b
+        URL: &ollamaurl http://ollama:11434
+        FilterOnFailure: true
+        MaxRetryAttempts: 1
+        MaxRetryDelaySeconds: 5
+        Timeout: 30
+        Options: &ollamaopts [
+          {Name: num_predict, Value: 150}, # Maximum number of tokens (words, kinda) to generate
+          {Name: temperature, Value: 0.4}, # Creativity (0.0-2.0)
+          {Name: top_p, Value: 0.2}, # Answer diversity with top_k (0.0-1.0)
+          {Name: top_k, Value: 20}, # Answer diversity (ex 0-100)
+          {Name: frequency_penalty, Value: 1.1}, # Penalize repeated tokens (0-2.0)
+          {Name: num_gpu, Value: 40}, # Number of layers to offload to GPU
+        ]
+        UserPrompt:  Does this message mention lavatories (shorthand LAV)?
+  - Send:
+      Discord:
+        Embed: true
+        EmbedColorFacetFields: [tail_code]
+        URL: "${acars_discord_webhook}"
+        FormatText: true
+        FormatTimestamps: true

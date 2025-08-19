@@ -6,8 +6,9 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"reflect"
 	"regexp"
-	"slices"
+	"sort"
 	"time"
 
 	"github.com/avast/retry-go"
@@ -25,7 +26,7 @@ var (
 	or rules provided to edit, select, transform, evaluate or otherwise process
 	the text strictly according to the directions given. Only make additions or
 	subtractions from the original text. Do not replace or transform words such
-	as to modify case unless specifically instructed to.
+	as to modify case unless specifically instructed ta.
 
 	If asked to evaluate the message numerically, use your skills and any
 	examples rules or criteria given to calculate a numerical result for the
@@ -36,7 +37,7 @@ var (
 	OllamaAnnotatorFinalInstructions = `
 	Return true or false corresponding to the answer in the 'question' field.
 	Return the processed text in the 'processed_text' field.
-	Return any numerical evaluation in the 'processed_value' field.
+	Return any numerical evaluation in the 'processed_number' field.
 	Provide feedback summarizing your actions or commentary in the
 	'model_feedback' field.
 	`
@@ -45,11 +46,25 @@ var (
 	OllamaAnnotatorRetryDelaySeconds = 5
 )
 
+type OllamaAnnotator struct {
+	Annotator
+	Module
+	OllamaCommonConfig
+	// If there is a question in the user prompt, this controls whether to use the answer to filter the message.
+	FilterWithQuestion bool `default:"true"`
+	// Any number calculation less than this will be filtered.
+	FilterLessThan int `default:"1"`
+	// Any number calculation greater than this will be filtered.
+	FilterGreaterThan int `default:"100"`
+	// Only return these fields when done.
+	SelectedFields []string
+}
+
 type OllamaAnnotatorResponse struct {
-	Question       bool   `json:"question"`
-	ModelFeedback  string `json:"model_feedback"`
-	ProcessedText  string `json:"processed_text"`
-	ProcessedValue int    `json:"processed_value"`
+	Question        bool   `json:"question" acars:"llm_question"`
+	ModelFeedback   string `json:"model_feedback" acars:"llm_response"`
+	ProcessedText   string `json:"processed_text" acars:"llm_string_result"`
+	ProcessedNumber int    `json:"processed_number" acars:"llm_number_result"`
 }
 
 type OllamaAnnotatorResponseFormat struct {
@@ -59,10 +74,10 @@ type OllamaAnnotatorResponseFormat struct {
 }
 
 type OllamaAnnotatorResponseFormatRequestedProperties struct {
-	ProcessedText  OllamaAnnotatorResponseFormatRequestedProperty `json:"processed_text"`
-	ProcessedValue OllamaAnnotatorResponseFormatRequestedProperty `json:"processed_value"`
-	ModelFeedback  OllamaAnnotatorResponseFormatRequestedProperty `json:"model_feedback"`
-	Question       OllamaAnnotatorResponseFormatRequestedProperty `json:"question"`
+	ProcessedText   OllamaAnnotatorResponseFormatRequestedProperty `json:"processed_text"`
+	ProcessedNumber OllamaAnnotatorResponseFormatRequestedProperty `json:"processed_number"`
+	ModelFeedback   OllamaAnnotatorResponseFormatRequestedProperty `json:"model_feedback"`
+	Question        OllamaAnnotatorResponseFormatRequestedProperty `json:"question"`
 }
 
 type OllamaAnnotatorResponseFormatRequestedProperty struct {
@@ -81,106 +96,81 @@ var OllamaAnnotatorResponseRequestedFormat = OllamaAnnotatorResponseFormat{
 		ProcessedText: OllamaAnnotatorResponseFormatRequestedProperty{
 			Type: "string",
 		},
-		ProcessedValue: OllamaAnnotatorResponseFormatRequestedProperty{
+		ProcessedNumber: OllamaAnnotatorResponseFormatRequestedProperty{
 			Type: "integer",
 		},
 	},
-	Required: []string{"question", "model_feedback", "processed_text", "processed_value"},
+	Required: []string{"question", "model_feedback", "processed_text", "processed_number"},
 }
 
-type OllamaAnnotatorHandler struct {
-	OllamaAnnotatorResponse
+func (a OllamaAnnotator) Name() string {
+	return reflect.TypeOf(a).Name()
 }
 
-func (a OllamaAnnotatorHandler) Name() string {
-	return "Ollama"
-}
-
-func (a OllamaAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
-	if config.Annotators.Ollama.SelectedFields == nil {
-		return annotation
+func (a OllamaAnnotator) GetDefaultFields() (s []string) {
+	for f := range FormatAsAPMessage(OllamaAnnotatorResponse{}) {
+		s = append(s, f)
 	}
-	selectedFields := Annotation{}
-	for field, value := range annotation {
-		if slices.Contains(config.Annotators.Ollama.SelectedFields, field) {
-			selectedFields[field] = value
-		}
+	sort.Strings(s)
+	return s
+}
+
+func (a OllamaAnnotator) Annotate(m APMessage) (APMessage, error) {
+	if reflect.DeepEqual(a, OllamaAnnotator{}) {
+		return m, nil
 	}
-	return selectedFields
-}
-
-func (o OllamaAnnotatorHandler) DefaultFields() []string {
-	// ACARS
-	fields := []string{}
-	for field := range o.AnnotateACARSMessage(ACARSMessage{}) {
-		fields = append(fields, field)
+	msg := GetAPMessageCommonFieldAsString(m, "message_text")
+	if msg == "" {
+		return m, fmt.Errorf("did not find message text in message")
 	}
-	slices.Sort(fields)
-	return fields
-}
-
-func (o OllamaAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
-	return o.AnnotateMessage(m.MessageText)
-}
-
-func (o OllamaAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
-	return o.AnnotateMessage(m.VDL2.AVLC.ACARS.MessageText)
-}
-
-func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation) {
-	enabled := config.Annotators.Ollama.Enabled
+	if a.Model == "" || a.UserPrompt == "" {
+		return m, fmt.Errorf("OllamaAnnotator model and prompt are required to use the Ollama annotator")
+	}
 	// If message is blank, return
-	if enabled && (regexp.MustCompile(`^\s*$`).MatchString(m)) {
-		log.Debug(Aside("message was blank, not annotating with Ollama"))
-		return
+	if regexp.MustCompile(`^\s*$`).MatchString(msg) {
+		log.Info(Emphasised("message was blank, not annotating with Ollama"))
+		return m, nil
 	}
-	if enabled && config.Annotators.Ollama.Model == "" || enabled && config.Annotators.Ollama.UserPrompt == "" {
-		log.Warn(Attention("OllamaAnnotator model and prompt are required to use the Ollama annotator"))
-		return
-	}
-	url, err := url.Parse(config.Annotators.Ollama.URL)
-	if enabled && err != nil {
-		log.Error(Attention("OllamaAnnotator url could not be parsed: %s", err))
-		return
+	url, err := url.Parse(a.URL)
+	if err != nil {
+		return m, fmt.Errorf("OllamaAnnotator url could not be parsed: %s", err)
 	}
 	client := api.NewClient(url, &http.Client{})
-	if enabled && err != nil {
-		log.Error(Attention("error initializing OllamaAnnotator: %s", err))
-		return
+	if err != nil {
+		return m, fmt.Errorf("error initializing OllamaAnnotator: %s", err)
 	}
 
-	if config.Annotators.Ollama.SystemPrompt != "" {
-		OllamaAnnotatorFirstInstructions = config.Annotators.Ollama.SystemPrompt
+	if a.SystemPrompt != "" {
+		OllamaAnnotatorFirstInstructions = a.SystemPrompt
 	}
-	if config.Annotators.Ollama.Timeout != 0 {
-		OllamaAnnotatorTimeout = config.Annotators.Ollama.Timeout
+	if a.Timeout != 0 {
+		OllamaAnnotatorTimeout = a.Timeout
 	}
-	if config.Annotators.Ollama.MaxRetryAttempts != 0 {
-		OllamaAnnotatorMaxRetryAttempts = config.Annotators.Ollama.MaxRetryAttempts
+	if a.MaxRetryAttempts != 0 {
+		OllamaAnnotatorMaxRetryAttempts = a.MaxRetryAttempts
 	}
-	if config.Annotators.Ollama.MaxRetryDelaySeconds != 0 {
-		OllamaAnnotatorRetryDelaySeconds = config.Annotators.Ollama.MaxRetryDelaySeconds
+	if a.MaxRetryDelaySeconds != 0 {
+		OllamaAnnotatorRetryDelaySeconds = a.MaxRetryDelaySeconds
 	}
 
 	stream := false
 	requestedFormatJson, err := json.Marshal(OllamaAnnotatorResponseRequestedFormat)
 	if err != nil {
-		log.Error(Attention("error setting Ollama response format: %s", err))
-		return
+		return m, fmt.Errorf("error setting Ollama response format: %s", err)
 	}
 
 	opts := map[string]any{}
-	for _, opt := range config.Annotators.Ollama.Options {
+	for _, opt := range a.Options {
 		opts[opt.Name] = opt.Value
 	}
 
 	req := &api.GenerateRequest{
-		Model:  config.Annotators.Ollama.Model,
+		Model:  a.Model,
 		Format: requestedFormatJson,
-		System: OllamaAnnotatorFirstInstructions + config.Annotators.Ollama.UserPrompt +
+		System: OllamaAnnotatorFirstInstructions + a.UserPrompt +
 			OllamaAnnotatorFinalInstructions,
 		Stream:  &stream,
-		Prompt:  `Here is the message to evaluate:\n` + m,
+		Prompt:  `Here is the message to evaluate:\n` + msg,
 		Options: opts,
 	}
 
@@ -210,7 +200,7 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaAnnotatorTimeout)*time.Second)
 	defer cancel()
-	log.Debug(Aside("calling OllamaAnnotator, model "), Note(config.Annotators.Ollama.Model))
+	log.Debug(Aside("calling OllamaAnnotator, model "), Note(a.Model))
 	err = retry.Do(func() error {
 		err = client.Generate(ctx, req, respFunc)
 		if err != nil {
@@ -228,40 +218,37 @@ func (o OllamaAnnotatorHandler) AnnotateMessage(m string) (annotation Annotation
 		}),
 	)
 
-	if config.Annotators.Ollama.FilterWithQuestion {
+	if a.FilterWithQuestion {
 		if !r.Question {
 			log.Info(Note("Ollama annotation response did not qualify according to " +
 				"user requirements for the question, not returning any output"))
-			return annotation
+			return m, nil
 		}
 	}
-	if config.Annotators.Ollama.FilterGreaterThan > 0 {
-		if r.ProcessedValue >= config.Annotators.Ollama.FilterGreaterThan {
+	if a.FilterGreaterThan > 0 {
+		if r.ProcessedNumber >= a.FilterGreaterThan {
 			log.Info(Note("Ollama annotation response did not qualify according to "+
 				"user requirements for %d being greater than %d, "+
-				"not returning any output", r.ProcessedValue, config.Annotators.Ollama.FilterGreaterThan))
-			return annotation
+				"not returning any output", r.ProcessedNumber, a.FilterGreaterThan))
+			return m, nil
 		}
 	}
-	if config.Annotators.Ollama.FilterLessThan != 0 {
-		if r.ProcessedValue <= config.Annotators.Ollama.FilterLessThan {
+	if a.FilterLessThan != 0 {
+		if r.ProcessedNumber <= a.FilterLessThan {
 			log.Info(Note("Ollama annotation response did not qualify according to "+
 				"user requirements for %d being less than %d, "+
-				"not returning any output", r.ProcessedValue, config.Annotators.Ollama.FilterLessThan))
-			return annotation
+				"not returning any output", r.ProcessedNumber, a.FilterLessThan))
+			return m, nil
 		}
 	}
-	if enabled && (r == OllamaAnnotatorResponse{}) {
+	if (r == OllamaAnnotatorResponse{}) {
 		log.Info(Attention("Ollama annotator response was empty"))
+		return m, nil
 	} else {
-		// Please update config example values if changed
-		annotation = Annotation{
-			"ollamaProcessedText":     r.ProcessedText,
-			"ollamaProcessedValue":    r.ProcessedValue,
-			"ollamaModelFeedbackText": r.ModelFeedback,
-			"ollamaQuestion":          r.Question,
-		}
+		return MergeMaps(FormatAsAPMessage(r), m), nil
 	}
+}
 
-	return annotation
+func (a OllamaAnnotator) Configured() bool {
+	return !reflect.DeepEqual(a, OllamaAnnotator{})
 }
