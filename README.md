@@ -120,5 +120,5 @@ accessibility.
 | Note       | Important info.                       | Cyan          | No info back from annotators                         |
 | Attention  | Information about a possible problem. | Yellow        | No receivers configured                              |
 | Aside      | Less important, perhaps verbose info. | Grey          | "++86501,N8867Q,B7378MAX,250608,WN0393...."          |
-| Emphasized | Output or results.                    | Bold & Italic | "Filtering due to excessive use of exclamations!!!!" |
+| Emphasised | Output or results.                    | Bold & Italic | "Filtering due to excessive use of exclamations!!!!" |
 | Custom     | Special and specific. Discouraged.    | Any           | N/A                                                  |
