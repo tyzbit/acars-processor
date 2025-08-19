@@ -1,8 +1,10 @@
+// TODO: Feature parity with Ollama
 package main
 
 import (
 	"context"
 	"encoding/json"
+	"reflect"
 	"regexp"
 
 	"github.com/fatih/color"
@@ -30,31 +32,55 @@ var (
 	factored in your decision on whether the message matches the criteria.`
 )
 
+type OpenAIFilterer struct {
+	Filterer
+	// Whether to filter messages where the OpenAI filter itself fails. Recommended if your ollama instance sometimes returns errors.
+	FilterOnFailure bool   `default:"true"`
+	APIKey          string `jsonschema:"required" default:"example_key"`
+	// Model to use.
+	Model string `jsonschema:"required,default=gpt-4o" default:"gpt-4o"`
+	// Instructions for OpenAI model to use when filtering messages. More detail is better.
+	UserPrompt string `jsonschema:"required,example=Does this message talk about coffee makers or lavatories (shortand LAV is sometimes used)?" default:"Does this message talk about coffee makers or lavatories (shortand LAV is sometimes used)?"`
+	// Override the built-in system prompt to instruct the model on how to behave for requests (not usually necessary).
+	SystemPrompt string `default:"Answer like a pirate"`
+	// How long to wait until giving up on any request to OpenAI.
+	Timeout int `default:"5"`
+}
+
+func (o OpenAIFilterer) Name() string {
+	return reflect.TypeOf(o).Name()
+}
+
 type OpenAIResponse struct {
 	MessageMatches any    `json:"message_matches"`
 	Reasoning      string `json:"reasoning"`
 }
 
 // Return true if a message passes a filter, false otherwise
-func OpenAIFilter(m string) bool {
-	log.Debug(Content("submitting message ending in \""),
-		Note(Last20Characters(m)),
+func (o OpenAIFilterer) Filter(m APMessage) (filter bool, reason string, err error) {
+	if reflect.DeepEqual(o, OpenAIFilterer{}) {
+		return false, "", nil
+	}
+	ms := GetAPMessageCommonFieldAsString(m, "message_text")
+
+	log.Debug(Emphasised("submitting message ending in \""),
+		Note(Last20Characters(ms)),
 		Content("\" for filtering with OpenAI"))
 
 	// If message is blank, return
-	if regexp.MustCompile(`^\s*$`).MatchString(m) {
+	if regexp.MustCompile(`^\s*$`).MatchString(ms) {
 		log.Info(Content("message was blank, filtering without calling OpenAI"))
-		return false
+		return true, "message blank", nil
 	}
 	client := openai.NewClient(
-		option.WithAPIKey(config.Filters.OpenAI.APIKey),
+		option.WithAPIKey(o.APIKey),
 	)
-	if config.Filters.OpenAI.SystemPrompt != "" {
-		OpenAISystemPrompt = config.Filters.OpenAI.SystemPrompt
+	if o.SystemPrompt != "" {
+		OpenAISystemPrompt = o.SystemPrompt
 	}
 	openAIModel := openai.ChatModelGPT4o
-	if config.Filters.OpenAI.Model != "" {
-		openAIModel = config.Filters.OpenAI.Model
+	if o.Model != "" {
+		openAIModel = o.Model
 	}
 
 	log.Debug(Aside("calling OpenAI model "), Note(openAIModel))
@@ -62,9 +88,9 @@ func OpenAIFilter(m string) bool {
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
 				openai.SystemMessage(OpenAISystemPrompt),
-				openai.SystemMessage(config.Filters.OpenAI.UserPrompt),
+				openai.SystemMessage(o.UserPrompt),
 				openai.SystemMessage(OpenAIFinalInstructions),
-				openai.UserMessage(m),
+				openai.UserMessage(ms),
 			}),
 			Model: openai.F(openAIModel),
 			// Make it deterministic
@@ -72,7 +98,7 @@ func OpenAIFilter(m string) bool {
 		})
 	if err != nil {
 		log.Error(Attention("error using OpenAI: %s", err))
-		return true
+		return o.FilterOnFailure, "", err
 	}
 
 	var r OpenAIResponse
@@ -85,7 +111,7 @@ func OpenAIFilter(m string) bool {
 	if len(matches) == 0 {
 		log.Error(Attention("did not find a json object in response: %s",
 			chatCompletion.Choices[0].Message, Content))
-		return true
+		return o.FilterOnFailure, "", err
 	}
 	start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
 	content := chatCompletion.Choices[0].Message.Content[start:end]
@@ -95,7 +121,7 @@ func OpenAIFilter(m string) bool {
 	if err != nil {
 		log.Warn(Attention("error unmarshaling response from OpenAI: %s", err))
 		log.Debug(Aside("OpenAI full response: %s", chatCompletion.Choices[0].Message, Content))
-		return true
+		return o.FilterOnFailure, "", err
 	}
 	decision := r.MessageMatches == "true" || r.MessageMatches == true
 	action := map[bool]string{
@@ -105,8 +131,12 @@ func OpenAIFilter(m string) bool {
 	log.Info(Content("OpenAI decision: "),
 		action[decision],
 		Content(" for message ending in: \""),
-		Note(Last20Characters(m)),
+		Note(Last20Characters(ms)),
 		Content("\", reasoning: "),
 		Emphasised(r.Reasoning))
-	return decision
+	return !decision, "final decision", nil
+}
+
+func (f OpenAIFilterer) Configured() bool {
+	return !reflect.DeepEqual(f, OpenAIFilterer{})
 }
