@@ -31,7 +31,7 @@ func InitSQLite() (err error) {
 		sqlitePath = "file::memory:?cache=shared"
 	} else {
 		p := sqlitePath
-		if p != "" {
+		if config.ACARSProcessorSettings.Database.SQLiteDatabasePath != "" {
 			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
 		}
 		log.Info(Success("Database path set to %s", p))
