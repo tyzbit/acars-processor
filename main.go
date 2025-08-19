@@ -11,14 +11,10 @@ import (
 )
 
 var (
-	config                 = Config{}
-	db                     = new(gorm.DB)
-	configFilePath         = "config.yaml"
-	schemaFilePath         = "schema.json"
-	enabledACARSAnnotators = []ACARSAnnotator{}
-	enabledVDLM2Annotators = []VDLM2Annotator{}
-	enabledReceivers       = []Receiver{}
-	enabledFilters         = []string{}
+	config         = Config{}
+	db             = new(gorm.DB)
+	configFilePath = "config.yaml"
+	schemaFilePath = "schema.json"
 )
 
 func main() {
@@ -39,9 +35,6 @@ func main() {
 	if err := LoadSavedMessages(); err != nil {
 		log.Fatal(Attention("unable to initialize database: %s", err))
 	}
-	ConfigureAnnotators()
-	ConfigureReceivers()
-	ConfigureFilters()
 
 	go SubscribeToACARSHub()
 
