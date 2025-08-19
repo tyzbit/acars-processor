@@ -31,7 +31,7 @@ func InitSQLite() (err error) {
 		sqlitePath = "file::memory:?cache=shared"
 	} else {
 		p := sqlitePath
-		if p != "" {
+		if config.ACARSProcessorSettings.Database.SQLiteDatabasePath != "" {
 			sqlitePath = config.ACARSProcessorSettings.Database.SQLiteDatabasePath
 		}
 		log.Info(Success("Database path set to %s", p))
@@ -77,9 +77,13 @@ func LoadSavedMessages() error {
 	if err := db.AutoMigrate(ACARSMessage{}); err != nil {
 		log.Fatal(Attention("Unable to automigrate ACARSMessage type: %s", err))
 	}
-	db.Find(&am, ACARSMessage{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}})
+	db.Not(ACARSMessage{Processed: true}).Find(&am)
+	// db.Find(&am, &[]ACARSMessage{})
 	for _, a := range am {
-		ACARSMessageQueue <- a.ID
+		APMessageQueue <- APMessageQeueueItem{
+			ACARSMessage: a,
+			APMessage:    FormatAsAPMessage(a),
+		}
 	}
 	if config.ACARSProcessorSettings.Database.Enabled {
 		log.Info(Content("Loaded %d ACARS messages from the db", len(am)))
@@ -90,9 +94,12 @@ func LoadSavedMessages() error {
 	if err := db.AutoMigrate(VDLM2Message{}); err != nil {
 		log.Fatal(Attention("Unable to automigrate VDLM2Message type: %s", err))
 	}
-	db.Find(&vm, VDLM2Message{Model: gorm.Model{DeletedAt: gorm.DeletedAt{Valid: false}}})
+	db.Not(VDLM2Message{Processed: true}).Find(&am)
 	for _, v := range vm {
-		VDLM2MessageQueue <- v.ID
+		APMessageQueue <- APMessageQeueueItem{
+			VDLM2Message: v,
+			APMessage:    FormatAsAPMessage(v),
+		}
 	}
 	if config.ACARSProcessorSettings.Database.Enabled {
 		log.Info(Content("Loaded %d VDLM2 messages from the db", len(vm)))
