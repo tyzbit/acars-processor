@@ -2,6 +2,9 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"reflect"
+	"sort"
 	"time"
 
 	"github.com/newrelic/newrelic-telemetry-sdk-go/telemetry"
@@ -10,32 +13,37 @@ import (
 
 const ACARSCustomEventType = "CustomACARS"
 
-type NewRelicHandlerReciever struct {
-	Payload any
+type NewRelicReceiver struct {
+	Module
+	Receiver
+	// API License key to use New Relic.
+	APIKey string `jsonschema:"required" default:"api_key"`
+	// Name for the custom event type to create (example if set to "MyCustomACARSEvents": `FROM MyCustomACARSEvents SELECT count(timestamp)`). If not provided, it will be `CustomACARS`.
+	CustomEventType string `default:"CustomACARS"`
 }
 
 // Must satisfy Receiver interface
-func (n NewRelicHandlerReciever) Name() string {
-	return "newrelic"
+func (n NewRelicReceiver) Name() string {
+	return reflect.TypeOf(n).Name()
 }
 
 // Must satisfy Receiver interface
-func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error) {
-	if config.Receivers.NewRelic.APIKey == "" {
-		log.Panic(Attention("New Relic API key not specified"))
+func (n NewRelicReceiver) Send(a APMessage) (err error) {
+	if n.APIKey == "" {
+		return fmt.Errorf("New Relic API key not specified: %w", err)
 	}
 	// Create a new harvester for sending telemetry data.
 	harvester, err := telemetry.NewHarvester(
-		telemetry.ConfigAPIKey(config.Receivers.NewRelic.APIKey),
+		telemetry.ConfigAPIKey(n.APIKey),
 	)
 	if err != nil {
-		log.Error(Attention("Error creating harvester:", err))
+		return fmt.Errorf("Error creating harvester: %w", err)
 	}
 
 	// Allow overriding the custom event type if set
 	eventType := ACARSCustomEventType
-	if config.Receivers.NewRelic.CustomEventType != "" {
-		eventType = config.Receivers.NewRelic.CustomEventType
+	if n.CustomEventType != "" {
+		eventType = n.CustomEventType
 	}
 
 	event := telemetry.Event{
@@ -50,11 +58,23 @@ func (n NewRelicHandlerReciever) SubmitACARSAnnotations(a Annotation) (err error
 	}
 
 	// Flush events to New Relic. HarvestNow sends any recorded events immediately.
-	log.Info(Content("calling new relic"))
+	log.Debug(Content("calling new relic"))
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	harvester.HarvestNow(ctx)
 
 	err = ctx.Err()
 	return err
+}
+
+func (f NewRelicReceiver) Configured() bool {
+	return !reflect.DeepEqual(f, NewRelicReceiver{})
+}
+
+func (f NewRelicReceiver) GetDefaultFields() (s []string) {
+	for f := range FormatAsAPMessage(NewRelicReceiver{}) {
+		s = append(s, f)
+	}
+	sort.Strings(s)
+	return s
 }
