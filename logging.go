@@ -54,6 +54,6 @@ func Emphasised(s ...any) string {
 }
 
 // Custom
-func Custom(c color.Color, s ...any) string {
-	return ColorSprintf(c, s...)
+func Custom(c *color.Color, s ...any) string {
+	return ColorSprintf(*c, s...)
 }
