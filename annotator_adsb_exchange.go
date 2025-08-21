@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -17,36 +19,29 @@ import (
 const adsbapiv2 = "https://adsbexchange-com1.p.rapidapi.com/v2/%s"
 const adsbapikeyheader = "x-rapidapi-key"
 
-func (a ADSBAnnotatorHandler) Name() string {
-	return "ads-b exchange"
+type ADSBExchangeAnnotator struct {
+	Annotator
+	Module
+	// APIKey provided by signing up at ADSB-Exchange.
+	APIKey string `jsonschema:"required" default:"example_key"`
+	// Geolocation to use for distance calculations (LAT,LON).
+	ReferenceGeolocation string `default:"35.6244416,139.7753782"`
+	// Only provide these fields to future steps.
+	SelectedFields []string
 }
 
-func (a ADSBAnnotatorHandler) SelectFields(annotation Annotation) Annotation {
-	// If no fields are being selected, return annotation unchanged
-	if config.Annotators.ADSBExchange.SelectedFields == nil {
-		return annotation
-	}
-	selectedFields := Annotation{}
-	for field, value := range annotation {
-		if slices.Contains(config.Annotators.ADSBExchange.SelectedFields, field) {
-			selectedFields[field] = value
-		}
-	}
-	return selectedFields
+func (a ADSBExchangeAnnotator) Name() string {
+	return reflect.TypeOf(a).Name()
 }
 
-func (a ADSBAnnotatorHandler) DefaultFields() []string {
-	// ACARS
-	fields := []string{}
-	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
-		fields = append(fields, field)
+func (a ADSBExchangeAnnotator) GetDefaultFields() (s []string) {
+	sap := FormatAsAPMessage(SingleAircraftPosition{})
+	c := FormatAsAPMessage(ADSBExchangeCalculated{})
+	for f := range MergeAPMessages(sap, c) {
+		s = append(s, f)
 	}
-	slices.Sort(fields)
-	return fields
-}
-
-type ADSBAnnotatorHandler struct {
-	SingleAircraftPosition SingleAircraftPosition
+	sort.Strings(s)
+	return s
 }
 
 // https://www.adsbexchange.com/api/aircraft/v2/docs along with some guesswork
@@ -73,7 +68,7 @@ type SingleAircraftPosition struct {
 		RadiusOfContainment                           float64 `json:"rc"`
 		SecondsSincePositionUpdated                   float64 `json:"seen_pos"`
 		Version                                       float64 `json:"version"`
-		NavigationIntegrityCategoryBarometricAltitude float64 `json:"nic_baro"`
+		NavigationIntegrityCategoryBarometricAltitude float64 `json:"nic_baro" ap:"AircraftAltitudeFeet"`
 		NavigationalPositionAccuracy                  float64 `json:"nac_p"`
 		NavigationalVelocityAccuracy                  float64 `json:"nac_v"`
 		SourceIntegrityLevel                          float64 `json:"sil"`
@@ -95,19 +90,27 @@ type SingleAircraftPosition struct {
 	ServerProcessingTime int64  `json:"ptime"`
 }
 
+type ADSBExchangeCalculated struct {
+	AircraftGeolocation          string  `ap:"AircraftGeolocation"`
+	AircraftGeolocationLatitude  float64 `ap:"AircraftLatitude"`
+	AircraftGeolocationLongitude float64 `ap:"AircraftLongitude"`
+	AircraftDistanceKm           float64 `ap:"AircraftDistanceKm"`
+	AircraftDistanceMi           float64 `ap:"AircraftDistanceMi"`
+}
+
 // Wrapper around the SingleAircraftPositionByRegistration API
-func (a ADSBAnnotatorHandler) SingleAircraftPositionByRegistration(reg string) (ac SingleAircraftPosition, err error) {
+func (a ADSBExchangeAnnotator) SingleAircraftPositionByRegistration(reg string) (ac SingleAircraftPosition, err error) {
 	req, err := http.NewRequest("GET", fmt.Sprintf(adsbapiv2, fmt.Sprintf("registration/%s/", reg)), nil)
 	if err != nil {
 		return ac, err
 	}
-	req.Header.Add(adsbapikeyheader, config.Annotators.ADSBExchange.APIKey)
+	req.Header.Add(adsbapikeyheader, a.APIKey)
 	client := &http.Client{}
 
 	log.Debug(Aside("making call to ads-b exchange"))
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error(Attention(err))
+		log.Error(Attention(fmt.Sprintf("%s", err)))
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
@@ -117,111 +120,69 @@ func (a ADSBAnnotatorHandler) SingleAircraftPositionByRegistration(reg string) (
 	}
 
 	if (&ac != &SingleAircraftPosition{}) {
-		log.Debug(Aside("returning data from ads-b"))
 		return ac, nil
 	} else {
 		return ac, errors.New("unable to parse returned aircraft position")
 	}
 }
 
-// Interface function to satisfy ACARSHandler
-func (a ADSBAnnotatorHandler) AnnotateACARSMessage(m ACARSMessage) (annotation Annotation) {
-	enabled := config.Annotators.ADSBExchange.Enabled
-	if !enabled && config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
-		log.Info(Note("adsb enabled but geolocation not set, using '0,0'"))
-		config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
+func (a ADSBExchangeAnnotator) Annotate(m APMessage) (APMessage, error) {
+	if reflect.DeepEqual(a, ADSBExchangeAnnotator{}) {
+		return m, nil
 	}
-	coords := strings.Split(config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
-	if enabled && len(coords) != 2 {
-		log.Warn(Attention("geolocation coordinates are not in the format 'LAT,LON'"))
-		return annotation
+	if a.ReferenceGeolocation == "" {
+		log.Info(Note("%s enabled but geolocation not set, using '0,0'", a.Name()))
+		a.ReferenceGeolocation = "0,0"
+	}
+	coords := strings.Split(a.ReferenceGeolocation, ",")
+	if len(coords) != 2 {
+		return m, fmt.Errorf("%s: geolocation coordinates are not in the format 'LAT,LON'", a.Name())
 	}
 	olat, _ := strconv.ParseFloat(coords[0], 64)
 	olon, _ := strconv.ParseFloat(coords[1], 64)
 	origin := geodist.Coord{Lat: olat, Lon: olon}
-	position := SingleAircraftPosition{}
-	var err error
-	// If disabled, we're just generating the schema
-	if enabled {
-		position, err = a.SingleAircraftPositionByRegistration(m.AircraftTailCode)
-		if err != nil {
-			log.Warn(Attention("error getting aircraft position: %v", err))
-		}
+	tailcode := GetAPMessageCommonFieldAsString(m, "TailCode")
+	if tailcode == "" {
+		log.Debug(Note("%s: did not find a tail code in message, this is normal.", a.Name()))
+		return m, nil
 	}
-	if enabled && len(position.Aircraft) == 0 {
-		log.Warn(Attention("no aircraft were returned from ADS-B API, response message was: %s", position.Message))
-		return annotation
+	tailcode = normalizeComment(tailcode)
+	pos, err := a.SingleAircraftPositionByRegistration(tailcode)
+	if err != nil {
+		return m, fmt.Errorf("error finding aircraft position: %v", err)
 	}
+	if len(pos.Aircraft) == 0 {
+		log.Info(Note("%s: no aircraft were returned from ADS-B API, response message was: %s", a.Name(), pos.Message))
+		return m, nil
+	}
+	apm := FormatAsAPMessage(pos)
 	var alat, alon float64
-	if enabled {
-		alat, alon = position.Aircraft[0].Latitude, position.Aircraft[0].Longitude
-	}
+	alat, alon = pos.Aircraft[0].Latitude, pos.Aircraft[0].Longitude
 	aircraft := geodist.Coord{Lat: alat, Lon: alon}
 	mi, km, err := geodist.VincentyDistance(origin, aircraft)
 	if err != nil {
-		log.Warn(Attention("error calculating distance: %s", err))
+		log.Warn(Attention("%s: error calculating distance: %s", a.Name(), err))
 	}
-	event := Annotation{
-		"adsbOriginGeolocation":          config.Annotators.ADSBExchange.ReferenceGeolocation,
-		"adsbOriginGeolocationLatitude":  olat,
-		"adsbOriginGeolocationLongitude": olon,
-		"adsbAircraftGeolocation":        fmt.Sprintf("%f,%f", alat, alon),
-		"adsbAircraftLatitude":           alat,
-		"adsbAircraftLongitude":          alon,
-		"adsbAircraftDistanceKm":         km,
-		"adsbAircraftDistanceMi":         mi,
+	calc := ADSBExchangeCalculated{
+		AircraftGeolocation:          fmt.Sprintf("%f,%f", alat, alon),
+		AircraftGeolocationLatitude:  alat,
+		AircraftGeolocationLongitude: alon,
+		AircraftDistanceKm:           km,
+		AircraftDistanceMi:           mi,
 	}
-
-	return event
+	calcapm := FormatAsAPMessage(calc)
+	apm = MergeAPMessages(apm, calcapm)
+	// Remove all but any selected fields
+	if len(a.SelectedFields) > 0 {
+		for field := range apm {
+			if !slices.Contains(a.SelectedFields, field) {
+				delete(apm, field)
+			}
+		}
+	}
+	return apm, nil
 }
 
-// Interface function to satisfy ACARSHandler
-func (a ADSBAnnotatorHandler) AnnotateVDLM2Message(m VDLM2Message) (annotation Annotation) {
-	enabled := config.Annotators.ADSBExchange.Enabled
-	if enabled && config.Annotators.ADSBExchange.ReferenceGeolocation == "" {
-		log.Info(Note("adsb exchange enabled but geolocation not set, using '0,0'"))
-		config.Annotators.ADSBExchange.ReferenceGeolocation = "0,0"
-	}
-	coords := strings.Split(config.Annotators.ADSBExchange.ReferenceGeolocation, ",")
-	if enabled && len(coords) != 2 {
-		log.Warn(Attention("adsb exchange geolocation coordinates are not in the format 'LAT,LON'"))
-		return annotation
-	}
-	olat, _ := strconv.ParseFloat(coords[0], 64)
-	olon, _ := strconv.ParseFloat(coords[1], 64)
-	origin := geodist.Coord{Lat: olat, Lon: olon}
-
-	position := SingleAircraftPosition{}
-	var err error
-	// If disabled, we're just generating the schema
-	if enabled {
-		position, err = a.SingleAircraftPositionByRegistration(NormalizeAircraftRegistration(m.VDL2.AVLC.ACARS.Registration))
-		if err != nil {
-			log.Warn(Attention("error getting aircraft position from adsb exchange: %v", err))
-		}
-	}
-	if len(position.Aircraft) == 0 {
-		log.Warn(Attention("no aircraft were returned from adsb exchange, response message was: %s", position.Message))
-		return annotation
-	}
-
-	alat, alon := position.Aircraft[0].Latitude, position.Aircraft[0].Longitude
-	aircraft := geodist.Coord{Lat: alat, Lon: alon}
-	mi, km, err := geodist.VincentyDistance(origin, aircraft)
-	if err != nil {
-		log.Warn(Attention("error calculating distance: %s", err))
-	}
-	// Please update config example values if changed
-	event := Annotation{
-		"adsbOriginGeolocation":          config.Annotators.ADSBExchange.ReferenceGeolocation,
-		"adsbOriginGeolocationLatitude":  olat,
-		"adsbOriginGeolocationLongitude": olon,
-		"adsbAircraftGeolocation":        fmt.Sprintf("%f,%f", alat, alon),
-		"adsbAircraftLatitude":           alat,
-		"adsbAircraftLongitude":          alon,
-		"adsbAircraftDistanceKm":         km,
-		"adsbAircraftDistanceMi":         mi,
-	}
-
-	return event
+func (a ADSBExchangeAnnotator) Configured() bool {
+	return !reflect.DeepEqual(a, ADSBExchangeAnnotator{})
 }
