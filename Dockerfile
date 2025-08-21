@@ -12,6 +12,6 @@ RUN apk add \
 
 FROM alpine
 
-COPY --from=build /acars-processor /
+COPY --From=build /acars-processor /
 
 CMD ["/acars-processor"]
