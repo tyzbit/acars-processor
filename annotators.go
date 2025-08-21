@@ -1,46 +1,43 @@
 package main
 
-import log "github.com/sirupsen/logrus"
+import (
+	"fmt"
+	"slices"
 
-func ConfigureAnnotators() {
-	// ACARS-type messages
-	if config.Annotators.ACARS.Enabled {
-		log.Info(Success("ACARS annotator enabled"))
-		enabledACARSAnnotators = append(enabledACARSAnnotators, ACARSAnnotatorHandler{})
+	log "github.com/sirupsen/logrus"
+)
+
+const (
+	FlightAwareRoot          = "https://flightaware.com/live/flight/"
+	FlightAwarePhotos        = "https://www.flightaware.com/photos/aircraft/"
+	WebhookUserAgent         = "github.com/tyzbit/acars-processor"
+	GoogleTranslateLink      = "https://translate.google.com/?sl=auto&tl=en&text=%s&op=translate"
+	ACARSDramaTailNumberLink = "https://live.acarsdrama.com/tags/%s"
+)
+
+func (as AnnotateStep) Annotate(m APMessage) APMessage {
+	annotators := []Annotator{
+		as.ADSB,
+		as.Ollama,
+		as.Tar1090,
 	}
-	if config.Annotators.ADSBExchange.Enabled {
-		log.Info(Success("ADSB annotator enabled"))
-		if config.Annotators.ADSBExchange.APIKey == "" {
-			log.Error(Attention("ADSB API key not set"))
+	var err error
+	for _, a := range annotators {
+		if !a.Configured() {
+			continue
 		}
-		enabledACARSAnnotators = append(enabledACARSAnnotators, ADSBAnnotatorHandler{})
+		m, err = a.Annotate(m)
+		if err != nil {
+			log.Warn(Attention(fmt.Sprintf("%s annotator: %s", a.Name(), err)))
+		}
 	}
-	if config.Annotators.Tar1090.Enabled {
-		log.Info(Success("TAR1090 ACARS annotator enabled"))
-		enabledACARSAnnotators = append(enabledACARSAnnotators, Tar1090AnnotatorHandler{})
+	// Only keep SelectedFields
+	if len(as.SelectedFields) > 0 {
+		for messageField := range m {
+			if !slices.Contains(as.SelectedFields, messageField) {
+				delete(m, messageField)
+			}
+		}
 	}
-	if config.Annotators.Ollama.Enabled && config.ACARSProcessorSettings.ACARSHub.ACARS.Host != "" {
-		log.Info(Success("Ollama ACARS annotator enabled"))
-		enabledACARSAnnotators = append(enabledACARSAnnotators, OllamaAnnotatorHandler{})
-	}
-	if len(enabledACARSAnnotators) == 0 {
-		log.Warn(Attention("no acars annotators are enabled"))
-	}
-
-	// VDLM2-type messages
-	if config.Annotators.VDLM2.Enabled {
-		log.Info(Success("VDLM2 annotator enabled"))
-		enabledVDLM2Annotators = append(enabledVDLM2Annotators, VDLM2AnnotatorHandler{})
-	}
-	if config.Annotators.Tar1090.Enabled {
-		log.Info(Success("TAR1090 VDLM2 annotator enabled"))
-		enabledVDLM2Annotators = append(enabledVDLM2Annotators, Tar1090AnnotatorHandler{})
-	}
-	if config.Annotators.Ollama.Enabled && config.ACARSProcessorSettings.ACARSHub.VDLM2.Host != "" {
-		log.Info(Success("Ollama VDLM2 annotator enabled"))
-		enabledVDLM2Annotators = append(enabledVDLM2Annotators, OllamaAnnotatorHandler{})
-	}
-	if len(enabledVDLM2Annotators) == 0 {
-		log.Info(Attention("no vdlm2 annotators are enabled"))
-	}
+	return m
 }
