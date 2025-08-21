@@ -1,240 +1,377 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
+# yaml-language-server: $schema=./schema.json
 # This file (and schema.json) are automatically generated 
 # from the code by running ./acars-processor -s
 
+# These control acars-processor itself
 ACARSProcessorSettings:
-  ACARSHub:
-    ACARS:
-      Host: acarshub
-      Port: 15550
-    MaxConcurrentRequests: 0
-    VDLM2:
-      Host: acarshub
-      Port: 15555
-  ColorOutput: true
-  Database:
-    ConnectionString: user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
-    SQLiteDatabasePath: ./messages.db
-    Type: sqlite
-  LogLevel: info
-Annotators:
-  ACARS:
-    Enabled: true
-    SelectedFields:
-    - acarsASSStatus
-    - acarsAcknowledge
-    - acarsAircraftTailCode
-    - acarsAppName
-    - acarsAppProxied
-    - acarsAppProxiedBy
-    - acarsAppRouterUUID
-    - acarsAppRouterVersion
-    - acarsAppVersion
-    - acarsBlockID
-    - acarsChannel
-    - acarsErrorCode
-    - acarsExtraACARSDramaTailNumberLink
-    - acarsExtraImageLink
-    - acarsExtraPhotosLink
-    - acarsExtraThumbnailLink
-    - acarsExtraTrackingLink
-    - acarsExtraTranslateLink
-    - acarsFlightNumber
-    - acarsFrequencyMHz
-    - acarsLabel
-    - acarsMessageFrom
-    - acarsMessageNumber
-    - acarsMessageText
-    - acarsMode
-    - acarsSignaldBm
-    - acarsStationID
-    - acarsTimestamp
-  ADSBExchange:
-    APIKey: example_key
-    Enabled: true
-    ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields:
-    - adsbAircraftDistanceKm
-    - adsbAircraftDistanceMi
-    - adsbAircraftGeolocation
-    - adsbAircraftLatitude
-    - adsbAircraftLongitude
-    - adsbOriginGeolocation
-    - adsbOriginGeolocationLatitude
-    - adsbOriginGeolocationLongitude
-  Ollama:
-    Enabled: true
-    FilterGreaterThan: 100
-    FilterLessThan: 1
-    FilterWithQuestion: true
-    MaxRetryAttempts: 5
-    MaxRetryDelaySeconds: 5
-    Model: llama3.2
-    Options:
-    - Name: num_predict
-      Value: 512
-    SelectedFields:
-    - ollamaModelFeedbackText
-    - ollamaProcessedText
-    - ollamaProcessedValue
-    - ollamaQuestion
-    SystemPrompt: Answer like a pirate
-    Timeout: 5
-    URL: http://ollama-service:11434
-    UserPrompt: ""
-  Tar1090:
-    Enabled: true
-    ReferenceGeolocation: 35.6244416,139.7753782
-    SelectedFields:
-    - tar1090AircraftADSBMessageCount
-    - tar1090AircraftAltimeterBarometerFeet
-    - tar1090AircraftAltimeterBarometerRateFeetPerSecond
-    - tar1090AircraftAltimeterGeometricFeet
-    - tar1090AircraftDescription
-    - tar1090AircraftDirectionDegrees
-    - tar1090AircraftDistanceKm
-    - tar1090AircraftDistanceMi
-    - tar1090AircraftDistanceNm
-    - tar1090AircraftEmergency
-    - tar1090AircraftFlightNumber
-    - tar1090AircraftGeolocation
-    - tar1090AircraftHexCode
-    - tar1090AircraftLatitude
-    - tar1090AircraftLongitude
-    - tar1090AircraftNavModes
-    - tar1090AircraftOwnerOperator
-    - tar1090AircraftRSSIdBm
-    - tar1090AircraftType
-    - tar1090AircraftYearOfManufacture
-    - tar1090ReferenceGeolocation
-    - tar1090ReferenceGeolocationLatitude
-    - tar1090ReferenceGeolocationLongitude
-    URL: http://tar1090/
-  VDLM2:
-    Enabled: true
-    SelectedFields:
-    - acarsAcknowledge
-    - acarsAircraftTailCode
-    - acarsBlockID
-    - acarsCRCOK
-    - acarsErrorCode
-    - acarsExtraACARSDramaTailNumberLink
-    - acarsExtraImageLink
-    - acarsExtraPhotosLink
-    - acarsExtraThumbnailLink
-    - acarsExtraTrackingLink
-    - acarsExtraTranslateLink
-    - acarsFlightNumber
-    - acarsLabel
-    - acarsMessageFrom
-    - acarsMessageNumber
-    - acarsMessageNumberSequence
-    - acarsMessageText
-    - acarsMode
-    - acarsMore
-    - vdlm2AppName
-    - vdlm2AppProxied
-    - vdlm2AppProxiedBy
-    - vdlm2AppRouterUUID
-    - vdlm2AppRouterVersion
-    - vdlm2AppVersion
-    - vdlm2BurstLengthOctets
-    - vdlm2FrequencyHz
-    - vdlm2FrequencySkew
-    - vdlm2HDRBitsFixed
-    - vdlm2Index
-    - vdlm2NoiseLevel
-    - vdlm2OctetsCorrectedByFEC
-    - vdlm2SignalLeveldBm
-    - vdlm2Station
-    - vdlm2Timestamp
-    - vdlm2TimestampMicroseconds
-    - vdlmCR
-    - vdlmDestinationAddress
-    - vdlmDestinationType
-    - vdlmFrameType
-    - vdlmPoll
-    - vdlmRSequence
-    - vdlmSSequence
-    - vdlmSourceAddress
-    - vdlmSourceStatus
-    - vdlmSourceType
-Filters:
-  ACARS:
-    DuplicateMessageSimilarity: 0.9
-    Enabled: true
-  Generic:
-    ASSStatus: anything
-    AboveDistanceNm: 15.5
-    AboveSignaldBm: -9.9
-    BelowDistanceNm: 15.5
-    BelowSignaldBm: -9.9
-    DictionaryPhraseLengthMinimum: 5
-    Emergency: true
-    FlightNumber: "1234"
-    FreetextTermPresent: false
-    Frequency: 136.95
-    FromAircraft: true
-    FromTower: true
-    HasText: true
-    More: true
-    StationID: N12346
-    TailCode: "1234"
-  Ollama:
-    Enabled: true
-    FilterOnFailure: true
-    MaxPredictionTokens: 512
-    MaxRetryAttempts: 5
-    MaxRetryDelaySeconds: 5
-    Model: llama3.2
-    Options:
-    - Name: num_predict
-      Value: 512
-    SystemPrompt: Answer like a pirate
-    Timeout: 5
-    URL: http://ollama-service:11434
-    UserPrompt: ""
-  OpenAI:
-    APIKey: example_key
-    Enabled: true
-    Model: gpt-4o
-    SystemPrompt: Answer like a pirate
-    Timeout: 5
-    UserPrompt: Does this message talk about coffee makers or lavatories (shortand
-      LAV is sometimes used)?
-  VDLM2:
-    DuplicateMessageSimilarity: 0.9
-    Enabled: true
-Receivers:
-  DiscordWebhook:
-    Embed: true
-    EmbedColorFacetFields:
-    - acarsAircraftTailCode
-    EmbedColorGradientField: ollamaProcessedValue
-    EmbedColorGradientSteps:
-    - B: 0
-      G: 255
-      R: 0
-    - B: 0
-      G: 255
-      R: 255
-    - B: 0
-      G: 0
-      R: 255
-    Enabled: true
-    FormatText: true
-    FormatTimestamps: true
-    RequiredFields:
-    - acarsMessageText
-    URL: https://discord.com/api/webhooks/1234321/unique_id1234
-  NewRelic:
-    APIKey: api_key
-    CustomEventType: CustomACARS
-    Enabled: true
-  Webhook:
-    Enabled: true
-    Headers:
-    - Name: APIKey
-      Value: 1234abcdef
-    Method: POST
-    URL: https://webhook:8443/webhook/?enable_feature=yes
+    # Force whether or not color output is used.
+    ColorOutput: true
+    # Database configuration
+    Database:
+        # Whether or not to use a database to save messages.
+        Enabled: false
+        # Type of database to use
+        Type: sqlite
+        # Connection string (if using an external database)
+        ConnectionString: user:pass@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&parseTime=True&loc=Local
+        # Path to the database file (if using SQLITE). If set to an empty string (""), database will be in-memory only.
+        SQLiteDatabasePath: ./messages.db
+    # Set logging verbosity.
+    LogLevel: info
+    # Whether to refrain from printing timestamps in logs.
+    LogHideTimestamps: false
+    # ACARSHub connection settings.
+    ACARSHub:
+        # ACARS-specific settings when connecting to ACARSHub.
+        ACARS:
+            # IP or DNS to your ACARSHub instance serving JSON data from a particular port.
+            Host: acarshub
+            # ACARS JSON port.
+            Port: 15550
+            # Only provide these fields to configured steps.
+            SelectedFields:
+                - ACARSMessage.ACARSDramaTailNumberLink
+                - ACARSMessage.ASSStatus
+                - ACARSMessage.Acknowledge
+                - ACARSMessage.AircraftTailCode
+                - ACARSMessage.App.ACARSRouterUUID
+                - ACARSMessage.App.ACARSRouterVersion
+                - ACARSMessage.App.Name
+                - ACARSMessage.App.Proxied
+                - ACARSMessage.App.ProxiedBy
+                - ACARSMessage.App.Version
+                - ACARSMessage.BlockID
+                - ACARSMessage.Channel
+                - ACARSMessage.ErrorCode
+                - ACARSMessage.FlightNumber
+                - ACARSMessage.FrequencyHz
+                - ACARSMessage.FrequencyMHz
+                - ACARSMessage.From
+                - ACARSMessage.ImageLink
+                - ACARSMessage.Label
+                - ACARSMessage.MessageNumber
+                - ACARSMessage.MessageText
+                - ACARSMessage.Mode
+                - ACARSMessage.Model.DeletedAt.Valid
+                - ACARSMessage.Model.ID
+                - ACARSMessage.PhotosLink
+                - ACARSMessage.Processed
+                - ACARSMessage.SignaldBm
+                - ACARSMessage.StationID
+                - ACARSMessage.ThumbnailLink
+                - ACARSMessage.Timestamp
+                - ACARSMessage.TrackingLink
+                - ACARSMessage.TranslateLink
+                - ACARSMessage.UnixTimestamp
+                - ACARSProcessor.ACARSDramaTailNumberLink
+                - ACARSProcessor.FrequencyMhz
+                - ACARSProcessor.From
+                - ACARSProcessor.ImageLink
+                - ACARSProcessor.MessageText
+                - ACARSProcessor.PhotosLink
+                - ACARSProcessor.SignalLeveldBm
+                - ACARSProcessor.TailCode
+                - ACARSProcessor.ThumbnailLink
+                - ACARSProcessor.TrackingLink
+                - ACARSProcessor.TranslateLink
+                - ACARSProcessor.UnixTimestamp
+                - ACARSProcessor.channel
+                - ACARSProcessor.flight_number
+                - ACARSProcessor.frequency_hz
+                - ACARSProcessor.station_id
+        # VDLM2-specific settings when connecting to ACARSHub.
+        VDLM2:
+            # IP or DNS to your ACARSHub instance serving JSON data from a particular port.
+            Host: acarshub
+            # VDLM2 JSON port.
+            Port: 15555
+            # Only provide these fields to configured steps.
+            SelectedFields:
+                - ACARSProcessor.ACARSDramaTailNumberLink
+                - ACARSProcessor.FrequencyMhz
+                - ACARSProcessor.From
+                - ACARSProcessor.ImageLink
+                - ACARSProcessor.MessageText
+                - ACARSProcessor.PhotosLink
+                - ACARSProcessor.SignalLeveldBm
+                - ACARSProcessor.TailCode
+                - ACARSProcessor.ThumbnailLink
+                - ACARSProcessor.TrackingLink
+                - ACARSProcessor.TranslateLink
+                - ACARSProcessor.UnixTimestamp
+                - ACARSProcessor.flight_number
+                - ACARSProcessor.frequency_hz
+                - ACARSProcessor.station_id
+                - VDLM2Message.ACARSDramaTailNumberLink
+                - VDLM2Message.FrequencyMHz
+                - VDLM2Message.From
+                - VDLM2Message.ImageLink
+                - VDLM2Message.Model.DeletedAt.Valid
+                - VDLM2Message.Model.ID
+                - VDLM2Message.PhotosLink
+                - VDLM2Message.Processed
+                - VDLM2Message.ThumbnailLink
+                - VDLM2Message.TrackingLink
+                - VDLM2Message.TranslateLink
+                - VDLM2Message.VDL2.AVLC.ACARS.Acknowledge
+                - VDLM2Message.VDL2.AVLC.ACARS.BlockID
+                - VDLM2Message.VDL2.AVLC.ACARS.CRCOK
+                - VDLM2Message.VDL2.AVLC.ACARS.Error
+                - VDLM2Message.VDL2.AVLC.ACARS.FlightNumber
+                - VDLM2Message.VDL2.AVLC.ACARS.Label
+                - VDLM2Message.VDL2.AVLC.ACARS.MessageNumber
+                - VDLM2Message.VDL2.AVLC.ACARS.MessageNumberSequence
+                - VDLM2Message.VDL2.AVLC.ACARS.MessageText
+                - VDLM2Message.VDL2.AVLC.ACARS.Mode
+                - VDLM2Message.VDL2.AVLC.ACARS.More
+                - VDLM2Message.VDL2.AVLC.ACARS.Registration
+                - VDLM2Message.VDL2.AVLC.CR
+                - VDLM2Message.VDL2.AVLC.Destination.Address
+                - VDLM2Message.VDL2.AVLC.Destination.Type
+                - VDLM2Message.VDL2.AVLC.FrameType
+                - VDLM2Message.VDL2.AVLC.Poll
+                - VDLM2Message.VDL2.AVLC.RSequence
+                - VDLM2Message.VDL2.AVLC.SSequence
+                - VDLM2Message.VDL2.AVLC.Source.Address
+                - VDLM2Message.VDL2.AVLC.Source.Status
+                - VDLM2Message.VDL2.AVLC.Source.Type
+                - VDLM2Message.VDL2.App.ACARSRouterUUID
+                - VDLM2Message.VDL2.App.ACARSRouterVersion
+                - VDLM2Message.VDL2.App.Name
+                - VDLM2Message.VDL2.App.Proxied
+                - VDLM2Message.VDL2.App.ProxiedBy
+                - VDLM2Message.VDL2.App.Version
+                - VDLM2Message.VDL2.BurstLengthOctets
+                - VDLM2Message.VDL2.FrequencyHz
+                - VDLM2Message.VDL2.FrequencySkew
+                - VDLM2Message.VDL2.HDRBitsFixed
+                - VDLM2Message.VDL2.Index
+                - VDLM2Message.VDL2.NoiseLevel
+                - VDLM2Message.VDL2.OctetsCorrectedByFEC
+                - VDLM2Message.VDL2.SignalLevel
+                - VDLM2Message.VDL2.Station
+                - VDLM2Message.VDL2.Timestamp.Microseconds
+                - VDLM2Message.VDL2.Timestamp.UnixTimestamp
+        # Maximum number of requests from ACARSHub to process at once.
+        MaxConcurrentRequests: 0
+# Actions to take on messages in the order they should be taken.
+Steps:
+    - # Apply one or more filters in this step
+      Filter:
+        # Built-in filters
+        Builtin:
+            # Whether or not to filter the message if the filter has an error
+            FilterOnFailure: false
+            # Generic Filters
+            # Only process messages with text included.
+            HasText: true
+            # Only process messages that have this tail code.
+            TailCode: N999AP
+            # Only process messages that have this flight number.
+            FlightNumber: N999AP
+            # Only process messages that have ASS Status.
+            ASSStatus: anything
+            # Only process messages that were received above this signal strength (in dBm).
+            AboveSignaldBm: -9.9
+            # Only process messages that were received below this signal strength (in dBm).
+            BelowSignaldBm: -9.9
+            # Only process messages received on this frequency.
+            Frequency: 136.95
+            # Only process messages with this station ID.
+            StationID: N12346
+            # Only process messages that were from a ground-based transmitter - determined by the presence (From aircraft) or lack of (From ground) a flight number.
+            FromTower: true
+            # Only process messages that were from an aircraft - determined by the presence (From aircraft) or lack of (From ground) a flight number.
+            FromAircraft: true
+            # Only process messages that have the "More" flag set.
+            More: true
+            # Only process messages that came from aircraft further than this many nautical miles away (requires ADS-B or tar1090).
+            AboveDistanceNm: 15.5
+            # Only process messages that came from aircraft closer than this many nautical miles away (requires ADS-B or tar1090).
+            BelowDistanceNm: 15.5
+            # Only process messages that came from aircraft further than this many miles away (requires ADS-B or tar1090).
+            AboveDistanceMi: 15.5
+            # Only process messages that came from aircraft closer than this many miles away (requires ADS-B or tar1090).
+            BelowDistanceMi: 15.5
+            # Only process messages that have the "Emergency" flag set.
+            Emergency: true
+            # Only process messages that have at least this many valid dictionary words in a row.
+            DictionaryPhraseLengthMinimum: 5
+            # Only process messages that have common freetext terms in them
+            FreetextTermPresent: true
+            # Only process ACARS messages that are at least this percent (ex: 0.8 for 80 percent) different than any other message received.
+            PreviousMessageSimilarity:
+                Similarity: 0.9
+                MaximumLookBehind: 100
+                DontFilterIfLonger: true
+        # Use Ollama (which can be self-hosted) to choose to filter messages based on plain-text criteria.
+        Ollama:
+            # Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
+            FilterOnFailure: true
+            # Model to use (you need to pull this in Ollama to use it).
+            Model: llama3.2
+            # URL to the Ollama instance to use (include protocol and port).
+            URL: http://ollama-service:11434
+            # Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
+            SystemPrompt: Answer like a pirate
+            # Instructions for Ollama for processing messages. More detail produces better results.
+            UserPrompt: Tell the LLM how to handle the message
+            # Maximum number of retries to make against the Ollama URL.
+            MaxRetryAttempts: 5
+            # How long to wait before retrying the Ollama API.
+            MaxRetryDelaySeconds: 5
+            # How long to wait until giving up on any request to Ollama.
+            Timeout: 5
+            # Options to pass to the model
+            Options:
+                - # Option name, specific to the model you are using.
+                  Name: num_predict
+                  # Value for this particular option, any value is allowed.
+                  Value: 512
+        # Use OpenAI to choose to filter messages based on plain-text criteria.
+        OpenAI:
+            # Whether to filter messages where the OpenAI filter itself fails. Recommended if your ollama instance sometimes returns errors.
+            FilterOnFailure: true
+            APIKey: example_key
+            # Model to use.
+            Model: gpt-4o
+            # Instructions for OpenAI model to use when filtering messages. More detail is better.
+            UserPrompt: Does this message talk about coffee makers or lavatories (shortand LAV is sometimes used)?
+            # Override the built-in system prompt to instruct the model on how to behave for requests (not usually necessary).
+            SystemPrompt: Answer like a pirate
+            # How long to wait until giving up on any request to OpenAI.
+            Timeout: 5
+      # Add annotations from one or more annotators in this step
+      Annotate:
+        # Look up geolocation, including distance from a reference point to aircraft, from a tar1090 instance (which can be self-hosted)
+        Tar1090:
+            # URL to your tar1090 instance
+            URL: http://tar1090/
+            # Geolocation to use for distance calculations (LAT,LON).
+            ReferenceGeolocation: 35.6244416,139.7753782
+            # Only provide these fields to future steps.
+            SelectedFields:
+                - ACARSProcessor.AircraftDistanceMi
+                - ACARSProcessor.AircraftGeolocation
+                - ACARSProcessor.aircraft_distance_km
+                - ACARSProcessor.aircraft_latitude
+                - ACARSProcessor.aircraft_longitude
+                - TAR1090Calculated.AircraftDistanceKm
+                - TAR1090Calculated.AircraftDistanceMi
+                - TAR1090Calculated.AircraftGeolocation
+                - TAR1090Calculated.AircraftGeolocationLatitude
+                - TAR1090Calculated.AircraftGeolocationLongitude
+                - TAR1090Calculated.ReferenceGeolocation
+                - TAR1090Calculated.ReferenceGeolocationLatitude
+                - TAR1090Calculated.ReferenceGeolocationLongitude
+                - Tar1090AircraftJSON.Messages
+                - Tar1090AircraftJSON.Now
+        # Use Ollama (which can be self-hosted) to annotate messages, such as to answer custom questions about the message ("Is this message about coffee makers?").
+        Ollama:
+            # Model to use (you need to pull this in Ollama to use it).
+            Model: llama3.2
+            # URL to the Ollama instance to use (include protocol and port).
+            URL: http://ollama-service:11434
+            # Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
+            SystemPrompt: Answer like a pirate
+            # Instructions for Ollama for processing messages. More detail produces better results.
+            UserPrompt: Tell the LLM how to handle the message
+            # Maximum number of retries to make against the Ollama URL.
+            MaxRetryAttempts: 5
+            # How long to wait before retrying the Ollama API.
+            MaxRetryDelaySeconds: 5
+            # How long to wait until giving up on any request to Ollama.
+            Timeout: 5
+            # Options to pass to the model
+            Options:
+                - # Option name, specific to the model you are using.
+                  Name: num_predict
+                  # Value for this particular option, any value is allowed.
+                  Value: 512
+            # Only provide these fields to future steps.
+            SelectedFields:
+                - ACARSProcessor.llm_number_result
+                - ACARSProcessor.llm_question
+                - ACARSProcessor.llm_string_result
+                - ACARSProcessor.llm_text
+                - OllamaAnnotatorResponse.ModelFeedback
+                - OllamaAnnotatorResponse.ProcessedNumber
+                - OllamaAnnotatorResponse.ProcessedText
+                - OllamaAnnotatorResponse.Question
+        # Look up geolocation, including distance from a reference point to aircraft, from ADSB-Exchange
+        ADSB:
+            # APIKey provided by signing up at ADSB-Exchange.
+            APIKey: example_key
+            # Geolocation to use for distance calculations (LAT,LON).
+            ReferenceGeolocation: 35.6244416,139.7753782
+            # Only provide these fields to future steps.
+            SelectedFields:
+                - ACARSProcessor.AircraftDistanceMi
+                - ACARSProcessor.AircraftGeolocation
+                - ACARSProcessor.aircraft_distance_km
+                - ACARSProcessor.aircraft_latitude
+                - ACARSProcessor.aircraft_longitude
+                - ADSBExchangeCalculated.AircraftDistanceKm
+                - ADSBExchangeCalculated.AircraftDistanceMi
+                - ADSBExchangeCalculated.AircraftGeolocation
+                - ADSBExchangeCalculated.AircraftGeolocationLatitude
+                - ADSBExchangeCalculated.AircraftGeolocationLongitude
+                - ADSBExchangeCalculated.ReferenceGeolocation
+                - ADSBExchangeCalculated.ReferenceGeolocationLatitude
+                - ADSBExchangeCalculated.ReferenceGeolocationLongitude
+                - SingleAircraftPosition.APITimestamp
+                - SingleAircraftPosition.CacheTime
+                - SingleAircraftPosition.Message
+                - SingleAircraftPosition.ServerProcessingTime
+                - SingleAircraftPosition.TotalAircraftResults
+        # Remove all but these fields for this annotator step. You can have an annotation step that only selects fields.
+        SelectedFields: []
+      # Send the message to one or more receivers in this step
+      Send:
+        # Send messages to a Discord channel using a webhook created from that channel.
+        Discord:
+            # Full URL to the Discord webhook for a channel (edit a channel in the Discord UI for the option to create a webhook).
+            URL: https://discord.com/api/webhooks/1234321/unique_id1234
+            # Should an embed be sent instead of a simpler message?
+            Embed: true
+            # Pick one or more fields that deterministically determines the embed color
+            EmbedColorFacetFields:
+                - acarsAircraftTailCode
+            # Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
+            EmbedColorGradientField: ollamaProcessedNumber
+            # An array of colors that corresponds with EmbedColorGradientField values
+            EmbedColorGradientSteps:
+                - R: 0
+                  G: 255
+                  B: 0
+                - R: 255
+                  G: 255
+                  B: 0
+                - R: 255
+                  G: 0
+                  B: 0
+            # Surround fields with message content with backticks so they are monospaced and stand out.
+            FormatText: true
+            # Add Discord-specific formatting to show human-readable instants from timestamps
+            FormatTimestamps: true
+            # Require a specific field to be populated or else no message will be sent
+            RequiredFields:
+                - acarsMessageText
+        # Send messages to NewRelic as a custom event type.
+        NewRelic:
+            # API License key to use New Relic.
+            APIKey: api_key
+            # Name for the custom event type to create (example if set to "MyCustomACARSEvents": `FROM MyCustomACARSEvents SELECT count(timestamp)`). If not provided, it will be `CustomACARS`.
+            CustomEventType: CustomACARS
+        # Generic webhook receiver. Please read README for how to use custom payloads.
+        Webhook:
+            # URL, including port and params, to the desired webhook.
+            URL: https://webhook:8443/webhook/?enable_feature=yes
+            # Method when calling webhook (GET,POST,PUT etc).
+            Method: POST
+            # Additional headers to send along with the request.
+            Headers:
+                - # Header name.
+                  Name: APIKey
+                  # Header value.
+                  Value: 1234abcdef
