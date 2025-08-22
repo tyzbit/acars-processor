@@ -1,3 +1,3 @@
 {
-  "flight_number": "{{ .acarsFlightNumber }}"
+  "FlightNumber": "{{ .ACARSProcessor.FlightNumber }}"
 }
