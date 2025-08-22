@@ -2,23 +2,18 @@ package main
 
 import (
 	"flag"
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
+	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 var (
-	config                 = Config{}
-	db                     = new(gorm.DB)
-	configFilePath         = "config.yaml"
-	schemaFilePath         = "schema.json"
-	enabledACARSAnnotators = []ACARSAnnotator{}
-	enabledVDLM2Annotators = []VDLM2Annotator{}
-	enabledReceivers       = []Receiver{}
-	enabledFilters         = []string{}
+	config         = Config{}
+	db             = new(gorm.DB)
+	configFilePath = "config.yaml"
 )
 
 func main() {
@@ -30,8 +25,14 @@ func main() {
 
 	// Generate schema only and then exit
 	if generateSchema {
-		GenerateSchema(schemaFilePath)
-		return
+		var updated bool
+		updated = GenerateSchema() || updated
+		updated = GenerateDocs() || updated
+		if updated {
+			log.Info(Content("Files have changed, exiting with nonzero status"))
+			os.Exit(100)
+		}
+		os.Exit(0)
 	}
 
 	LoadConfig()
@@ -39,9 +40,6 @@ func main() {
 	if err := LoadSavedMessages(); err != nil {
 		log.Fatal(Attention("unable to initialize database: %s", err))
 	}
-	ConfigureAnnotators()
-	ConfigureReceivers()
-	ConfigureFilters()
 
 	go SubscribeToACARSHub()
 
