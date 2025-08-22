@@ -2,12 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"regexp"
 	"strings"
 	"time"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type RetriableError struct {
@@ -18,73 +14,6 @@ type RetriableError struct {
 // Error returns error message and a Retry-After duration.
 func (e *RetriableError) Error() string {
 	return fmt.Sprintf("%s (retry after %v)", e.Err.Error(), e.RetryAfter)
-}
-
-func NormalizeAircraftRegistration(reg string) string {
-	s := []string{
-		".",
-		" ",
-		"-",
-	}
-	for _, r := range s {
-		reg = strings.ReplaceAll(reg, r, "")
-	}
-	return strings.ToLower(reg)
-}
-
-func ReadFile(filePath string) []byte {
-	// Read the content of the file
-	content, err := os.ReadFile(filePath)
-	if err != nil {
-		if !os.IsNotExist(err) {
-			log.Error(Attention("Error reading the file: %v", err))
-			os.Exit(1)
-		}
-	}
-	return content
-}
-
-func WriteFile(filePath string, contents []byte) {
-	err := os.WriteFile(filePath, contents, 0644)
-	if err != nil {
-		log.Error(Attention("Error writing file: %s", err))
-	}
-}
-
-// Saves a file and returns true if the file changed
-func UpdateFile(filePath string, contents []byte) (changed bool) {
-	file := ReadFile(filePath)
-	err := os.WriteFile(filePath, contents, 0644)
-	if err != nil {
-		log.Error(Attention("Error writing file: %s", err))
-	}
-	return string(file) != string(contents)
-}
-
-func MergeMaps(m1, m2 map[string]any) map[string]any {
-	// Create a new map to avoid modifying the original maps.
-	merged := make(map[string]any)
-
-	// Copy m1 into merged.
-	for k, v := range m1 {
-		merged[k] = v
-	}
-
-	// Copy m2 into merged. If keys overlap, m2's values will overwrite m1's.
-	for k, v := range m2 {
-		merged[k] = v
-	}
-
-	return merged
-}
-
-// Returns if the string is empty or if it only contains nonprintable characters
-func AircraftOrTower(s string) (r string) {
-	b, _ := regexp.Match("\\S+", []byte(s))
-	if b {
-		return "Aircraft"
-	}
-	return "Tower"
 }
 
 // Fixes AI output bullshit
@@ -98,10 +27,12 @@ func SanitizeJSONString(s string) string {
 	return replacer.Replace(s)
 }
 
+// Returns just the last 20 characters with whitespace characters removed
+// from both ends.
 func Last20Characters(s string) string {
 	// Remove newlines and trim leading spaces
 	s = strings.ReplaceAll(s, "\n", " ")
-	s = strings.TrimLeft(s, " ")
+	s = strings.TrimSpace(s)
 	if len(s) <= 20 {
 		return s
 	}
