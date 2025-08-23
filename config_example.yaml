@@ -83,7 +83,8 @@ Steps:
           - Starts with or is dominated by automated terms such as FLR/, FDR/, 
             FPN/, POSRPT, POSN, CFDS, ACMS, AIDS, ATSU, MDC/EXCEEDANCE REPORT,
             ACARS AUTO, ENGINE TREND, ECAM 1/2, ECAM only lines, ATA, LRU, P/N,
-            NOTAMS, SYSTEM PARAMETERS, ARQ, PREFLIGHT BRIEF, TAXI
+            NOTAMS, SYSTEM PARAMETERS, ARQ, PREFLIGHT BRIEF, TAXI, CAROUSEL,
+            FILENAME
           - Informational notices with no narrative, such as ARRIVAL GATE
             INFORMATION notices, ATIS INFO notices, CREW/PAX CONNECTION notices
             and messages that end in YOU HAVE INFO.
@@ -96,15 +97,18 @@ Steps:
             abbreviations like one would see in cell phone text messages. The
             sentences commonly have commas or periods separating them.
           - Greetings/sign-offs, for example: HI, HELLO, BONJOUR,
-            GOOD MORNING/EVENING, THANKS, THX, BRGRDS, CHEERS.
+            GOOD MORNING/EVENING, THANK YOU/THANKS/THX, BRGRDS, CHEERS,
+            COPY/COPY THAT
           - A clear sentence/clause like WILL/IS/ARE/HAVE/NEED/CAN/PLEASE/
             QUESTION MARK followed by a verb, for example: PLEASE SEND WX.
           - Has /Q/ which is shorthand for asking a question in this messages.
           - Operational prose about passengers,crew,med,medical,booking,
             rebooking/ramp-gate or other situations with a narrative.
           - Lists a desk number.
+          - Talks about LAV/SEAT
 
           Based on these rules, should this message be forwarded?
+
   - Annotate:
       Ollama:
         Model: qwen3:30b-a3b
