@@ -59,7 +59,7 @@ type OllamaAnnotatorResponse struct {
 	ModelFeedbackText   string `json:"model_feedback" ap:"LLMModelFeedbackText"`
 	ProcessedNumber     int    `json:"processed_number" ap:"LLMProcessedNumber"`
 	ProcessedText       string `json:"processed_text" ap:"LLMProcessedText"`
-	YesNoQuestionAnswer bool   `json:"question" ap:"LLMYesNoQuestionAnswer"`
+	YesNoQuestionAnswer bool   `json:"question_answer" ap:"LLMYesNoQuestionAnswer"`
 }
 
 type OllamaAnnotatorResponseFormat struct {
