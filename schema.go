@@ -2,193 +2,92 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"sort"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"path/filepath"
+	"reflect"
+	"runtime"
+	"strconv"
+	"strings"
 
-	hue "codeberg.org/tyzbit/huenique"
-	"github.com/ghodss/yaml"
 	"github.com/invopop/jsonschema"
-	"github.com/mcuadros/go-defaults"
+
+	//"github.com/creasty/defaults"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
 )
 
-var (
-	configExample = "config_all_options.yaml"
-	schemaLine    = `# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
-# This file (and schema.json) are automatically generated 
-# from the code by running ./acars-processor -s
-
-`
-)
+var schemaFilePath = "schema.json"
 
 // These are called when jsonschema Reflects, so we don't need to call these.
-func (ACARSAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+func (ac ACARSConnectionConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
 		log.Error(Attention("couldn't get selectedfields for acars annotator config type"))
 		return
 	}
-	a := ACARSAnnotatorHandler{}
-	fields := []string{}
-	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
-		fields = append(fields, field)
-	}
-	sort.Strings(fields)
-	s.Examples = append(s.Examples, fields)
+	f := ac.GetDefaultFields()
+	s.Examples = append(s.Examples, f)
 	j.Properties.Set("SelectedFields", s)
 }
 
-func (VDLM2AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+// These are called when jsonschema Reflects, so we don't need to call these.
+func (vc VDLM2ConnectionConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(Attention("couldn't get selectedfields for vdlm2 annotator config type"))
+		log.Error(Attention("couldn't get selectedfields for acars annotator config type"))
 		return
 	}
-	a := VDLM2AnnotatorHandler{}
-	fields := []string{}
-	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
-		fields = append(fields, field)
-	}
-	sort.Strings(fields)
-	s.Examples = append(s.Examples, fields)
+	f := vc.GetDefaultFields()
+	s.Examples = append(s.Examples, f)
 	j.Properties.Set("SelectedFields", s)
 }
 
-func (OllamaAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+func (t Tar1090Annotator) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
 		log.Error(Attention("couldn't get selectedfields for ollama annotator config type"))
 		return
 	}
-	a := OllamaAnnotatorHandler{}
-	// For Ollama, ACARS and VDLM2 fields are the same
-	// This is not necessarily true for all annotators
-	fields := []string{}
-	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
-		fields = append(fields, field)
-	}
-	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
-		fields = append(fields, field)
-	}
-	sort.Strings(fields)
-	s.Examples = append(s.Examples, fields)
+	f := t.GetDefaultFields()
+	s.Examples = append(s.Examples, f)
 	j.Properties.Set("SelectedFields", s)
 }
 
-func (Tar1090AnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+func (a ADSBExchangeAnnotator) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(Attention("couldn't get selectedfields for tar1090 annotator config type"))
+		log.Error(Attention("couldn't get selectedfields for ollama annotator config type"))
 		return
 	}
-	a := Tar1090AnnotatorHandler{}
-	// For tar1090, ACARS and VDLM2 fields are the same
-	// This is not necessarily true for all annotators
-	fields := []string{}
-	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
-		fields = append(fields, field)
-	}
-	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
-		fields = append(fields, field)
-	}
-	sort.Strings(fields)
-	s.Examples = append(s.Examples, fields)
+	f := a.GetDefaultFields()
+	s.Examples = append(s.Examples, f)
 	j.Properties.Set("SelectedFields", s)
 }
 
-func (ADSBExchangeAnnotatorConfig) JSONSchemaExtend(j *jsonschema.Schema) {
+func (o OllamaAnnotator) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(Attention("couldn't get selectedfields for vdlm2 annotator config type"))
+		log.Error(Attention("couldn't get selectedfields for ollama annotator config type"))
 		return
 	}
-	a := ADSBAnnotatorHandler{}
-	// For adsb, ACARS and VDLM2 fields are the same
-	// This is not necessarily true for all annotators
-	fields := []string{}
-	for field := range a.AnnotateACARSMessage(ACARSMessage{}) {
-		fields = append(fields, field)
-	}
-	for field := range a.AnnotateVDLM2Message(VDLM2Message{}) {
-		fields = append(fields, field)
-	}
-	sort.Strings(fields)
-	s.Examples = append(s.Examples, fields)
+	f := o.GetDefaultFields()
+	s.Examples = append(s.Examples, f)
 	j.Properties.Set("SelectedFields", s)
-
 }
 
-func GenerateSchema(schemaPath string) {
-	var configUpdated, schemaUpdated bool
-	log.Info(Content("Generating schema"))
-	// Generate an example config
-	var defaultConfig Config
-	// We need to do this to set an example value since Options is a slice.
-	defaultConfig.Receivers.Webhook.Headers = []WebHookReceiverConfigHeaders{{
-		Name:  "APIKey",
-		Value: "1234abcdef",
-	}}
-	// We need to do this to set an example value since Options is a slice.
-	defaultConfig.Annotators.Ollama.Options = []OllamaOptionsConfig{{
-		Name:  "num_predict",
-		Value: 512,
-	}}
-	// We need to do this to set an example value since Options is a slice.
-	defaultConfig.Filters.Ollama.Options = []OllamaOptionsConfig{{
-		Name:  "num_predict",
-		Value: 512,
-	}}
-	defaultConfig.Receivers.DiscordWebhook.EmbedColorGradientSteps = []hue.Color{
-		{
-			R: 0,
-			G: 255,
-			B: 0,
-		},
-		{
-			R: 255,
-			G: 255,
-			B: 0,
-		},
-		{
-			R: 255,
-			G: 0,
-			B: 0,
-		},
-	}
+func GenerateSchema() (schemaUpdated bool) {
 
-	// Squelch errors
-	log.SetLevel(log.FatalLevel)
-	// Get defaults for the example config for all fields with SelectFields
-	defaultConfig.Annotators.ACARS.SelectedFields = ACARSAnnotatorHandler{}.DefaultFields()
-	defaultConfig.Annotators.VDLM2.SelectedFields = VDLM2AnnotatorHandler{}.DefaultFields()
-	defaultConfig.Annotators.ADSBExchange.SelectedFields = ADSBAnnotatorHandler{}.DefaultFields()
-	defaultConfig.Annotators.Ollama.SelectedFields = OllamaAnnotatorHandler{}.DefaultFields()
-	defaultConfig.Annotators.Tar1090.SelectedFields = Tar1090AnnotatorHandler{}.DefaultFields()
-
-	// Set the values for defaultConfig to the defaults defined in the struct tags
-	defaults.SetDefaults(&defaultConfig)
-	configYaml, err := yaml.Marshal(defaultConfig)
-	if err != nil {
-		// Squelch errors
-		log.Fatal(Attention("Error marshaling YAML:", err))
-	}
-	// Add the schema line so editors can use it
-	configYaml = append([]byte(schemaLine), configYaml...)
-	if UpdateFile(configExample, configYaml) {
-		configUpdated = true
-		log.SetLevel(log.InfoLevel)
-		log.Info(Success("Updated %s", configExample))
-		log.SetLevel(log.FatalLevel)
-	}
-
-	// First we generate the schema from the Config type with comments
+	log.Info(Content("Generating %s", schemaFilePath))
+	// Add comments to the schema from the code
 	r := new(jsonschema.Reflector)
-	err = r.AddGoComments("main", "./", jsonschema.WithFullComment())
+	err := r.AddGoComments("main", "./", jsonschema.WithFullComment())
 	if err != nil {
 		log.Fatal(Attention("unable to add comments to schema, %s", err))
 	}
 
-	// Now we generate the schema and save it
+	// Generate the schema and save it as a file
 	r.RequiredFromJSONSchemaTags = true
 	schema := r.Reflect(&Config{})
 	// Suppress further for clean output
@@ -198,9 +97,270 @@ func GenerateSchema(schemaPath string) {
 		schemaUpdated = true
 		log.Info(Success("Updated schema at %s", schemaFilePath))
 	}
-	if configUpdated || schemaUpdated {
-		log.Info(Note("Files were updated, so exiting with status of 100"))
-		os.Exit(100)
+	return schemaUpdated
+}
+
+// SetBoolPointerDefaults walks through a struct and sets *bool fields according to the `default` tag.
+func SetBoolPointerDefaults(s interface{}) error {
+	// Ensure s ultimately points to a struct
+	v := reflect.ValueOf(s)
+	if v.Kind() != reflect.Ptr || v.IsNil() {
+		return fmt.Errorf("expected a non-nil pointer to struct")
 	}
-	log.Info(Content("Schema and %s are up to date", configExample))
+	v = v.Elem()
+	if v.Kind() != reflect.Struct {
+		return fmt.Errorf("expected a pointer to struct")
+	}
+
+	return setBoolDefaultsRecursive(v)
+}
+
+// Reads the `default` struct tags for bools and populates them
+func setBoolDefaultsRecursive(v reflect.Value) error {
+	t := v.Type()
+
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Field(i)
+		fieldType := t.Field(i)
+
+		// If field is embedded struct, recurse
+		if field.Kind() == reflect.Struct {
+			if err := setBoolDefaultsRecursive(field); err != nil {
+				return err
+			}
+			continue
+		}
+
+		// Only process *bool fields
+		if field.Kind() == reflect.Ptr && field.Type().Elem().Kind() == reflect.Bool {
+			tagVal := fieldType.Tag.Get("default")
+			if tagVal == "" {
+				continue
+			}
+
+			// Parse the string value of the tag into a bool
+			boolVal, err := strconv.ParseBool(tagVal)
+			if err != nil {
+				return fmt.Errorf("invalid default tag for field %s: %w", fieldType.Name, err)
+			}
+
+			// Only set if the pointer is nil
+			if field.IsNil() {
+				field.Set(reflect.ValueOf(&boolVal))
+			}
+		}
+	}
+
+	return nil
+}
+
+type commentMap map[string]map[string]string
+
+// MarshalWithYAMLComments marshals a Go value into YAML and injects
+// Go doc comments (on struct fields) as YAML comments.
+func MarshalWithYAMLComments(v interface{}) ([]byte, error) {
+	comments, err := extractStructFieldComments()
+	if err != nil {
+		return nil, err
+	}
+
+	node, err := encodeToYAMLNode(reflect.ValueOf(v), comments)
+	if err != nil {
+		return nil, err
+	}
+
+	return yaml.Marshal(node)
+}
+
+// encodeToYAMLNode walks a reflected value and encodes it into a yaml.Node,
+// attaching comments if available.
+func encodeToYAMLNode(val reflect.Value, comments commentMap) (*yaml.Node, error) {
+	if !val.IsValid() {
+		return &yaml.Node{Kind: yaml.ScalarNode, Tag: "!!null"}, nil
+	}
+
+	switch val.Kind() {
+	case reflect.Struct:
+		return encodeStructNode(val, comments)
+	case reflect.Slice, reflect.Array:
+		return encodeSequenceNode(val, comments)
+	case reflect.Map:
+		return encodeMapNode(val, comments)
+	default:
+		return &yaml.Node{
+			Kind:  yaml.ScalarNode,
+			Value: fmt.Sprint(val.Interface()),
+		}, nil
+	}
+}
+
+// encodeStructNode handles struct types and places comments on their fields.
+func encodeStructNode(val reflect.Value, comments commentMap) (*yaml.Node, error) {
+	node := &yaml.Node{Kind: yaml.MappingNode}
+	rt := val.Type()
+	structComments := comments[rt.Name()]
+
+	for i := 0; i < rt.NumField(); i++ {
+		field := rt.Field(i)
+		fieldVal := val.Field(i)
+
+		// Ignore unexported or explicitly skipped fields
+		if field.PkgPath != "" || field.Tag.Get("yaml") == "-" {
+			continue
+		}
+
+		// Handle embedded (anonymous) fields by merging their fields inline
+		if field.Anonymous {
+			underlying := fieldVal
+
+			// Skip nil pointers/interfaces
+			if (underlying.Kind() == reflect.Interface || underlying.Kind() == reflect.Ptr) && underlying.IsNil() {
+				continue
+			}
+
+			// Dereference until reaching the concrete value
+			for underlying.Kind() == reflect.Ptr || underlying.Kind() == reflect.Interface {
+				underlying = underlying.Elem()
+			}
+
+			if underlying.Kind() == reflect.Struct {
+				embeddedNode, err := encodeStructNode(underlying, comments)
+				if err != nil {
+					return nil, err
+				}
+				node.Content = append(node.Content, embeddedNode.Content...)
+				continue
+			}
+
+			// Non-struct anonymous fields are ignored
+			if underlying.Kind() == reflect.Interface {
+				continue
+			}
+		}
+
+		// Choose field name or yaml tag
+		key := field.Tag.Get("yaml")
+		if key == "" {
+			key = field.Name
+		}
+		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Value: key}
+
+		// Attach Go doc comment if found
+		if structComments != nil {
+			if comment, ok := structComments[field.Name]; ok {
+				keyNode.HeadComment = goCommentToYAMLComment(comment)
+			}
+		}
+
+		valNode, err := encodeToYAMLNode(fieldVal, comments)
+		if err != nil {
+			return nil, err
+		}
+
+		node.Content = append(node.Content, keyNode, valNode)
+	}
+
+	return node, nil
+}
+
+// encodeSequenceNode handles slices and arrays.
+func encodeSequenceNode(val reflect.Value, comments commentMap) (*yaml.Node, error) {
+	node := &yaml.Node{Kind: yaml.SequenceNode}
+	for i := 0; i < val.Len(); i++ {
+		elemNode, err := encodeToYAMLNode(val.Index(i), comments)
+		if err != nil {
+			return nil, err
+		}
+		node.Content = append(node.Content, elemNode)
+	}
+	return node, nil
+}
+
+// encodeMapNode handles map types.
+func encodeMapNode(val reflect.Value, comments commentMap) (*yaml.Node, error) {
+	node := &yaml.Node{Kind: yaml.MappingNode}
+	for _, key := range val.MapKeys() {
+		keyNode := &yaml.Node{Kind: yaml.ScalarNode, Value: fmt.Sprint(key.Interface())}
+
+		valNode, err := encodeToYAMLNode(val.MapIndex(key), comments)
+		if err != nil {
+			return nil, err
+		}
+
+		node.Content = append(node.Content, keyNode, valNode)
+	}
+	return node, nil
+}
+
+// goCommentToYAMLComment converts Go-style doc comments into YAML comments.
+func goCommentToYAMLComment(c string) string {
+	lines := strings.Split(c, "\n")
+	var out []string
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		switch {
+		case line == "":
+			continue
+		case line == "//":
+			out = append(out, "#")
+		case strings.HasPrefix(line, "//"):
+			out = append(out, strings.TrimSpace(line[2:]))
+		default:
+			out = append(out, line)
+		}
+	}
+	return strings.Join(out, "\n")
+}
+
+// extractStructFieldComments collects Go doc comments on struct fields
+// in the caller's package directory.
+func extractStructFieldComments() (commentMap, error) {
+	comments := make(commentMap)
+
+	_, callerFile, _, ok := runtime.Caller(2)
+	if !ok {
+		return nil, fmt.Errorf("unable to locate caller source file")
+	}
+	dir := filepath.Dir(callerFile)
+
+	fset := token.NewFileSet()
+	pkgs, err := parser.ParseDir(fset, dir, nil, parser.ParseComments)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pkg := range pkgs {
+		for _, file := range pkg.Files {
+			for _, decl := range file.Decls {
+				genDecl, ok := decl.(*ast.GenDecl)
+				if !ok {
+					continue
+				}
+				for _, spec := range genDecl.Specs {
+					typeSpec, ok := spec.(*ast.TypeSpec)
+					if !ok {
+						continue
+					}
+					structType, ok := typeSpec.Type.(*ast.StructType)
+					if !ok {
+						continue
+					}
+
+					fieldComments := make(map[string]string)
+					for _, field := range structType.Fields.List {
+						if len(field.Names) == 0 || field.Doc == nil {
+							continue
+						}
+						fieldComments[field.Names[0].Name] = field.Doc.Text()
+					}
+
+					if len(fieldComments) > 0 {
+						comments[typeSpec.Name.Name] = fieldComments
+					}
+				}
+			}
+		}
+	}
+
+	return comments, nil
 }

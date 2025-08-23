@@ -6,9 +6,11 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 	"regexp"
 	"slices"
 	"sort"
+	"strconv"
 	"strings"
 
 	hue "codeberg.org/tyzbit/huenique"
@@ -20,8 +22,23 @@ const (
 	footer            = "-# Message generated with [acars-processor](<https://github.com/tyzbit/acars-processor>)"
 )
 
-type DiscordHandlerReciever struct {
-	Payload any
+type DiscordReceiver struct {
+	Module
+	Receiver
+	// Full URL to the Discord webhook for a channel (edit a channel in the Discord UI for the option to create a webhook).
+	URL string `jsonschema:"required" default:"https://discord.com/api/webhooks/1234321/unique_id1234"`
+	// Should an embed be sent instead of a simpler message?
+	Embed bool `jsonschema:"default=true" default:"true"`
+	// Pick one or more fields that deterministically determines the embed color
+	EmbedColorFacetFields []string `default:"[acarsAircraftTailCode]"`
+	// Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
+	EmbedColorGradientField string `default:"ollamaProcessedNumber"`
+	// An array of colors that corresponds with EmbedColorGradientField values
+	EmbedColorGradientSteps []hue.Color `default:"{{R:0,G:100,B:0}}"`
+	// Surround fields with message content with backticks so they are monospaced and stand out.
+	FormatText bool `jsonschema:"default=true" default:"true"`
+	// Add Discord-specific formatting to show human-readable instants from timestamps
+	FormatTimestamps bool `jsonschema:"default=true" default:"true"`
 }
 
 type DiscordWebhookMessage struct {
@@ -48,94 +65,86 @@ type DiscordThumbnail struct {
 	URL string `json:"url,omitempty"`
 }
 
-func (d DiscordHandlerReciever) Name() string {
-	return "discord"
+func (d DiscordReceiver) Name() string {
+	return reflect.TypeOf(d).Name()
 }
 
-func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
-	if config.Receivers.DiscordWebhook.URL == "" {
-		log.Panic(Attention("Discord webhook URL not specified"))
+func (d DiscordReceiver) Send(m APMessage) error {
+	if d.URL == "" {
+		return fmt.Errorf("Discord webhook URL not specified")
 	}
-	keys := make([]string, 0, len(a))
-	for k := range a {
+	keys := make([]string, 0, len(m))
+	for k := range m {
 		keys = append(keys, k)
 	}
 
 	sort.Strings(keys)
-
-	requiredFieldsPresent := true
-	for _, requiredField := range config.Receivers.DiscordWebhook.RequiredFields {
-		if !slices.Contains(keys, requiredField) && a[requiredField] != "" {
-			requiredFieldsPresent = false
-		}
-	}
-	if !requiredFieldsPresent {
-		log.Info(Content("one or more required fields not present, not calling discord"))
-		return nil
-	}
 	buff := new(bytes.Buffer)
-	r, _ := regexp.Compile(".*Text")
-	l, _ := regexp.Compile(".*Link")
+	r, _ := regexp.Compile(".*[Tt]ext")
+	l, _ := regexp.Compile(".*[Ll]ink")
 	var embeds []DiscordEmbed
 	var title, content string
 	for _, key := range keys {
 		textField := r.MatchString(key)
 		linkField := l.MatchString(key)
-		acarsTimeField := key == "acarsTimestamp"
-		vdlm2TimeField := key == "vdlm2Timestamp"
-		v := a[key]
-		if config.Receivers.DiscordWebhook.FormatText &&
+		v := m[key]
+		if d.FormatText &&
 			v != "" && textField {
 			v = fmt.Sprintf("```%s```", v)
 		}
 		if linkField && v != "" {
-			linkType := strings.TrimPrefix(key, "acarsExtra")
+			///////////////////////// kawaii ^.*
+			re := regexp.MustCompile(`^.*[._]`)
+			linkType := re.ReplaceAllString(key, "")
 			linkType = strings.TrimSuffix(linkType, "Link")
 			v = fmt.Sprintf("[%s](%s)", linkType, v)
 		}
-		if acarsTimeField {
-			v = int(v.(float64))
-		}
-		if config.Receivers.DiscordWebhook.FormatTimestamps &&
-			(vdlm2TimeField || acarsTimeField) {
-			v = fmt.Sprintf("<t:%d:R>", v)
+		if ts, _ := regexp.Compile(".*[Tt]imestamp"); ts.Match([]byte(key)) {
+			v = v.(int64)
+			if d.FormatTimestamps {
+				v = fmt.Sprintf("<t:%d:R>", v)
+			}
 		}
 		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 	}
 	content = content + footer
-	if config.Receivers.DiscordWebhook.Embed {
+	if d.Embed {
 		var url, transmitter, thumbnail, embedColorString string
 		var embedColorValue int
 
-		direction := " "
 		for _, key := range keys {
-			v := fmt.Sprintf("%v", a[key])
-			if key == "acarsAircraftTailCode" {
-				transmitter = v
+			v := fmt.Sprintf("%v", m[key])
+			if ts, _ := regexp.Compile(".*[Tt]ail[Cc]ode"); ts.Match([]byte(key)) {
+				transmitter = " from " + AircraftOrTower(v)
 			}
-			if key == "acarsExtraThumbnailLink" {
+			if ts, _ := regexp.Compile(".*[Tt]humbnail[Ll]ink"); ts.Match([]byte(key)) {
 				thumbnail = v
 			}
-			if key == "acarsMessageFrom" {
-				direction = " from "
-				if v == "Tower" {
-					direction = " to "
-				}
-				// If the tailcode field isn't present, do not append this to the title
-				if transmitter != "" {
-					transmitter = direction + transmitter
-				}
+			if ts, _ := regexp.Compile(".*[Ff]rom"); ts.Match([]byte(key)) {
+				transmitter = " from " + v
 			}
-			if slices.Contains(config.Receivers.DiscordWebhook.EmbedColorFacetFields, key) {
+			if slices.Contains(d.EmbedColorFacetFields, key) {
 				embedColorString = embedColorString + v
 			}
-			if key == config.Receivers.DiscordWebhook.EmbedColorGradientField {
-				embedColorValue = a[key].(int)
+			if key == d.EmbedColorGradientField {
+				var value int
+				var err error
+				// The value might be string because LLMs are fuzzybad, cast it
+				// to an int
+				if _, ok := m[key].(int); !ok {
+					value, err = strconv.Atoi(m[key].(string))
+					if err != nil {
+						return fmt.Errorf("%w, field needs to be a number", err)
+					}
+				} else {
+					value = m[key].(int)
+				}
+				embedColorValue = value
 			}
 		}
 
 		var color string
-		if config.Receivers.DiscordWebhook.EmbedColorFacetFields != nil {
+		if d.EmbedColorFacetFields != nil {
 			color = fmt.Sprintf("%d", hue.GetRGBValueForString(embedColorString))
 		}
 		if embedColorValue != 0 {
@@ -154,7 +163,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 
 	}
 	// "Plain" message
-	if !config.Receivers.DiscordWebhook.Embed {
+	if !d.Embed {
 		title = "# ACARS Message\n"
 	}
 	message := DiscordWebhookMessage{
@@ -167,7 +176,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", config.Receivers.DiscordWebhook.URL, buff)
+	req, err := http.NewRequest("POST", d.URL, buff)
 	if err != nil {
 		return err
 	}
@@ -175,7 +184,7 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	// Hardcoded for now because most webhooks will be JSON
 	req.Header.Add("Content-Type", "application/json")
 
-	log.Info(Content("calling discord receiver"))
+	log.Debug(Content("calling discord receiver"))
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
@@ -188,7 +197,19 @@ func (d DiscordHandlerReciever) SubmitACARSAnnotations(a Annotation) error {
 	}
 
 	if response := string(body); response != "" {
-		log.Debug(Aside("discord api returned: %s", response))
+		log.Debug(Aside("%s: api returned %s", d.Name(), response))
 	}
 	return err
+}
+
+func (f DiscordReceiver) Configured() bool {
+	return !reflect.DeepEqual(f, DiscordReceiver{})
+}
+
+func (f DiscordReceiver) GetDefaultFields() (s []string) {
+	for f := range FormatAsAPMessage(DiscordReceiver{}, "") {
+		s = append(s, f)
+	}
+	sort.Strings(s)
+	return s
 }
