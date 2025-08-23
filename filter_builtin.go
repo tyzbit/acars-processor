@@ -105,7 +105,6 @@ func (f BuiltinFilter) Configured() bool {
 
 // Return true if a message passes a filter, false otherwise
 func (f BuiltinFilter) Filter(m APMessage) (filtered bool, reason string, errs error) {
-	nameStep := fmt.Sprintf("%s in step %d", f.Name(), m["StepNumber"])
 	configuredFields := NonZeroFields(f)
 	var reasons []string
 	var filter bool
@@ -115,7 +114,7 @@ func (f BuiltinFilter) Filter(m APMessage) (filtered bool, reason string, errs e
 			continue
 		}
 		if _, ok := BuiltinFilterFunctions[field]; !ok {
-			errs = errors.Join(errs, fmt.Errorf("%s: tried to call %s but it is not a built-in filter function", nameStep, field))
+			errs = errors.Join(errs, fmt.Errorf("%s: tried to call %s but it is not a built-in filter function", f.Name(), field))
 			filtered = filtered || f.FilterOnFailure
 		} else {
 			var err error
@@ -285,7 +284,6 @@ func FreetextTermPresent(m string) (present bool) {
 // using Hamming distance. If similarity is greater than Similarity,
 // filter out the message.
 func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason string, err error) {
-	nameStep := fmt.Sprintf("%s in step %d", d.Name(), m["StepNumber"])
 	// Don't filter if 0 similarity or unset
 	if d.PreviousMessageSimilarity.Similarity == 0.0 {
 		return false, "similarity was 0.0", nil
@@ -308,9 +306,6 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 	for _, acm := range am {
 		acmapm := FormatAsAPMessage(acm, "")
 		acmts := GetAPMessageCommonFieldAsString(acmapm, field)
-		if err != nil {
-			return d.FilterOnFailure, "", err
-		}
 		if acmts != "" {
 			msgs = append(msgs, acmts)
 		}
@@ -318,9 +313,6 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 	for _, acm := range vm {
 		acmapm := FormatAsAPMessage(acm, "")
 		acmts := GetAPMessageCommonFieldAsString(acmapm, field)
-		if err != nil {
-			return d.FilterOnFailure, "", err
-		}
 		if acmts != "" {
 			msgs = append(msgs, acmts)
 		}
@@ -330,23 +322,20 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 		if similarity >= d.PreviousMessageSimilarity.Similarity {
 			pctSimilar := int(similarity * 100)
 			if len(mt) > len(mcmp) && d.PreviousMessageSimilarity.DontFilterIfLonger {
-				log.Debug(Aside("%s: message is greater than %d%% similarity(%d%%) but not filtering due to DontFilterIfLonger",
-					nameStep, pctSimilar, d.PreviousMessageSimilarity.Similarity*100))
-				continue
+				log.Debug(Aside("%s: message is greater than %d%% similarity(%.2f%%) but not filtering due to DontFilterIfLonger",
+					d.Name(), pctSimilar, d.PreviousMessageSimilarity.Similarity*100))
 			} else {
 				// Message is too similar, filter it out
 				filter = true
-
-				reason = fmt.Sprintf("%s: message is %d%% similar to a previous message", nameStep, pctSimilar)
-				break
+				reason = fmt.Sprintf("%s: message is %d%% similar to a previous message", d.Name(), pctSimilar)
 			}
+			break
 		}
 	}
 	return filter, reason, err
 }
 
 // Reads the string and finds the longest unbroken chain of dictionary words.
-// 
 func LongestDictionaryWordPhraseLength(messageText string) (wc int64, reason string) {
 	var consecutiveWordSlice, maxConsecutiveWordSlice []string
 	// Split on space and comma as those are both used in real messages.
