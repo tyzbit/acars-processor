@@ -93,6 +93,46 @@ type BuiltinFilter struct {
 		MaximumLookBehind  int     `default:"100"`
 		DontFilterIfLonger bool    `default:"true"`
 	}
+	// Compare one or more fields and filter if they do not match specification.
+	Compare struct {
+		// The message field that will be evaluated.
+		MessageField string
+		// Compare with a decimal. MessageField must be float64.
+		WithDecimal float64
+		// Compare with multiple decimals. MessageField must be float64.
+		WithDecimals []float64
+		// Compare with an integer. MessageField must be int.
+		WithNumber int
+		// Compare with an integer. MessageField must be int.
+		WithNumbers []int
+		// Compare with a string. MessageField must be string.
+		WithString string
+		// Compare with multiple strings. MessageField must be string.
+		WithStrings []string
+		// Compare with another message field. MessageField must be same type.
+		WithOtherMessageField string
+		// Compare with multiple other message fields decimals. MessageFields must be the same type.
+		WithOtherMessageFields []string
+		// How should MessageField be compared? Only one operator may be enabled at a time. If you need more, create another step.
+		Operation struct {
+			// MessageField must be greater than any OtherMessageFields
+			GreaterThan bool
+			// MessageField must be less than any OtherMessageFields
+			LessThan bool
+			// MessageField must be equal to any OtherMessageFields
+			EqualTo bool
+			// MessageField must be longer than any OtherMessageFields
+			LongerThan bool
+			// MessageField must be shorter than any OtherMessageFields
+			ShorterThan bool
+			// MessageField must contain (with regex) the value of any OtherMessageFields
+			MustContainRegex bool
+			// MessageField must not contain the value of any OtherMessageFields
+			MustNotContain bool
+			// MessageField must not contain (with regex) the value of any OtherMessageFields
+			MustNotContainRegex bool
+		}
+	}
 }
 
 func (a BuiltinFilter) Name() string {
@@ -263,6 +303,74 @@ var (
 			}
 			freetextTermPresent := *f.FreetextTermPresent == FreetextTermPresent(mt)
 			return !freetextTermPresent, reason, nil
+		},
+		"Compare": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			if f.Compare.MessageField == "" {
+				return f.FilterOnFailure, "MessageField was empty", nil
+			}
+			var multi bool
+			if len(f.Compare.WithOtherMessageFields) > 0 {
+				multi = true
+			}
+
+			was := map[bool]string {
+				true: "was",
+				false: "was not",
+			}
+			c := f.Compare
+			field := c.MessageField
+			fieldToCompare := c.WithOtherMessageField
+			fieldsToCompare := c.WithOtherMessageFields
+			op := c.Operation
+			var fieldIsInt, fieldIsFloat, fieldIsString = bool, bool, bool
+			_, fieldIsInt := field.(int)
+			_, fieldIsFloat := field.(float64)
+			_, fieldIsString := field.(string)
+			var otherFieldIsInt, otherFieldIsFloat, otherFieldIsString = bool, bool, bool
+			_, otherFieldIsInt := fieldToCompare.(int)
+			_, otherFieldIsFloat := fieldToCompare.(float64)
+			_, otherFieldIsString := fieldToCompare.(string)
+			var compareOperations []string
+			if fieldsToCompare {
+				compareOperations = fieldsToCompare
+			} else {
+				compareOperations = []string{fieldToCompare}
+			}
+			for i, cmp := range compareOperations {
+				switch {
+				case op.GreaterThan:
+					if fieldIsInt && otherFieldIsInt {
+						return !GetAPMessageCommonFieldAsInt(field)>GetAPMessageCommonFieldAsInt(cmp), 
+							fmt.Sprintf("%s %s matched as greater int than %s", field, was[a>b], cmp), nil
+					}
+					if fieldIsFloat && otherFieldIsFloat {
+						return !GetAPMessageCommonFieldAsFloat64(field)>GetAPMessageCommonFieldAsFloat64(cmp), 
+							fmt.Sprintf("%s %s matched as greater decimal than %s", field, was[a>b], cmp), nil
+					}
+					if fieldIsString && otherFieldIsString {
+						return !GetAPMessageCommonFieldAsString(field)>GetAPMessageCommonFieldAsString(cmp), 
+							fmt.Sprintf("%s %s matched as greater string than %s", field, was[a>b], cmp), nil
+					}
+				case op.LessThan:
+					return "LessThan"
+				case op.EqualTo:
+					return "EqualTo"
+				case op.LongerThan:
+					return "LongerThan"
+				case op.ShorterThan:
+					return "ShorterThan"
+				case op.MustContainRegex:
+					return "MustContainRegex"
+				case op.MustNotContain:
+					return "MustNotContain"
+				case op.MustNotContainRegex:
+					return "MustNotContainRegex"
+				default:
+					return "" // none set
+				}
+				return filter, reason, err
+			}
+			return adsasdasda sds
 		},
 	}
 )
