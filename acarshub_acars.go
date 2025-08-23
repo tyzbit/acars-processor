@@ -68,6 +68,7 @@ func (a ACARSMessage) Prepare() (result APMessage) {
 		thumbnail = img.ThumbnailLarge.Src
 		link = img.Link
 	}
+	a.AircraftTailCode = strings.TrimLeft(a.AircraftTailCode, ".")
 	a.TrackingLink = FlightAwareRoot + a.AircraftTailCode
 	a.PhotosLink = FlightAwarePhotos + a.AircraftTailCode
 	a.ThumbnailLink = thumbnail

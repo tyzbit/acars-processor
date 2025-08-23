@@ -11,7 +11,6 @@ import (
 )
 
 type VDLM2 struct {
-	
 }
 
 func (v VDLM2Message) Name() string {
@@ -101,6 +100,7 @@ func (v VDLM2Message) Prepare() (result APMessage) {
 		thumbnail = img.ThumbnailLarge.Src
 		link = img.Link
 	}
+	v.VDL2.AVLC.ACARS.Registration = strings.TrimPrefix(v.VDL2.AVLC.ACARS.Registration, ".")
 	v.TrackingLink = FlightAwareRoot + v.VDL2.AVLC.ACARS.Registration
 	v.PhotosLink = FlightAwarePhotos + v.VDL2.AVLC.ACARS.Registration
 	v.ThumbnailLink = thumbnail
