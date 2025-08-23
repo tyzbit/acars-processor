@@ -128,7 +128,16 @@ func (a OllamaAnnotator) Annotate(m APMessage) (APMessage, error) {
 	if err != nil {
 		return m, fmt.Errorf("url could not be parsed: %s", err)
 	}
-	client := api.NewClient(url, &http.Client{})
+	httpClient := &http.Client{}
+	if a.APIKey != "" {
+		httpClient = &http.Client{
+			Transport: &apiHeaderTransport{
+				key:  a.APIKey,
+				base: http.DefaultTransport,
+			},
+		}
+	}
+	client := api.NewClient(url, httpClient)
 	if err != nil {
 		return m, fmt.Errorf("error creating http client: %s", err)
 	}
@@ -218,4 +227,17 @@ func (a OllamaAnnotator) Annotate(m APMessage) (APMessage, error) {
 		r.ProcessedNumber = min(100, max(1, r.ProcessedNumber))
 		return MergeAPMessages(FormatAsAPMessage(r, a.Name()), m), nil
 	}
+}
+
+// ALSO USED WITH OLLAMA FILTER
+// apiHeaderTransport wraps the default RoundTripper to inject the auth header
+// needed because ollama package doesn't support APIKeys natively
+type apiHeaderTransport struct {
+	key  string
+	base http.RoundTripper
+}
+
+func (t *apiHeaderTransport) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Set("Authorization", "Bearer "+t.key)
+	return t.base.RoundTrip(req)
 }

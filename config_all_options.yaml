@@ -210,8 +210,11 @@ Steps:
             FilterOnFailure: false
             # Model to use (you need to pull this in Ollama to use it).
             Model: llama3.2
-            # URL to the Ollama instance to use (include protocol and port).
+            # URL to the Ollama instance to use (include protocol and port). Use
+            # 'ollama.com' if you're using Ollama Turbo and also set APIKey.
             URL: http://ollama-service:11434
+            # API key to include in requests.
+            APIKey: your api key here
             # Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
             SystemPrompt: Answer like a pirate
             # Instructions for Ollama for processing messages. More detail produces better results.
@@ -269,8 +272,11 @@ Steps:
         Ollama:
             # Model to use (you need to pull this in Ollama to use it).
             Model: llama3.2
-            # URL to the Ollama instance to use (include protocol and port).
+            # URL to the Ollama instance to use (include protocol and port). Use
+            # 'ollama.com' if you're using Ollama Turbo and also set APIKey.
             URL: http://ollama-service:11434
+            # API key to include in requests.
+            APIKey: your api key here
             # Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
             SystemPrompt: Answer like a pirate
             # Instructions for Ollama for processing messages. More detail produces better results.

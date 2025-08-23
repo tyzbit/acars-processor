@@ -196,8 +196,11 @@ type ReceiverStep struct {
 type OllamaCommonConfig struct {
 	// Model to use (you need to pull this in Ollama to use it).
 	Model string `jsonschema:"required,default=llama3.2" default:"llama3.2"`
-	// URL to the Ollama instance to use (include protocol and port).
+	// URL to the Ollama instance to use (include protocol and port). Use
+	// 'ollama.com' if you're using Ollama Turbo and also set APIKey.
 	URL string `jsonschema:"required,example=http://ollama-service:11434" default:"http://ollama-service:11434"`
+	// API key to include in requests.
+	APIKey string `jsonschema:",omitempty,example=1234d54321e" default:"your api key here"`
 	// Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
 	SystemPrompt string `default:"Answer like a pirate"`
 	// Instructions for Ollama for processing messages. More detail produces better results.

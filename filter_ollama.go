@@ -117,7 +117,16 @@ func (o OllamaFilterer) Filter(m APMessage) (filter bool, reason string, err err
 	if err != nil {
 		return o.FilterOnFailure, "", fmt.Errorf("url could not be parsed: %w", err)
 	}
-	client := api.NewClient(url, &http.Client{})
+	httpClient := &http.Client{}
+	if o.APIKey != "" {
+		httpClient = &http.Client{
+			Transport: &apiHeaderTransport{
+				key:  o.APIKey,
+				base: http.DefaultTransport,
+			},
+		}
+	}
+	client := api.NewClient(url, httpClient)
 	if err != nil {
 		return o.FilterOnFailure, "", fmt.Errorf("error initializing: %w", err)
 	}
