@@ -88,14 +88,15 @@ Steps:
           - Informational notices with no narrative, such as ARRIVAL GATE
             INFORMATION notices, ATIS INFO notices, CREW/PAX CONNECTION notices
             and messages that end in YOU HAVE INFO.
+          - Almost entirely numerical data in a long sequence.
 
           DO forward if the message matches ANY of these rules:
           - Contains natural-language sentences or human prose which may 
-            contain technical terms, acronyms but will
-            always include a human-meaningful question or statement intended for
-            another person. Human messages might have misspellings or
-            abbreviations like one would see in cell phone text messages. The
-            sentences commonly have commas or periods separating them.
+            contain technical terms, acronyms but will always include a
+            human-meaningful question or statement intended for another person.
+            Human messages might have misspellings or abbreviations like you
+            might see in cell phone text messages. The sentences commonly have
+            commas or periods separating them.
           - Greetings/sign-offs, for example: HI, HELLO, BONJOUR,
             GOOD MORNING/EVENING, THANK YOU/THANKS/THX, BRGRDS, CHEERS,
             COPY/COPY THAT
