@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=./schema.json
 
-# Purpose: Forward all human-created messages to New Relic and Discord
+# Purpose: Forward all human-created messages to Discord
 # Environment variables are substituted at runtime by acars-processor
 ACARSProcessorSettings:
   Database:
@@ -33,6 +33,7 @@ ACARSProcessorSettings:
       SelectedFields: *selectedfields
 
 Steps:
+  # Most annotators will have this already, but just to be safe:
   - Filter: { Builtin: { HasText: true } }
   - Filter: { Builtin: { DictionaryPhraseLengthMinimum: 2 } }
   - Filter:
@@ -47,6 +48,9 @@ Steps:
         ReferenceGeolocation: ${reference_geolocation}
   - Filter:
       Builtin:
+        # If we don't have geolocation for an aircraft, the message stops here
+        # Anything that gets past this point came from an aircraft with 100
+        # miles of the reference geolocation.
         FilterOnFailure: true
         BelowDistanceMi: 100.0
   - Filter:
@@ -65,35 +69,40 @@ Steps:
             { Name: frequency_penalty, Value: 1.1 }, # Penalize repeated tokens (0-2.0)
             { Name: num_gpu, Value: 40 }, # Number of layers to offload to GPU
           ]
+        # If you use a paid LLM service, using more tokens might cost more money
+        # so definitely tweak the prompt for your needs.
         UserPrompt: |
           You are reviewing messages from both humans and programatically
-          generated messages to decide if they should be forwarded on because
-          they were written by a person.
+          generated messages and must choose to forward only the messages from
+          humans.
 
-          DO NOT forward if the message matches any of these rules:
-          - Is uniformly structured like a table, or comma separated.
-          - Contains multiple segments with /M, /N, /P, /Q, /R, /S, /T, /V
-            and numbers, without any human prose.
-          - Starts with or is dominated by system headers/codes: FLR/, FDR/, 
-            FPN/, POSRPT, POSN, CFDS, ACMS, AIDS, ATSU, MDC REPORT, ACARS AUTO,
-            ENGINE TREND, ECAM 1/2, ECAM only lines, LRU, P/N.
-          - Pure telemetry: comma/slash-separated numbers/codes, or blocks like
-            /M /N /P /Q /R /S with no prose.
-          - No clause with a verb and fewer than 4 alphabetic words separated by
-            spaces. 
+          DO NOT forward if the message matches ANY of these rules:
+          - Is uniformly structured with tables or extra spaces for formatting.
+          - Contains multiple segments with /M, /N, /P, /Q, /R, /S, /T, /V with
+            no prose.
+          - Starts with or is dominated by automated terms such as FLR/, FDR/, 
+            FPN/, POSRPT, POSN, CFDS, ACMS, AIDS, ATSU, MDC/EXCEEDANCE REPORT,
+            ACARS AUTO, ENGINE TREND, ECAM 1/2, ECAM only lines, ATA, LRU, P/N,
+            NOTAMS, SYSTEM PARAMETERS, ARQ, PREFLIGHT BRIEF, TAXI
+          - Informational notices with no narrative, such as ARRIVAL GATE
+            INFORMATION notices, ATIS INFO notices, CREW/PAX CONNECTION notices
+            and messages that end in YOU HAVE INFO.
 
-          DO forward if the message matches any of these rules:
-          - Contains natural-language sentences or human prose.
-            Human prose may contain technical terms or acronyms but will always
-            include a human-meaningful question or statement.
+          DO forward if the message matches ANY of these rules:
+          - Contains natural-language sentences or human prose which may 
+            contain technical terms, acronyms but will
+            always include a human-meaningful question or statement intended for
+            another person. Human messages might have misspellings or
+            abbreviations like one would see in cell phone text messages. The
+            sentences commonly have commas or periods separating them.
           - Greetings/sign-offs, for example: HI, HELLO, BONJOUR,
-            GOOD MORNING/EVENING, THANKS, THX, BRGRDS, CHEERS
+            GOOD MORNING/EVENING, THANKS, THX, BRGRDS, CHEERS.
           - A clear sentence/clause like WILL/IS/ARE/HAVE/NEED/CAN/PLEASE/
             QUESTION MARK followed by a verb, for example: PLEASE SEND WX.
-          - Has /Q/ which is shorthand for asking a question in this context.
+          - Has /Q/ which is shorthand for asking a question in this messages.
           - Operational prose about passengers,crew,med,medical,booking,
-            rebooking/ramp-gate with at least some text that communicates a
-            narrative.
+            rebooking/ramp-gate or other situations with a narrative.
+          - Lists a desk number.
 
           Based on these rules, should this message be forwarded?
   - Annotate:
@@ -111,30 +120,46 @@ Steps:
             { Name: frequency_penalty, Value: 1.1 }, # Penalize repeated tokens (0-2.0)
             { Name: num_gpu, Value: 40 }, # Number of layers to offload to GPU
           ]
+        # The rating and the Yes/No question responses will get forwarded on
+        # in their own fields
         UserPrompt:
           Rate this message on a scale of 1-100 for how angry it reads. Is the
           result greater than 50?
+        # This is for demonstrative purposes for the fields that this annotator
+        # adds, you can remove it to get all of them. Check default_fields.md
+        # for all your options.
         SelectedFields:
+          - ACARSProcessor.LLMModelFeedbackText
           - ACARSProcessor.LLMProcessedNumber
-          - ACARSProcessor.LLMQuestionAnswer
-          - ACARSProcessor.LLMFeedbackText
           - ACARSProcessor.LLMProcessedText
+          - ACARSProcessor.LLMYesNoQuestionAnswer
   - Annotate:
       SelectedFields:
+        - ACARSProcessor.ACARSDramaTailNumberLink
+        - ACARSProcessor.AircraftDistanceMi
+        - ACARSProcessor.FrequencyMhz
+        - ACARSProcessor.From
         - ACARSProcessor.ImageLink
         - ACARSProcessor.MessageText
         - ACARSProcessor.PhotosLink
-        - ACARSProcessor.TailCode
-        - ACARSProcessor.ThumbnailLink
-        - ACARSProcessor.TrackingLink
-        - ACARSProcessor.UnixTimestamp
         - ACARSProcessor.LLMProcessedNumber
-        - ACARSProcessor.LLMQuestionAnswer
-        - ACARSProcessor.LLMFeedbackText
+        - ACARSProcessor.SignalLeveldBm
+        - ACARSProcessor.ThumbnailLink
+        - ACARSProcessor.TailCode
+        - ACARSProcessor.TrackingLink
+        - ACARSProcessor.TranslateLink
+        - ACARSProcessor.UnixTimestamp
   - Send:
       Discord:
         Embed: true
+        # Since "From" is only ever going to be "Tower" or "Aircraft",
+        # each message will be one color or the other - which colors are not
+        # guaranteed, but right now it's orangeish and yellow.
         EmbedColorFacetFields: [ACARSProcessor.From]
+        # # Uncomment this to have the message differently colored in a
+        # # generally neutral to critical color scheme based on the
+        # # number the LLM came up with earlier
+        # EmbedColorGradientField: ACARSProcessor.LLMProcessedNumber
         URL: "${acars_discord_webhook}"
         FormatText: true
         FormatTimestamps: true
