@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	emptyStringRegex = `^\s*$`
+	emptyStringRegex    = `^\s*$`
 	nonEmptyStringRegex = `\S`
 )
 
@@ -80,7 +80,7 @@ func HandleAPMessageQueue(apm chan APMessageQeueueItem) {
 					Content("\"")
 
 			} else {
-				textPreview = Content("message with blank or emtpy message text")
+				textPreview = Content("message with blank or empty message text")
 			}
 			log.Info(textPreview,
 				Content(" was "),
