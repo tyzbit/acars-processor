@@ -1,3 +1,0 @@
-{
-  "FlightNumber": "{{ .ACARSProcessor.FlightNumber }}"
-}

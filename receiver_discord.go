@@ -12,6 +12,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"text/template"
 
 	hue "codeberg.org/tyzbit/huenique"
 	log "github.com/sirupsen/logrus"
@@ -39,6 +40,8 @@ type DiscordReceiver struct {
 	FormatText bool `jsonschema:"default=true" default:"true"`
 	// Add Discord-specific formatting to show human-readable instants from timestamps
 	FormatTimestamps bool `jsonschema:"default=true" default:"true"`
+	// Go template for the message. Insert fields like this: `{{ index . "ACARSProcessor.TailCode" }}`
+	MessageGoTemplate string `jsonschema:"example=New message from aircraft! Message is {{ index . \"ACARSProcessor.MessageText\" }}" default:"New message from aircraft! Message is: {{ index . \"ACARSMessage.MessageText\" }}"`
 }
 
 type DiscordWebhookMessage struct {
@@ -69,10 +72,23 @@ func (d DiscordReceiver) Name() string {
 	return reflect.TypeOf(d).Name()
 }
 
+func (f DiscordReceiver) Configured() bool {
+	return !reflect.DeepEqual(f, DiscordReceiver{})
+}
+
+func (f DiscordReceiver) GetDefaultFields() (s []string) {
+	for f := range FormatAsAPMessage(DiscordReceiver{}, "") {
+		s = append(s, f)
+	}
+	sort.Strings(s)
+	return s
+}
+
 func (d DiscordReceiver) Send(m APMessage) error {
 	if d.URL == "" {
 		return fmt.Errorf("Discord webhook URL not specified")
 	}
+
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
@@ -84,30 +100,48 @@ func (d DiscordReceiver) Send(m APMessage) error {
 	l, _ := regexp.Compile(".*[Ll]ink")
 	var embeds []DiscordEmbed
 	var title, content string
-	for _, key := range keys {
-		textField := r.MatchString(key)
-		linkField := l.MatchString(key)
-		v := m[key]
-		if d.FormatText &&
-			v != "" && textField {
-			v = fmt.Sprintf("```%s```", v)
+	if d.MessageGoTemplate != "" {
+		t := template.New(d.Name())
+		tp, err := t.Parse(d.MessageGoTemplate)
+		if err != nil {
+			return err
 		}
-		if linkField && v != "" {
-			///////////////////////// kawaii ^.*
-			re := regexp.MustCompile(`^.*[._]`)
-			linkType := re.ReplaceAllString(key, "")
-			linkType = strings.TrimSuffix(linkType, "Link")
-			v = fmt.Sprintf("[%s](%s)", linkType, v)
+		b := bytes.Buffer{}
+		err = tp.Execute(&b, m)
+		if err != nil {
+			return err
 		}
-		if ts, _ := regexp.Compile(".*[Tt]imestamp"); ts.Match([]byte(key)) {
-			v = v.(int64)
-			if d.FormatTimestamps {
-				v = fmt.Sprintf("<t:%d:R>", v)
+		br, err := io.ReadAll(&b)
+		if err != nil {
+			return err
+		}
+		content = string(br)
+	} else {
+		for _, key := range keys {
+			textField := r.MatchString(key)
+			linkField := l.MatchString(key)
+			v := m[key]
+			if d.FormatText &&
+				v != "" && textField {
+				v = fmt.Sprintf("```%s```", v)
 			}
+			if linkField && v != "" {
+				///////////////////////// kawaii ^.*
+				re := regexp.MustCompile(`^.*[._]`)
+				linkType := re.ReplaceAllString(key, "")
+				linkType = strings.TrimSuffix(linkType, "Link")
+				v = fmt.Sprintf("[%s](%s)", linkType, v)
+			}
+			if ts, _ := regexp.Compile(".*[Tt]imestamp"); ts.Match([]byte(key)) {
+				v = v.(int64)
+				if d.FormatTimestamps {
+					v = fmt.Sprintf("<t:%d:R>", v)
+				}
+			}
+			content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
 		}
-		content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
+		content = content + footer
 	}
-	content = content + footer
 	if d.Embed {
 		var url, transmitter, thumbnail, embedColorString string
 		var embedColorValue int
@@ -200,16 +234,4 @@ func (d DiscordReceiver) Send(m APMessage) error {
 		log.Debug(Aside("%s: api returned %s", d.Name(), response))
 	}
 	return err
-}
-
-func (f DiscordReceiver) Configured() bool {
-	return !reflect.DeepEqual(f, DiscordReceiver{})
-}
-
-func (f DiscordReceiver) GetDefaultFields() (s []string) {
-	for f := range FormatAsAPMessage(DiscordReceiver{}, "") {
-		s = append(s, f)
-	}
-	sort.Strings(s)
-	return s
 }

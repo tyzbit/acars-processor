@@ -25,10 +25,12 @@ possible options and helpful comments at
 You can use your own environment variables (ex: `${apikey}`) in the config and
 they will be substituted from the environment before the app starts.
 
-> [!NOTE] It's highly recommended to quote your string values to lower the
-> chance of confusing errors in case substitution fails. Unquoted values will be
-> typed by YAML implicitly, example `VALUE=1` in a line `SomeValue: ${VALUE}`
-> will evaluate to `SomeValue: 1` which will be interpreted as an integer, not a
+> [!NOTE]
+>
+> It's highly recommended to quote your string values to lower the chance of
+> confusing errors in case substitution fails. Unquoted values will be typed by
+> YAML implicitly, example `VALUE=1` in a line `SomeValue: ${VALUE}` will
+> evaluate to `SomeValue: 1` which will be interpreted as an integer, not a
 > string.
 
 ## Available Fields
@@ -102,36 +104,64 @@ in it.
 - Custom Webhook: Calls a webhook however you want - See
   [below for usage](#available-filters)
 
-### A Note on Using Large Language Models for Filtering and Annotating
+### Tips for Using Large Language Models for Filtering and Annotating
 
-The model you choose will greatly impact the quality of the filtering.
+The model you choose will greatly impact the quality of the filtering and
+annotating.
 
-OpenAI's gpt-4o-mini and higher do reasonably well with basic prompts. With the
-Ollama filter, I recommend `qwen3:30b-a3b` if you can run it. It uses about 20GB
-at runtime but is similar in effectiveness to OpenAI's models due to it being a
-Mixture of Experts model -- and it has the added advantage that it only loads
-the parameters in memory it needs for the query so it is relatively very fast.
+OpenAI's gpt-4o-mini and higher do reasonably well with basic prompts. With
+Ollama, I recommend `qwen3:30b-a3b` if you can run it. It uses about 20GB at
+runtime for me but is similar in effectiveness to OpenAI's models due to it
+being a Mixture of Experts model -- and it has the added advantage that it only
+loads the parameters in memory it needs for the query so it is relatively very
+fast.
 
 If you're not seeing great results out of your model, be verbose, explicit and
-include examples of what you want to see and not see. Try to guess at what the
-model knows (what prose is) versus what it was probably not trained on (message
-content of ACARS or VDLM2 messages). It's discouraged but you can also try a
-different system prompt take note -- **most users will never need to mess with
-the system prompt**. The User Prompt is where you should put your directions. If
-acars-processor isn't able to parse a response from the provider, it'll log what
-it got from the model at a `DEBUG` level for troubleshooting.
+include examples of what you want to see and not see. Try to imagine what the
+model already knows (what "prose" is) versus what it was probably not trained on
+(message content of ACARS or VDLM2 messages). It's discouraged but you can also
+try a different system prompt.
+
+> [!WARNING]
+>
+> Most users will never need to override the system prompt.
+
+The User Prompt is where you should put your directions. If acars-processor
+isn't able to parse a response from the provider, it'll log what it got from the
+model at a `DEBUG` level for troubleshooting.
 
 Also note that increasing concurrency can really hammer a configured LLM
 provider (at 1 concurrency, there should only ever be one outstanding call from
-acars-processor), so make sure your filters are robust before increasing it.
+acars-processor), so make sure your filters and annotations evaluate quickly and
+in a consistent amount of time before increasing it. As self-hosted LLMs like
+Ollama get overloaded, their response time increases which further contributes
+to being overloaded.
 
-#### Webhooks
+#### Templating for Receivers
 
-In order to define the payload for your webhook, edit `receiver_webhook.tpl` and
-add the fields and values that you need with
-[valid Go template syntax](https://pkg.go.dev/text/template). An example is
-provided which shows a very simple webhook payload that uses annotations from
-the ACARS annotator.
+All receivers support templating, which means you provide a string with some
+value references and they'll replace those references with the information from
+your messages. To use, make sure the field named like `GoTemplate` is filled
+(such as `PostGoTemplate` for Mastodon) like this:
+
+```
+  PostGoTemplate: |
+    Tail: {{ index . "ACARSProcessor.TailCode" }}
+    Step: {{ index . ".ACARSProcessor.StepNumber" }}
+```
+
+Make sure to annotate before this step and selecting all of the fields you want
+to use in previous steps, otherwise the value will be `<no value>` when it's
+sent off, **and there is no checking that the values are present before calling
+the receiver**.
+
+> [!NOTE]
+>
+> If you're familiar with Go templating ("text/template"), you'll know that
+> `{{ .value }}` notation is possible and cleaner however since the fields
+> always have periods in them, the parser will not correctly insert the values
+> when used this way since it assumes periods means accessing a struct of the
+> field, which is not how APMessages are structured (`map[string]any`)
 
 # Contributing
 
