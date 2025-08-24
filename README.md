@@ -57,7 +57,7 @@ goes wrong, not if the message doesn't pass the filter), **by default they do
 not filter the message**. This could overwhelm subsequent steps. Use
 `FilterOnFailure` to change this behavior.
 
-You an also add `Invert: true` to any filter to have the logic inverted. For
+You may also add `Invert: true` to any filter to have the logic inverted. For
 example, a filter that has `DictionaryPhraseLengthMinimum: 4` and `Invert: true`
 would only forward messages that **do not** have 4 sequential dictionary words
 in it.
