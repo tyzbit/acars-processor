@@ -79,7 +79,7 @@ func (o OpenAIFilterer) Filter(m APMessage) (filter bool, reason string, err err
 		openAIModel = o.Model
 	}
 
-	log.Debug(Aside("calling OpenAI for message ending in \""),
+	log.Debug(Aside("%s considering message ending in \"", o.Name()),
 		Note(Last20Characters(ms)),
 		Aside("\", model "),
 		Note(openAIModel))
