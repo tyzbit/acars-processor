@@ -44,6 +44,8 @@ type OllamaFilterer struct {
 	Filterer
 	// Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
 	FilterOnFailure bool `default:"false"`
+	// Inverse logic (for example, Inverse: true, HasText: true means messages with text are FILTERED)
+	Invert bool `json:",omitempty" default:"false"`
 	OllamaCommonConfig
 }
 
@@ -104,7 +106,7 @@ type OllamaFilterResult struct {
 }
 
 // Return true if a message passes a filter, false otherwise
-func (o OllamaFilterer) Filter(m APMessage) (filter bool, reason string, err error) {
+func (o OllamaFilterer) Filter(m APMessage) (filterThisMessage bool, reason string, err error) {
 	ms := GetAPMessageCommonFieldAsString(m, "MessageText")
 	if o.Model == "" || o.UserPrompt == "" {
 		return false, "", fmt.Errorf("model and prompt are required")
@@ -226,5 +228,11 @@ func (o OllamaFilterer) Filter(m APMessage) (filter bool, reason string, err err
 	if err != nil {
 		return o.FilterOnFailure, "too many failures", err
 	}
-	return !r.MessageMatchesCriteria, fmt.Sprintf("Decision: %s", r.Reasoning), nil
+	filterThisMessage = !r.MessageMatchesCriteria
+	var inverted string
+	if o.Invert {
+		inverted = "(INVERTED)"
+		filterThisMessage = !filterThisMessage
+	}
+	return filterThisMessage, fmt.Sprintf("Decision: %s", r.Reasoning) + inverted, nil
 }

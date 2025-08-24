@@ -25,8 +25,7 @@ possible options and helpful comments at
 You can use your own environment variables (ex: `${apikey}`) in the config and
 they will be substituted from the environment before the app starts.
 
-> [!NOTE] 
-> It's highly recommended to quote your string values to lower the
+> [!NOTE] It's highly recommended to quote your string values to lower the
 > chance of confusing errors in case substitution fails. Unquoted values will be
 > typed by YAML implicitly, example `VALUE=1` in a line `SomeValue: ${VALUE}`
 > will evaluate to `SomeValue: 1` which will be interpreted as an integer, not a
@@ -55,8 +54,13 @@ that produce fields.
 
 Filters fail **CLOSED** by default which means if they fail (only when something
 goes wrong, not if the message doesn't pass the filter), **by default they do
-not filter the message**. This could overwhelm subsequent steps. Use 
+not filter the message**. This could overwhelm subsequent steps. Use
 `FilterOnFailure` to change this behavior.
+
+You an also add `Invert: true` to any filter to have the logic inverted. For
+example, a filter that has `DictionaryPhraseLengthMinimum: 4` and `Invert: true`
+would only forward messages that **do not** have 4 sequential dictionary words
+in it.
 
 ## Available Annotators
 
@@ -71,21 +75,21 @@ not filter the message**. This could overwhelm subsequent steps. Use
 - Ollama: Uses Ollama with a model of your choosing and it will return a set of
   fields with different purposes:
 
-  - LLMModelFeedbackText: The model will add any comments resulting from the 
+  - LLMModelFeedbackText: The model will add any comments resulting from the
     prompt here
-	- LLMProcessedNumber: If you ask for a numerical evaluation, this will be
-    the answer. It must be an integer without decimals.
-	- LLMProcessedText: If you ask to transform the message, it will be returned
+  - LLMProcessedNumber: If you ask for a numerical evaluation, this will be the
+    answer. It must be an integer without decimals.
+  - LLMProcessedText: If you ask to transform the message, it will be returned
     here.
-	- LLMYesNoQuestionAnswer: Yes or no questions, true or false respectively.
+  - LLMYesNoQuestionAnswer: Yes or no questions, true or false respectively.
 
   Examples:
-  - Numerical evaluation: "On a scale of 1-100, how angry or frustrated does this
-    message seem?"
-  
+
+  - Numerical evaluation: "On a scale of 1-100, how angry or frustrated does
+    this message seem?"
+
   - Yes/no question about the message: "Is this message above 50 in terms of the
     anger rating?" (combined with the first example).
-    
   - Processing text: Process his text to remove excessive caps, spelling errors
     and remove anything that isn't prose so it reads naturally and logically"
 
@@ -95,7 +99,7 @@ not filter the message**. This could overwhelm subsequent steps. Use
 
 - Discord: Calls a Discord webhook to post messages in a channel.
 
-- Custom Webhook: Calls a webhook however you want - See 
+- Custom Webhook: Calls a webhook however you want - See
   [below for usage](#available-filters)
 
 ### A Note on Using Large Language Models for Filtering and Annotating
@@ -111,7 +115,7 @@ the parameters in memory it needs for the query so it is relatively very fast.
 If you're not seeing great results out of your model, be verbose, explicit and
 include examples of what you want to see and not see. Try to guess at what the
 model knows (what prose is) versus what it was probably not trained on (message
-content of ACARS or VDLM2 messages). It's discouraged but you can also try a 
+content of ACARS or VDLM2 messages). It's discouraged but you can also try a
 different system prompt take note -- **most users will never need to mess with
 the system prompt**. The User Prompt is where you should put your directions. If
 acars-processor isn't able to parse a response from the provider, it'll log what
@@ -134,8 +138,8 @@ the ACARS annotator.
 First off, thanks for your interest! All contributions are welcome. Here's some
 info to help you get a good start:
 
-- Check `go.mod` for which Go version we're using. 
-  As of this writing, that's `1.24`
+- Check `go.mod` for which Go version we're using. As of this writing, that's
+  `1.24`
 - Install the pre-commit hook by installing
   [pre-commit](https://pre-commit.com/#install) and then running
   `pre-commit install` in the root directory of the repo.

@@ -162,6 +162,8 @@ Steps:
         Builtin:
             # Whether or not to filter the message if the filter has an error
             FilterOnFailure: false
+            # Inverse logic (for example, Inverse: true, HasText: true means messages with text are FILTERED)
+            Invert: false
             # Generic Filters
             # Only process messages with text included.
             HasText: true
@@ -208,6 +210,8 @@ Steps:
         Ollama:
             # Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
             FilterOnFailure: false
+            # Inverse logic (for example, Inverse: true, HasText: true means messages with text are FILTERED)
+            Invert: false
             # Model to use (you need to pull this in Ollama to use it).
             Model: llama3.2
             # URL to the Ollama instance to use (include protocol and port). Use
@@ -235,6 +239,8 @@ Steps:
         OpenAI:
             # Whether to filter messages where the OpenAI filter itself fails. Recommended if your ollama instance sometimes returns errors.
             FilterOnFailure: true
+            # Inverse logic (for example, Invert: true, HasText: true means messages with text are FILTERED)
+            Invert: false
             APIKey: example_key
             # Model to use.
             Model: gpt-4o

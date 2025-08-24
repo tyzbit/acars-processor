@@ -49,6 +49,8 @@ type BuiltinFilter struct {
 	Filterer
 	// Whether or not to filter the message if the filter has an error
 	FilterOnFailure bool `json:",omitempty" default:"false"`
+	// Inverse logic (for example, Inverse: true, HasText: true means messages with text are FILTERED)
+	Invert bool `json:",omitempty" default:"false"`
 	// Generic Filters
 	//
 	// Only process messages with text included.
@@ -104,18 +106,18 @@ func (f BuiltinFilter) Configured() bool {
 }
 
 // Return true if a message passes a filter, false otherwise
-func (f BuiltinFilter) Filter(m APMessage) (filtered bool, reason string, errs error) {
+func (f BuiltinFilter) Filter(m APMessage) (filterThisMessage bool, reason string, errs error) {
 	configuredFields := NonZeroFields(f)
 	var reasons []string
 	var filter bool
 	for _, field := range configuredFields {
-		// This is not a function but a setting, so we skip it
-		if field == "FilterOnFailure" {
+		// These are not functions but settings, so we skip them
+		if field == "FilterOnFailure" || field == "Invert" {
 			continue
 		}
 		if _, ok := BuiltinFilterFunctions[field]; !ok {
 			errs = errors.Join(errs, fmt.Errorf("%s: tried to call %s but it is not a built-in filter function", f.Name(), field))
-			filtered = filtered || f.FilterOnFailure
+			filterThisMessage = filterThisMessage || f.FilterOnFailure
 		} else {
 			var err error
 			var filterReason string
@@ -123,7 +125,7 @@ func (f BuiltinFilter) Filter(m APMessage) (filtered bool, reason string, errs e
 			if err != nil {
 				errs = errors.Join(errs, err)
 			}
-			if filter {
+			if filter || f.Invert {
 				if filterReason == "" {
 					reasons = append(reasons, field)
 				} else {
@@ -131,9 +133,14 @@ func (f BuiltinFilter) Filter(m APMessage) (filtered bool, reason string, errs e
 				}
 			}
 		}
-		filtered = filtered || filter
+		filterThisMessage = filterThisMessage || filter
 	}
-	return filtered, strings.Join(reasons, ","), errs
+	var inverted string
+	if f.Invert {
+		inverted = "(INVERTED)"
+		filterThisMessage = !filterThisMessage
+	}
+	return filterThisMessage, strings.Join(reasons, ",") + inverted, errs
 }
 
 var (

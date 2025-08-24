@@ -35,8 +35,10 @@ var (
 type OpenAIFilterer struct {
 	Filterer
 	// Whether to filter messages where the OpenAI filter itself fails. Recommended if your ollama instance sometimes returns errors.
-	FilterOnFailure bool   `default:"true"`
-	APIKey          string `jsonschema:"required" default:"example_key"`
+	FilterOnFailure bool `default:"true"`
+	// Inverse logic (for example, Invert: true, HasText: true means messages with text are FILTERED)
+	Invert bool   `json:",omitempty" default:"false"`
+	APIKey string `jsonschema:"required" default:"example_key"`
 	// Model to use.
 	Model string `jsonschema:"required,default=gpt-4o" default:"gpt-4o"`
 	// Instructions for OpenAI model to use when filtering messages. More detail is better.
@@ -61,7 +63,7 @@ type OpenAIResponse struct {
 }
 
 // Return true if a message passes a filter, false otherwise
-func (o OpenAIFilterer) Filter(m APMessage) (filter bool, reason string, err error) {
+func (o OpenAIFilterer) Filter(m APMessage) (filterThisMessage bool, reason string, err error) {
 	ms := GetAPMessageCommonFieldAsString(m, "MessageText")
 
 	// If message is blank, return
@@ -121,6 +123,11 @@ func (o OpenAIFilterer) Filter(m APMessage) (filter bool, reason string, err err
 		log.Debug(Aside("%s: full response: %s", o.Name(), chatCompletion.Choices[0].Message, Content))
 		return o.FilterOnFailure, "", err
 	}
-	decision := r.MessageMatches == "true" || r.MessageMatches == true
-	return !decision, fmt.Sprintf("Decision: %s", r.Reasoning), nil
+	filterThisMessage = r.MessageMatches == "false" || r.MessageMatches == false
+	var inverted string
+	if o.Invert {
+		inverted = "(INVERTED)"
+		filterThisMessage = !filterThisMessage
+	}
+	return filterThisMessage, fmt.Sprintf("Decision: %s", r.Reasoning) + inverted, nil
 }
