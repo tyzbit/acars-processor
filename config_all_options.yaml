@@ -362,6 +362,22 @@ Steps:
             FormatText: true
             # Add Discord-specific formatting to show human-readable instants from timestamps
             FormatTimestamps: true
+            # Go template for the message. Insert fields like this: `{{ index . "ACARSProcessor.TailCode" }}`
+            MessageGoTemplate: 'New message from aircraft! Message is: {{ index . "ACARSMessage.MessageText" }}'
+        # Create posts with messages using Mastodon.
+        Mastodon:
+            # Full URL to the Mastodon server
+            Server: https://mastodon.social
+            # Get this from your Mastodon server
+            ClientID: 1f2a3c4e-9b83736f
+            # Get this from your Mastodon server
+            ClientSecret: 1f2a3c4e-9b83736f
+            # Get this from your Mastodon server
+            AccessToken: 1f2a3c4e-9b83736f
+            # Visibility for posts. MUST BE ONE OF: public,unlisted,private,direct
+            Visibility: unlisted
+            # Go template for the post. Insert fields like this: `{{ index . "ACARSProcessor.TailCode" }}`
+            PostGoTemplate: 'New message from aircraft! Message is: {{ index . "ACARSMessage.MessageText" }}'
         # Send messages to NewRelic as a custom event type.
         NewRelic:
             # API License key to use New Relic.
@@ -380,3 +396,8 @@ Steps:
                   Name: APIKey
                   # Header value.
                   Value: 1234abcdef
+            # Go template for the post. Use dot notation with double curly braces to insert fields (`{{ .ACARSProcessor.MessageText }}`)
+            PayloadGoTemplate: |-
+                {
+                 "tail_code": "{{ index . "\"ACARSProcessor.TailCode\"" }}"
+                }

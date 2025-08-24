@@ -187,6 +187,8 @@ type AnnotateStep struct {
 type ReceiverStep struct {
 	// Send messages to a Discord channel using a webhook created from that channel.
 	Discord DiscordReceiver
+	// Create posts with messages using Mastodon.
+	Mastodon MastodonReceiver
 	// Send messages to NewRelic as a custom event type.
 	NewRelic NewRelicReceiver
 	// Generic webhook receiver. Please read README for how to use custom payloads.

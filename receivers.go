@@ -5,6 +5,7 @@ func (r ReceiverStep) Send(m APMessage) error {
 		r.Discord,
 		r.NewRelic,
 		r.Webhook,
+		r.Mastodon,
 	}
 	var err error
 	for _, a := range receivers {
