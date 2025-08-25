@@ -16,10 +16,6 @@ func (f FilterStep) Filter(m APMessage) (name string, filtered bool, errs error)
 		f.Ollama,
 		f.OpenAI,
 	}
-	actioned := map[bool]string{
-		true:  "allowed",
-		false: "filtered",
-	}
 	for _, filter := range filters {
 		if !filter.Configured() {
 			continue
@@ -29,13 +25,16 @@ func (f FilterStep) Filter(m APMessage) (name string, filtered bool, errs error)
 			errs = errors.Join(errs, err)
 		}
 		filtered = filterResult || filtered
-		log.Debug(Aside("message ending in \""),
-			Note(Last20Characters(GetAPMessageCommonFieldAsString(m, "MessageText"))),
-			Aside("\" was %s by %s(%s)", actioned[filtered], filter.Name(), reason))
 		if filtered {
 			name = fmt.Sprintf("%s(%s)", filter.Name(), reason)
 			break
 		}
+		if reason != "" {
+			reason = fmt.Sprintf("(%s)", reason)
+		}
+		log.Debug(Aside("message ending in \""),
+			Note(Last20Characters(GetAPMessageCommonFieldAsString(m, "MessageText"))),
+			Aside("\" was not filtered by %s%s", filter.Name(), reason))
 	}
 	// Only keep SelectedFields
 	if len(f.SelectedFields) > 0 {
