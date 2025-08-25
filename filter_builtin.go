@@ -102,6 +102,10 @@ type BuiltinFilter struct {
 		Count int      `jsonschema:"example=1" default:"1"`
 		Terms []string `jsonschema:"example=[LAV,COFFEE]" default:"[LAV,COFFEE]"`
 	}
+	// The number output from a previous LLM step must be greater than this.
+	LLMProcessedNumberAbove int `jsonschema:"example=1" default:"1"`
+	// The number output from a previous LLM step must be less than this.
+	LLMProcessedNumberBelow int `jsonschema:"example=80" default:"80"`
 }
 
 func (a BuiltinFilter) Name() string {
@@ -299,6 +303,16 @@ var (
 			}
 			requiredTermsPresent := RequireNTerms(f.RequireTerms.Terms, mt, f.RequireTerms.Count)
 			return !requiredTermsPresent, reason, nil
+		},
+		"LLMProcessedNumberAbove": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			field := "LLMProcessedNumber"
+			valueAbove := GetAPMessageCommonFieldAsInt(m, field) > f.LLMProcessedNumberAbove
+			return !valueAbove, reason, nil
+		},
+		"LLMProcessedNumberBelow": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			field := "LLMProcessedNumber"
+			valueBelow := GetAPMessageCommonFieldAsInt(m, field) < f.LLMProcessedNumberBelow
+			return !valueBelow, reason, nil
 		},
 	}
 )
