@@ -24,15 +24,7 @@ type ACARSMessage struct {
 	ProcessingStartedAt      time.Time
 	ProcessingFinishedAt     time.Time
 	Processed                bool
-	TrackingLink             string `ap:"TrackingLink"`
-	PhotosLink               string `ap:"PhotosLink"`
-	ThumbnailLink            string `ap:"ThumbnailLink"`
-	ImageLink                string `ap:"ImageLink"`
-	TranslateLink            string `ap:"TranslateLink"`
-	ACARSDramaTailNumberLink string `ap:"ACARSDramaTailNumberLink"`
-	UnixTimestamp            int64  `ap:"UnixTimestamp"`
-	FrequencyHz              int    `ap:"FrequencyHz"`
-	From                     string `ap:"From"`
+
 	// The rest of the struct is the actual message from ACARSHub
 	FrequencyMHz float64 `json:"freq" ap:"FrequencyMhz"`
 	Channel      int     `json:"channel" ap:"Channel"`
@@ -68,18 +60,22 @@ func (a ACARSMessage) Prepare() (result APMessage) {
 		thumbnail = img.ThumbnailLarge.Src
 		link = img.Link
 	}
-	a.AircraftTailCode = strings.TrimLeft(a.AircraftTailCode, ".")
-	a.TrackingLink = FlightAwareRoot + a.AircraftTailCode
-	a.PhotosLink = FlightAwarePhotos + a.AircraftTailCode
-	a.ThumbnailLink = thumbnail
-	a.ImageLink = link
-	a.TranslateLink = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(a.MessageText))
-	a.ACARSDramaTailNumberLink = fmt.Sprintf(ACARSDramaTailNumberLink, a.AircraftTailCode)
-	a.UnixTimestamp = int64(a.Timestamp)
-	a.FrequencyHz = int(a.FrequencyMHz * 1000000)
-	a.From = AircraftOrTower(a.FlightNumber)
-
 	result = FormatAsAPMessage(a, a.Name())
+
+	// Sometimes tail numbers lead with periods, chop them off
+	a.AircraftTailCode = strings.TrimLeft(a.AircraftTailCode, ".")
+	
+	// Extra helper or common fields
+	result["TrackingLink"] = FlightAwareRoot + a.AircraftTailCode
+	result["PhotosLink"] = FlightAwarePhotos + a.AircraftTailCode
+	result["ThumbnailLink"] = thumbnail
+	result["ImageLink"] = link
+	result["TranslateLink"] = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(a.MessageText))
+	result["ACARSDramaTailNumberLink"] = fmt.Sprintf(ACARSDramaTailNumberLink, a.AircraftTailCode)
+	result["UnixTimestamp"] = int64(a.Timestamp)
+	result["FrequencyHz"] = int(a.FrequencyMHz * 1000000)
+	result["From"] = AircraftOrTower(a.FlightNumber)
+
 	selectedFields := config.ACARSProcessorSettings.ACARSHub.ACARS.SelectedFields
 	// Remove all but any selected fields
 	if len(selectedFields) > 0 {

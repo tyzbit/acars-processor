@@ -33,7 +33,7 @@ ACARSProcessorSettings:
       SelectedFields: *selectedfields
 
 Steps:
-  # Most annotators will have this already, but just to be safe:
+  # HIGHLY recommended if you care about message text
   - Filter: { Builtin: { HasText: true } }
   - Filter: { Builtin: { DictionaryPhraseLengthMinimum: 2 } }
   - Filter:

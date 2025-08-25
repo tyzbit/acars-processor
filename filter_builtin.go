@@ -158,10 +158,8 @@ var (
 	BuiltinFilterFunctions = map[string]func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error){
 		"HasText": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			mt := GetAPMessageCommonFieldAsString(m, "MessageText")
-			// dereferencing this pointer to nil is "impossible"
-			// because it must be set to be here.........
 			empty, _ := regexp.MatchString(emptyStringRegex, mt)
-			return !empty, reason, nil
+			return empty, reason, nil
 		},
 		"TailCode": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			tc := GetAPMessageCommonFieldAsString(m, "TailCode")
@@ -268,10 +266,6 @@ var (
 		"DictionaryPhraseLengthMinimum": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			field := "MessageText"
 			mt := GetAPMessageCommonFieldAsString(m, field)
-
-			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
-				return true, fmt.Sprintf(fieldWasEmpty, field), nil
-			}
 			length, dictionaryReason := LongestDictionaryWordPhraseLength(mt)
 			lengthSufficient := length >= int64(f.DictionaryPhraseLengthMinimum)
 			reason = dictionaryReason
@@ -280,27 +274,18 @@ var (
 		"FreetextTermPresent": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			field := "MessageText"
 			mt := GetAPMessageCommonFieldAsString(m, field)
-			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
-				return true, fmt.Sprintf(fieldWasEmpty, field), nil
-			}
 			freetextTermPresent := *f.FreetextTermPresent == FreetextTermPresent(mt)
 			return !freetextTermPresent, reason, nil
 		},
 		"RequireAllTerms": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			field := "MessageText"
 			mt := GetAPMessageCommonFieldAsString(m, field)
-			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
-				return true, fmt.Sprintf(fieldWasEmpty, field), nil
-			}
 			requiredTermsPresent := RequireAllTerms(f.RequireAllTerms, mt)
 			return !requiredTermsPresent, reason, nil
 		},
 		"RequireTerms": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			field := "MessageText"
 			mt := GetAPMessageCommonFieldAsString(m, field)
-			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
-				return true, fmt.Sprintf(fieldWasEmpty, field), nil
-			}
 			requiredTermsPresent := RequireNTerms(f.RequireTerms.Terms, mt, f.RequireTerms.Count)
 			return !requiredTermsPresent, reason, nil
 		},
@@ -364,9 +349,6 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 	}
 	field := "MessageText"
 	mt := GetAPMessageCommonFieldAsString(m, field)
-	if match, _ := regexp.MatchString(emptyStringRegex, mt); match {
-		return true, fmt.Sprintf(fieldWasEmpty, field), nil
-	}
 	if d.PreviousMessageSimilarity.MaximumLookBehind != 0 {
 		defaultMaxLookbehind = d.PreviousMessageSimilarity.MaximumLookBehind
 	}

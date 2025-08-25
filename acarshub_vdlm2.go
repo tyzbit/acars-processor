@@ -27,14 +27,6 @@ type VDLM2Message struct {
 	ProcessingStartedAt      time.Time
 	ProcessingFinishedAt     time.Time
 	Processed                bool
-	TrackingLink             string  `ap:"TrackingLink"`
-	PhotosLink               string  `ap:"PhotosLink"`
-	ThumbnailLink            string  `ap:"ThumbnailLink"`
-	ImageLink                string  `ap:"ImageLink"`
-	TranslateLink            string  `ap:"TranslateLink"`
-	ACARSDramaTailNumberLink string  `ap:"ACARSDramaTailNumberLink"`
-	FrequencyMHz             float64 `ap:"FrequencyMhz"`
-	From                     string  `ap:"From"`
 	// The rest of the struct is the actual message from ACARSHub
 	VDL2 struct {
 		App struct {
@@ -100,17 +92,22 @@ func (v VDLM2Message) Prepare() (result APMessage) {
 		thumbnail = img.ThumbnailLarge.Src
 		link = img.Link
 	}
-	v.VDL2.AVLC.ACARS.Registration = strings.TrimPrefix(v.VDL2.AVLC.ACARS.Registration, ".")
-	v.TrackingLink = FlightAwareRoot + v.VDL2.AVLC.ACARS.Registration
-	v.PhotosLink = FlightAwarePhotos + v.VDL2.AVLC.ACARS.Registration
-	v.ThumbnailLink = thumbnail
-	v.ImageLink = link
-	v.TranslateLink = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(v.VDL2.AVLC.ACARS.MessageText))
-	v.ACARSDramaTailNumberLink = fmt.Sprintf(ACARSDramaTailNumberLink, v.VDL2.AVLC.ACARS.Registration)
-	v.FrequencyMHz = float64(v.VDL2.FrequencyHz) / 1000000
-	v.From = AircraftOrTower(v.VDL2.AVLC.ACARS.FlightNumber)
-
 	result = FormatAsAPMessage(v, v.Name())
+
+    // Sometimes tail numbers lead with periods, chop them off
+	v.VDL2.AVLC.ACARS.Registration = strings.TrimPrefix(v.VDL2.AVLC.ACARS.Registration, ".")
+
+	// Extra helper or common fields
+	result["TrackingLink"] = FlightAwareRoot + v.VDL2.AVLC.ACARS.Registration
+	result["PhotosLink"] = FlightAwarePhotos + v.VDL2.AVLC.ACARS.Registration
+	result["ThumbnailLink"] = thumbnail
+	result["ImageLink"] = link
+	result["TranslateLink"] = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(v.VDL2.AVLC.ACARS.MessageText))
+	result["ACARSDramaTailNumberLink"] = fmt.Sprintf(ACARSDramaTailNumberLink, v.VDL2.AVLC.ACARS.Registration)
+	result["UnixTimestamp"] = int64(v.VDL2.Timestamp.UnixTimestamp)
+	result["FrequencyHz"] =float64(v.VDL2.FrequencyHz) / 1000000
+	result["From"] = AircraftOrTower(v.VDL2.AVLC.ACARS.FlightNumber)
+
 	selectedFields := config.ACARSProcessorSettings.ACARSHub.ACARS.SelectedFields
 	// Remove all but any selected fields
 	if len(selectedFields) > 0 {

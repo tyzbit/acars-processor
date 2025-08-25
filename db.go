@@ -67,7 +67,7 @@ func LoadSavedMessages() error {
 			log.Fatal(Attention("unable to initialize sqlite, err: %s", err))
 		}
 	}
-	if config.ACARSProcessorSettings.Database.Enabled {
+	if config.ACARSProcessorSettings.Database.Enabled && config.ACARSProcessorSettings.Database.Type != "" {
 		log.Info(Content("%s database initialized", config.ACARSProcessorSettings.Database.Type))
 	}
 

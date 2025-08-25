@@ -92,8 +92,9 @@ in it.
 
   - Yes/no question about the message: "Is this message above 50 in terms of the
     anger rating?" (combined with the first example).
-  - Processing text: Process his text to remove excessive caps, spelling errors
-    and remove anything that isn't prose so it reads naturally and logically"
+  - Processing text: "Process this text to remove excessive caps, spelling
+    errors and remove anything that isn't prose so it reads naturally
+    and logically"
 
 ## Available Receivers
 
