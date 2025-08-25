@@ -120,7 +120,7 @@ func (f BuiltinFilter) Configured() bool {
 func (f BuiltinFilter) Filter(m APMessage) (filterThisMessage bool, reason string, errs error) {
 	configuredFields := NonZeroFields(f)
 	var reasons []string
-	var filter bool
+	var inverted string
 	for _, field := range configuredFields {
 		// These are not functions but settings, so we skip them
 		if field == "FilterOnFailure" || field == "Invert" {
@@ -132,11 +132,15 @@ func (f BuiltinFilter) Filter(m APMessage) (filterThisMessage bool, reason strin
 		} else {
 			var err error
 			var filterReason string
-			filter, filterReason, err = BuiltinFilterFunctions[field](f, m)
+			filterThisMessage, filterReason, err = BuiltinFilterFunctions[field](f, m)
 			if err != nil {
 				errs = errors.Join(errs, err)
 			}
-			if filter || f.Invert {
+			if f.Invert {
+				filterThisMessage = !filterThisMessage
+				inverted = "(INVERTED)"
+			}
+			if filterThisMessage {
 				if filterReason == "" {
 					reasons = append(reasons, field)
 				} else {
@@ -144,14 +148,8 @@ func (f BuiltinFilter) Filter(m APMessage) (filterThisMessage bool, reason strin
 				}
 			}
 		}
-		filter = filterThisMessage || filter
 	}
-	var inverted string
-	if f.Invert {
-		inverted = "(INVERTED)"
-		filter = !filterThisMessage
-	}
-	return filter, strings.Join(reasons, ",") + inverted, errs
+	return filterThisMessage, strings.Join(reasons, ",") + inverted, errs
 }
 
 var (
