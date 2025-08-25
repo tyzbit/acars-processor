@@ -216,6 +216,10 @@ Steps:
                 Terms:
                     - LAV
                     - COFFEE
+            # The number output from a previous LLM step must be greater than this.
+            LLMProcessedNumberAbove: 1
+            # The number output from a previous LLM step must be less than this.
+            LLMProcessedNumberBelow: 80
         # Use Ollama (which can be self-hosted) to choose to filter messages based on plain-text criteria.
         Ollama:
             # Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
