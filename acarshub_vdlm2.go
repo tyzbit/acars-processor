@@ -95,18 +95,18 @@ func (v VDLM2Message) Prepare() (result APMessage) {
 	result = FormatAsAPMessage(v, v.Name())
 
     // Sometimes tail numbers lead with periods, chop them off
-	v.VDL2.AVLC.ACARS.Registration = strings.TrimPrefix(v.VDL2.AVLC.ACARS.Registration, ".")
+    result[ACARSProcessorPrefix+"TailCode"] = strings.TrimPrefix(v.VDL2.AVLC.ACARS.Registration, ".")
 
 	// Extra helper or common fields
-	result["TrackingLink"] = FlightAwareRoot + v.VDL2.AVLC.ACARS.Registration
-	result["PhotosLink"] = FlightAwarePhotos + v.VDL2.AVLC.ACARS.Registration
-	result["ThumbnailLink"] = thumbnail
-	result["ImageLink"] = link
-	result["TranslateLink"] = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(v.VDL2.AVLC.ACARS.MessageText))
-	result["ACARSDramaTailNumberLink"] = fmt.Sprintf(ACARSDramaTailNumberLink, v.VDL2.AVLC.ACARS.Registration)
-	result["UnixTimestamp"] = int64(v.VDL2.Timestamp.UnixTimestamp)
-	result["FrequencyHz"] =float64(v.VDL2.FrequencyHz) / 1000000
-	result["From"] = AircraftOrTower(v.VDL2.AVLC.ACARS.FlightNumber)
+	result[ACARSProcessorPrefix+"TrackingLink"] = FlightAwareRoot + v.VDL2.AVLC.ACARS.Registration
+	result[ACARSProcessorPrefix+"PhotosLink"] = FlightAwarePhotos + v.VDL2.AVLC.ACARS.Registration
+	result[ACARSProcessorPrefix+"ThumbnailLink"] = thumbnail
+	result[ACARSProcessorPrefix+"ImageLink"] = link
+	result[ACARSProcessorPrefix+"TranslateLink"] = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(v.VDL2.AVLC.ACARS.MessageText))
+	result[ACARSProcessorPrefix+"ACARSDramaTailNumberLink"] = fmt.Sprintf(ACARSDramaTailNumberLink, v.VDL2.AVLC.ACARS.Registration)
+	result[ACARSProcessorPrefix+"UnixTimestamp"] = int64(v.VDL2.Timestamp.UnixTimestamp)
+	result[ACARSProcessorPrefix+"FrequencyHz"] =float64(v.VDL2.FrequencyHz) / 1000000
+	result[ACARSProcessorPrefix+"From"] = AircraftOrTower(v.VDL2.AVLC.ACARS.FlightNumber)
 
 	selectedFields := config.ACARSProcessorSettings.ACARSHub.ACARS.SelectedFields
 	// Remove all but any selected fields

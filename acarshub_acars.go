@@ -63,18 +63,18 @@ func (a ACARSMessage) Prepare() (result APMessage) {
 	result = FormatAsAPMessage(a, a.Name())
 
 	// Sometimes tail numbers lead with periods, chop them off
-	a.AircraftTailCode = strings.TrimLeft(a.AircraftTailCode, ".")
+	result[ACARSProcessorPrefix+"TailCode"] = strings.TrimLeft(a.AircraftTailCode, ".")
 	
 	// Extra helper or common fields
-	result["TrackingLink"] = FlightAwareRoot + a.AircraftTailCode
-	result["PhotosLink"] = FlightAwarePhotos + a.AircraftTailCode
-	result["ThumbnailLink"] = thumbnail
-	result["ImageLink"] = link
-	result["TranslateLink"] = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(a.MessageText))
-	result["ACARSDramaTailNumberLink"] = fmt.Sprintf(ACARSDramaTailNumberLink, a.AircraftTailCode)
-	result["UnixTimestamp"] = int64(a.Timestamp)
-	result["FrequencyHz"] = int(a.FrequencyMHz * 1000000)
-	result["From"] = AircraftOrTower(a.FlightNumber)
+	result[ACARSProcessorPrefix+"TrackingLink"] = FlightAwareRoot + a.AircraftTailCode
+	result[ACARSProcessorPrefix+"PhotosLink"] = FlightAwarePhotos + a.AircraftTailCode
+	result[ACARSProcessorPrefix+"ThumbnailLink"] = thumbnail
+	result[ACARSProcessorPrefix+"ImageLink"] = link
+	result[ACARSProcessorPrefix+"TranslateLink"] = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(a.MessageText))
+	result[ACARSProcessorPrefix+"ACARSDramaTailNumberLink"] = fmt.Sprintf(ACARSDramaTailNumberLink, a.AircraftTailCode)
+	result[ACARSProcessorPrefix+"UnixTimestamp"] = int64(a.Timestamp)
+	result[ACARSProcessorPrefix+"FrequencyHz"] = int(a.FrequencyMHz * 1000000)
+	result[ACARSProcessorPrefix+"From"] = AircraftOrTower(a.FlightNumber)
 
 	selectedFields := config.ACARSProcessorSettings.ACARSHub.ACARS.SelectedFields
 	// Remove all but any selected fields
