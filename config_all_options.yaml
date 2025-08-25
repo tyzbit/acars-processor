@@ -206,6 +206,16 @@ Steps:
                 Similarity: 0.9
                 MaximumLookBehind: 100
                 DontFilterIfLonger: true
+            # Require all of these terms to be present or else filter the message.
+            RequireAllTerms:
+                - LAV
+                - COFFEE
+            # Require at least a certain number of these terms to be present or else filter the message.
+            RequireTerms:
+                Count: 1
+                Terms:
+                    - LAV
+                    - COFFEE
         # Use Ollama (which can be self-hosted) to choose to filter messages based on plain-text criteria.
         Ollama:
             # Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.

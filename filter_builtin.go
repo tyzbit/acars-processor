@@ -95,6 +95,13 @@ type BuiltinFilter struct {
 		MaximumLookBehind  int     `default:"100"`
 		DontFilterIfLonger bool    `default:"true"`
 	}
+	// Require all of these terms to be present or else filter the message.
+	RequireAllTerms []string `jsonschema:"example=[LAV,COFFEE]" default:"[LAV,COFFEE]"`
+	// Require at least a certain number of these terms to be present or else filter the message.
+	RequireTerms struct {
+		Count int      `jsonschema:"example=1" default:"1"`
+		Terms []string `jsonschema:"example=[LAV,COFFEE]" default:"[LAV,COFFEE]"`
+	}
 }
 
 func (a BuiltinFilter) Name() string {
@@ -249,13 +256,17 @@ var (
 		},
 		"PreviousMessageSimilarity": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			filter, reason, err = f.FilterSimilarAPMessage(m)
+			if err != nil {
+				return f.FilterOnFailure, "error checking message similarity", err
+			}
 			return filter, reason, nil
 		},
 		"DictionaryPhraseLengthMinimum": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			field := "MessageText"
 			mt := GetAPMessageCommonFieldAsString(m, field)
-			if mt == "" {
-				return false, fmt.Sprintf(fieldWasEmpty, field), nil
+
+			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
+				return true, fmt.Sprintf(fieldWasEmpty, field), nil
 			}
 			length, dictionaryReason := LongestDictionaryWordPhraseLength(mt)
 			lengthSufficient := length >= int64(f.DictionaryPhraseLengthMinimum)
@@ -265,11 +276,29 @@ var (
 		"FreetextTermPresent": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			field := "MessageText"
 			mt := GetAPMessageCommonFieldAsString(m, field)
-			if mt == "" {
-				return false, fmt.Sprintf(fieldWasEmpty, field), nil
+			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
+				return true, fmt.Sprintf(fieldWasEmpty, field), nil
 			}
 			freetextTermPresent := *f.FreetextTermPresent == FreetextTermPresent(mt)
 			return !freetextTermPresent, reason, nil
+		},
+		"RequireAllTerms": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			field := "MessageText"
+			mt := GetAPMessageCommonFieldAsString(m, field)
+			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
+				return true, fmt.Sprintf(fieldWasEmpty, field), nil
+			}
+			requiredTermsPresent := RequireAllTerms(f.RequireAllTerms, mt)
+			return !requiredTermsPresent, reason, nil
+		},
+		"RequireTerms": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			field := "MessageText"
+			mt := GetAPMessageCommonFieldAsString(m, field)
+			if empty, _ := regexp.MatchString(emptyStringRegex, mt); empty {
+				return true, fmt.Sprintf(fieldWasEmpty, field), nil
+			}
+			requiredTermsPresent := RequireNTerms(f.RequireTerms.Terms, mt, f.RequireTerms.Count)
+			return !requiredTermsPresent, reason, nil
 		},
 	}
 )
@@ -277,9 +306,32 @@ var (
 // Compares the message to a list of "Freetext" terms that are more likely to
 // be present in human-initiated communication.
 func FreetextTermPresent(m string) (present bool) {
-	for _, term := range freetextTerms {
-		// Some messages have DISP in them but are automated
-		if strings.Contains(m, term) || strings.HasPrefix(m, "DISP") {
+	// Some messages have DISP somewhere in them but are automated,
+	// but messages that start with DISP are usually freetext
+	return !(RequireNTerms(freetextTerms, m, 1) || strings.HasPrefix(m, "DISP"))
+}
+
+// Checks that every item in a string slice is present in a string,
+// if not it returns true to filter
+func RequireAllTerms(sl []string, m string) (present bool) {
+	filter := false
+	for _, term := range sl {
+		// If the message does not contain the string, filter.
+		if !strings.Contains(m, term) {
+			filter = true
+			break
+		}
+	}
+	return !filter
+}
+
+func RequireNTerms(sl []string, m string, count int) (present bool) {
+	termsFound := 0
+	for _, term := range sl {
+		if strings.Contains(m, term) {
+			termsFound += 1
+		}
+		if termsFound >= count {
 			present = true
 			break
 		}
