@@ -155,7 +155,7 @@ func (a Tar1090Annotator) SingleAircraftQueryByRegistration(reg string) (aircraf
 				return aircraft, nil
 			}
 		}
-		log.Debug(Aside("aircraft not found in tar1090 response"))
+		log.Debug(Aside("%s aircraft not found", a.Name()))
 		return aircraft, nil
 	} else {
 		return aircraft, errors.New("unable to parse returned aircraft position")
