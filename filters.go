@@ -28,10 +28,10 @@ func (f FilterStep) Filter(m APMessage) (name string, filtered bool, errs error)
 		if err != nil {
 			errs = errors.Join(errs, err)
 		}
+		filtered = filterResult || filtered
 		log.Debug(Aside("message ending in \""),
 			Note(Last20Characters(GetAPMessageCommonFieldAsString(m, "MessageText"))),
 			Aside("\" was %s by %s(%s)", actioned[filterResult], filter.Name(), reason))
-		filtered = filterResult || filtered
 		if filtered {
 			name = fmt.Sprintf("%s(%s)", filter.Name(), reason)
 			break
