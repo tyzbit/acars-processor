@@ -107,7 +107,7 @@ func (a ADSBExchangeAnnotator) SingleAircraftPositionByRegistration(reg string) 
 	req.Header.Add(adsbapikeyheader, a.APIKey)
 	client := &http.Client{}
 
-	log.Debug(Aside("making call to ads-b exchange"))
+	log.Debug(Aside("%s: making call to ads-b exchange", a.Name()))
 	resp, err := client.Do(req)
 	if err != nil {
 		log.Error(Attention(fmt.Sprintf("%s", err)))

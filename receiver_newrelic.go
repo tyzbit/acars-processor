@@ -58,7 +58,7 @@ func (n NewRelicReceiver) Send(a APMessage) (err error) {
 	}
 
 	// Flush events to New Relic. HarvestNow sends any recorded events immediately.
-	log.Debug(Content("calling new relic"))
+	log.Debug(Content("%s: calling receiver", n.Name()))
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	harvester.HarvestNow(ctx)

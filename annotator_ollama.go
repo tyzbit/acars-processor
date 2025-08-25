@@ -201,7 +201,7 @@ func (a OllamaAnnotator) Annotate(m APMessage) (APMessage, error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaAnnotatorTimeout)*time.Second)
 	defer cancel()
-	log.Debug(Aside("%s annotating message ending in \"", a.Name()),
+	log.Debug(Aside("%s: annotating message ending in \"", a.Name()),
 		Note(Last20Characters(msg)),
 		Aside("\", model "),
 		Note(a.Model))
@@ -220,7 +220,7 @@ func (a OllamaAnnotator) Annotate(m APMessage) (APMessage, error) {
 	)
 
 	if (r == OllamaAnnotatorResponse{}) {
-		log.Debug(Aside("%s response was empty", a.Name()))
+		log.Debug(Aside("%s: response was empty", a.Name()))
 		return m, nil
 	} else {
 		// This ensures the field is never zero

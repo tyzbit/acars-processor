@@ -218,7 +218,7 @@ func (d DiscordReceiver) Send(m APMessage) error {
 	// Hardcoded for now because most webhooks will be JSON
 	req.Header.Add("Content-Type", "application/json")
 
-	log.Debug(Content("calling discord receiver"))
+	log.Debug(Aside("%s: calling receiver",d.Name()))
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {

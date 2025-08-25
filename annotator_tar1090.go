@@ -155,7 +155,7 @@ func (a Tar1090Annotator) SingleAircraftQueryByRegistration(reg string) (aircraf
 				return aircraft, nil
 			}
 		}
-		log.Debug(Aside("%s aircraft not found", a.Name()))
+		log.Debug(Aside("%s: aircraft not found", a.Name()))
 		return aircraft, nil
 	} else {
 		return aircraft, errors.New("unable to parse returned aircraft position")
@@ -179,7 +179,7 @@ func (a Tar1090Annotator) Annotate(m APMessage) (APMessage, error) {
 	var err error
 	tailcode := GetAPMessageCommonFieldAsString(m, "TailCode")
 	if tailcode == "" {
-		log.Debug(Aside("%s did not find a tail code in message, this is not unusual", a.Name()))
+		log.Debug(Aside("%s: did not find a tail code in message, this is not unusual", a.Name()))
 		return m, nil
 	}
 	aircraftInfo, err = a.SingleAircraftQueryByRegistration(tailcode)

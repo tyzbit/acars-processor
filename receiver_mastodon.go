@@ -80,7 +80,7 @@ func (mr MastodonReceiver) Send(m APMessage) error {
 		Status:     status,
 		Visibility: mr.Visibility,
 	}
-	log.Debug(Aside("calling mastodon receiver"))
+	log.Debug(Aside("%s: calling receiver", mr.Name()))
 	post, err := mstdn.PostStatus(context.Background(), &toot)
 	if err != nil {
 		return fmt.Errorf("posting failed, err: %s", err)

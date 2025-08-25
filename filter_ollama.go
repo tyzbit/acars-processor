@@ -207,7 +207,7 @@ func (o OllamaFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaFilterTimeout)*time.Second)
 	defer cancel()
-	log.Debug(Aside("%s considering message ending in \"", o.Name()),
+	log.Debug(Aside("%s: considering message ending in \"", o.Name()),
 		Note(Last20Characters(ms)),
 		Aside("\", model "),
 		Note(o.Model))

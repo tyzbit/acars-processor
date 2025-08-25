@@ -77,7 +77,7 @@ func (w WebHookReceiver) Send(a APMessage) (err error) {
 	}
 
 	c := http.Client{}
-	log.Debug(Content("calling custom webhook"))
+	log.Debug(Content("%s: calling receiver", w.Name()))
 	resp, err := c.Do(h)
 	if err != nil {
 		return fmt.Errorf("error making webhook request: %w", err)
@@ -88,6 +88,6 @@ func (w WebHookReceiver) Send(a APMessage) (err error) {
 		return fmt.Errorf("error reading webhook response: %w", err)
 	}
 
-	log.Debug(Aside("webhook returned: %s", string(body)))
+	log.Debug(Aside("%s: webhook returned: %s", w.Name(), string(body)))
 	return nil
 }
