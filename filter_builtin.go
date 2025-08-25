@@ -140,7 +140,7 @@ func (f BuiltinFilter) Filter(m APMessage) (filterThisMessage bool, reason strin
 				if filterReason == "" {
 					reasons = append(reasons, field)
 				} else {
-					reasons = append(reasons, fmt.Sprintf("%s: %s", field, filterReason))
+					reasons = append(reasons, fmt.Sprintf("%s:%s", field, filterReason))
 				}
 			}
 		}
