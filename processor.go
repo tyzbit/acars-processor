@@ -39,8 +39,6 @@ func HandleAPMessageQueue(apm chan APMessageQeueueItem) {
 			for stepNum, s := range config.Steps {
 				// Make it human-friendly
 				stepNum++
-				// This helps logging and output deeper in
-				message.APMessage[ACARSProcessorPrefix+"StepNumber"] = stepNum
 				if !reflect.DeepEqual(s.Filter, FilterStep{}) {
 					name, filter, err = s.Filter.Filter(message.APMessage)
 					if err != nil {
