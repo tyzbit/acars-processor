@@ -144,14 +144,14 @@ func (f BuiltinFilter) Filter(m APMessage) (filterThisMessage bool, reason strin
 				}
 			}
 		}
-		filterThisMessage = filterThisMessage || filter
+		filter = filterThisMessage || filter
 	}
 	var inverted string
 	if f.Invert {
 		inverted = "(INVERTED)"
-		filterThisMessage = !filterThisMessage
+		filter = !filterThisMessage
 	}
-	return filterThisMessage, strings.Join(reasons, ",") + inverted, errs
+	return filter, strings.Join(reasons, ",") + inverted, errs
 }
 
 var (
@@ -322,23 +322,24 @@ var (
 func FreetextTermPresent(m string) (present bool) {
 	// Some messages have DISP somewhere in them but are automated,
 	// but messages that start with DISP are usually freetext
-	return !(RequireNTerms(freetextTerms, m, 1) || strings.HasPrefix(m, "DISP"))
+	return RequireNTerms(freetextTerms, m, 1) || strings.HasPrefix(m, "DISP")
 }
 
 // Checks that every item in a string slice is present in a string,
 // if not it returns true to filter
 func RequireAllTerms(sl []string, m string) (present bool) {
-	filter := false
+	present = true
 	for _, term := range sl {
 		// If the message does not contain the string, filter.
 		if !strings.Contains(m, term) {
-			filter = true
+			present = false
 			break
 		}
 	}
-	return !filter
+	return present
 }
 
+// N terms from the string slice must be present in string. If so, return true
 func RequireNTerms(sl []string, m string, count int) (present bool) {
 	termsFound := 0
 	for _, term := range sl {
