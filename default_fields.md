@@ -46,7 +46,9 @@
 - ACARSProcessor.FrequencyMHz
 - ACARSProcessor.From
 - ACARSProcessor.ImageLink
+- ACARSProcessor.Label
 - ACARSProcessor.MessageText
+- ACARSProcessor.Mode
 - ACARSProcessor.PhotosLink
 - ACARSProcessor.SignalLeveldBm
 - ACARSProcessor.StationId
@@ -64,7 +66,9 @@
 - ACARSProcessor.FrequencyMHz
 - ACARSProcessor.From
 - ACARSProcessor.ImageLink
+- ACARSProcessor.Label
 - ACARSProcessor.MessageText
+- ACARSProcessor.Mode
 - ACARSProcessor.PhotosLink
 - ACARSProcessor.SignalLeveldBm
 - ACARSProcessor.StationId

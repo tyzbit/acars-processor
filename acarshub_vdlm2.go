@@ -57,8 +57,8 @@ type VDLM2Message struct {
 				CRCOK                 bool   `json:"crc_ok"`
 				More                  bool   `json:"more"`
 				Registration          string `json:"reg" ap:"TailCode"`
-				Mode                  string `json:"mode"`
-				Label                 string `json:"label"`
+				Mode                  string `json:"mode"  ap:"Mode"`
+				Label                 string `json:"label"  ap:"Label"`
 				BlockID               string `json:"blk_id"`
 				Acknowledge           any    `json:"ack" gorm:"type:string"`
 				FlightNumber          string `json:"flight" ap:"FlightNumber"`

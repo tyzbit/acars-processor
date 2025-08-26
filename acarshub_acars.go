@@ -41,8 +41,8 @@ type ACARSMessage struct {
 	} `json:"app" gorm:"embedded"`
 	StationID        string `json:"station_id" ap:"StationId"`
 	ASSStatus        string `json:"assstat"`
-	Mode             string `json:"mode"`
-	Label            string `json:"label"`
+	Mode             string `json:"mode" ap:"Mode"`
+	Label            string `json:"label" ap:"Label"`
 	BlockID          string `json:"block_id"`
 	Acknowledge      any    `json:"ack" gorm:"type:string"` // Can be bool or string
 	AircraftTailCode string `json:"tail" ap:"TailCode"`     // Can be string or float
