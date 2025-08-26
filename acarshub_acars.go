@@ -27,7 +27,7 @@ type ACARSMessage struct {
 
 	// The rest of the struct is the actual message from ACARSHub
 	FrequencyMHz float64 `json:"freq" ap:"FrequencyMHz"`
-	Channel      int     `json:"channel" ap:"Channel"`
+	Channel      int     `json:"channel"`
 	ErrorCode    int     `json:"error"`
 	SignaldBm    float64 `json:"level" ap:"SignalLeveldBm"`
 	Timestamp    float64 `json:"timestamp"`
