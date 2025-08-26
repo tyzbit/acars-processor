@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"slices"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -30,14 +29,6 @@ func (as AnnotateStep) Annotate(m APMessage) APMessage {
 			log.Warn(Attention(fmt.Sprintf("%s: %s", a.Name(), err)))
 		}
 		m = MergeAPMessages(m, nm)
-	}
-	// Only keep SelectedFields
-	if len(as.SelectedFields) > 0 {
-		for messageField := range m {
-			if !slices.Contains(as.SelectedFields, messageField) {
-				delete(m, messageField)
-			}
-		}
 	}
 	return m
 }

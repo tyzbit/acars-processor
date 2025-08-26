@@ -11,9 +11,10 @@ prevent messages from reaching further steps and Receivers will take the
 resulting message and Send it somewhere external to ACARS-Processor. See
 [Filters](#available-filters), [Annotators](#available-annotators), and
 [Receivers](#available-receivers) for more information on what's available. You
-can also use `SelectedFields` in any Filter or Annotate step to limit what
-fields are provided to subsequent steps, and you may also have a separate step
-with only `SelectedFields` if you wish.
+can also use `SelectedFields` at the top level in any Filter step to limit what
+fields are provided to subsequent steps, and you may also have a separate Filter
+step with only `SelectedFields` if you wish with remove fields between other
+steps
 
 # General Configuration
 
@@ -93,8 +94,8 @@ in it.
   - Yes/no question about the message: "Is this message above 50 in terms of the
     anger rating?" (combined with the first example).
   - Processing text: "Process this text to remove excessive caps, spelling
-    errors and remove anything that isn't prose so it reads naturally
-    and logically"
+    errors and remove anything that isn't prose so it reads naturally and
+    logically"
 
 ## Available Receivers
 

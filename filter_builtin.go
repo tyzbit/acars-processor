@@ -170,10 +170,10 @@ var (
 			return !flightNumberMatches, reason, nil
 		},
 		"Frequency": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
-			fmhz := GetAPMessageCommonFieldAsFloat64(m, "FrequencyMhz")
+			fmhz := GetAPMessageCommonFieldAsFloat64(m, "FrequencyMHz")
 			fhz := GetAPMessageCommonFieldAsFloat64(m, "FrequencyHz")
 			if fmhz == 0.0 && fhz == 0.0 {
-				return false, "FrequencyMhz and FrequencyHz were empty", nil
+				return false, "FrequencyMHz and FrequencyHz were empty", nil
 			}
 			if fmhz != 0.0 && fhz == 0.0 {
 				fmhz = fmhz * 1000000

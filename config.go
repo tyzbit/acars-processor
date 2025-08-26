@@ -180,8 +180,6 @@ type AnnotateStep struct {
 	Ollama OllamaAnnotator
 	// 	// Look up geolocation, including distance from a reference point to aircraft, from ADSB-Exchange
 	ADSB ADSBExchangeAnnotator
-	// Remove all but these fields for this annotator step. You can have an annotate step that only selects fields.
-	SelectedFields []string
 }
 
 type ReceiverStep struct {

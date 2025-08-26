@@ -15,7 +15,6 @@
 
 ### ACARS Messages
 
-- ACARSMessage.ACARSDramaTailNumberLink
 - ACARSMessage.ASSStatus
 - ACARSMessage.Acknowledge
 - ACARSMessage.AircraftTailCode
@@ -29,30 +28,22 @@
 - ACARSMessage.Channel
 - ACARSMessage.ErrorCode
 - ACARSMessage.FlightNumber
-- ACARSMessage.FrequencyHz
 - ACARSMessage.FrequencyMHz
-- ACARSMessage.From
-- ACARSMessage.ImageLink
 - ACARSMessage.Label
 - ACARSMessage.MessageNumber
 - ACARSMessage.MessageText
 - ACARSMessage.Mode
 - ACARSMessage.Model.DeletedAt.Valid
 - ACARSMessage.Model.ID
-- ACARSMessage.PhotosLink
 - ACARSMessage.Processed
 - ACARSMessage.SignaldBm
 - ACARSMessage.StationID
-- ACARSMessage.ThumbnailLink
 - ACARSMessage.Timestamp
-- ACARSMessage.TrackingLink
-- ACARSMessage.TranslateLink
-- ACARSMessage.UnixTimestamp
 - ACARSProcessor.ACARSDramaTailNumberLink
 - ACARSProcessor.Channel
 - ACARSProcessor.FlightNumber
 - ACARSProcessor.FrequencyHz
-- ACARSProcessor.FrequencyMhz
+- ACARSProcessor.FrequencyMHz
 - ACARSProcessor.From
 - ACARSProcessor.ImageLink
 - ACARSProcessor.MessageText
@@ -70,7 +61,7 @@
 - ACARSProcessor.ACARSDramaTailNumberLink
 - ACARSProcessor.FlightNumber
 - ACARSProcessor.FrequencyHz
-- ACARSProcessor.FrequencyMhz
+- ACARSProcessor.FrequencyMHz
 - ACARSProcessor.From
 - ACARSProcessor.ImageLink
 - ACARSProcessor.MessageText
@@ -82,17 +73,9 @@
 - ACARSProcessor.TrackingLink
 - ACARSProcessor.TranslateLink
 - ACARSProcessor.UnixTimestamp
-- VDLM2Message.ACARSDramaTailNumberLink
-- VDLM2Message.FrequencyMHz
-- VDLM2Message.From
-- VDLM2Message.ImageLink
 - VDLM2Message.Model.DeletedAt.Valid
 - VDLM2Message.Model.ID
-- VDLM2Message.PhotosLink
 - VDLM2Message.Processed
-- VDLM2Message.ThumbnailLink
-- VDLM2Message.TrackingLink
-- VDLM2Message.TranslateLink
 - VDLM2Message.VDL2.AVLC.ACARS.Acknowledge
 - VDLM2Message.VDL2.AVLC.ACARS.BlockID
 - VDLM2Message.VDL2.AVLC.ACARS.CRCOK

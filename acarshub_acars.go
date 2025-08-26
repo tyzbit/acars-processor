@@ -21,12 +21,12 @@ func (a ACARSMessage) GetDefaultFields() APMessage {
 // This is the format ACARSHub sends for ACARS messages
 type ACARSMessage struct {
 	gorm.Model
-	ProcessingStartedAt      time.Time
-	ProcessingFinishedAt     time.Time
-	Processed                bool
+	ProcessingStartedAt  time.Time
+	ProcessingFinishedAt time.Time
+	Processed            bool
 
 	// The rest of the struct is the actual message from ACARSHub
-	FrequencyMHz float64 `json:"freq" ap:"FrequencyMhz"`
+	FrequencyMHz float64 `json:"freq" ap:"FrequencyMHz"`
 	Channel      int     `json:"channel" ap:"Channel"`
 	ErrorCode    int     `json:"error"`
 	SignaldBm    float64 `json:"level" ap:"SignalLeveldBm"`
@@ -64,7 +64,7 @@ func (a ACARSMessage) Prepare() (result APMessage) {
 
 	// Sometimes tail numbers lead with periods, chop them off
 	result[ACARSProcessorPrefix+"TailCode"] = strings.TrimLeft(a.AircraftTailCode, ".")
-	
+
 	// Extra helper or common fields
 	result[ACARSProcessorPrefix+"TrackingLink"] = FlightAwareRoot + a.AircraftTailCode
 	result[ACARSProcessorPrefix+"PhotosLink"] = FlightAwarePhotos + a.AircraftTailCode

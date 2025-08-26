@@ -24,9 +24,9 @@ func (v VDLM2Message) GetDefaultFields() APMessage {
 // This is the format VDLM2Hub sends
 type VDLM2Message struct {
 	gorm.Model
-	ProcessingStartedAt      time.Time
-	ProcessingFinishedAt     time.Time
-	Processed                bool
+	ProcessingStartedAt  time.Time
+	ProcessingFinishedAt time.Time
+	Processed            bool
 	// The rest of the struct is the actual message from ACARSHub
 	VDL2 struct {
 		App struct {
@@ -94,8 +94,8 @@ func (v VDLM2Message) Prepare() (result APMessage) {
 	}
 	result = FormatAsAPMessage(v, v.Name())
 
-    // Sometimes tail numbers lead with periods, chop them off
-    result[ACARSProcessorPrefix+"TailCode"] = strings.TrimPrefix(v.VDL2.AVLC.ACARS.Registration, ".")
+	// Sometimes tail numbers lead with periods, chop them off
+	result[ACARSProcessorPrefix+"TailCode"] = strings.TrimPrefix(v.VDL2.AVLC.ACARS.Registration, ".")
 
 	// Extra helper or common fields
 	result[ACARSProcessorPrefix+"TrackingLink"] = FlightAwareRoot + v.VDL2.AVLC.ACARS.Registration
@@ -105,7 +105,7 @@ func (v VDLM2Message) Prepare() (result APMessage) {
 	result[ACARSProcessorPrefix+"TranslateLink"] = fmt.Sprintf(GoogleTranslateLink, url.QueryEscape(v.VDL2.AVLC.ACARS.MessageText))
 	result[ACARSProcessorPrefix+"ACARSDramaTailNumberLink"] = fmt.Sprintf(ACARSDramaTailNumberLink, v.VDL2.AVLC.ACARS.Registration)
 	result[ACARSProcessorPrefix+"UnixTimestamp"] = int64(v.VDL2.Timestamp.UnixTimestamp)
-	result[ACARSProcessorPrefix+"FrequencyHz"] =float64(v.VDL2.FrequencyHz) / 1000000
+	result[ACARSProcessorPrefix+"FrequencyMHz"] = float64(v.VDL2.FrequencyHz) / 1000000
 	result[ACARSProcessorPrefix+"From"] = AircraftOrTower(v.VDL2.AVLC.ACARS.FlightNumber)
 
 	selectedFields := config.ACARSProcessorSettings.ACARSHub.ACARS.SelectedFields

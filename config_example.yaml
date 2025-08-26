@@ -1,6 +1,5 @@
-# yaml-language-server: $schema=./schema.json
+# yaml-language-server: $schema=https://raw.githubusercontent.com/tyzbit/acars-processor/refs/heads/main/schema.json
 
-# Purpose: Forward all human-created messages to Discord
 # Environment variables are substituted at runtime by acars-processor
 ACARSProcessorSettings:
   Database:
@@ -15,7 +14,7 @@ ACARSProcessorSettings:
       SelectedFields: &selectedfields
         - ACARSProcessor.ACARSDramaTailNumberLink
         - ACARSProcessor.FlightNumber
-        - ACARSProcessor.FrequencyMhz
+        - ACARSProcessor.FrequencyMHz
         - ACARSProcessor.From
         - ACARSProcessor.ImageLink
         - ACARSProcessor.MessageText
@@ -33,7 +32,7 @@ ACARSProcessorSettings:
       SelectedFields: *selectedfields
 
 Steps:
-  # HIGHLY recommended if you care about message text
+  # HIGHLY recommended if you only care about message text.
   - Filter: { Builtin: { HasText: true } }
   - Filter: { Builtin: { DictionaryPhraseLengthMinimum: 2 } }
   - Filter:
@@ -49,7 +48,8 @@ Steps:
   - Filter:
       Builtin:
         # If we don't have geolocation for an aircraft, the message stops here
-        # Anything that gets past this point came from an aircraft with 100
+        # because of FilterOnFailure.
+        # Anything that gets past this point came from an aircraft within 100
         # miles of the reference geolocation.
         FilterOnFailure: true
         BelowDistanceMi: 100.0
@@ -57,6 +57,7 @@ Steps:
       Ollama:
         Model: &ollamamodel qwen3:30b-a3b
         URL: &ollamaurl http://ollama:11434
+        # If Ollama doesn't respond, the message stops.
         FilterOnFailure: true
         MaxRetryAttempts: 1
         MaxRetryDelaySeconds: 5
@@ -138,11 +139,11 @@ Steps:
           - ACARSProcessor.LLMProcessedNumber
           - ACARSProcessor.LLMProcessedText
           - ACARSProcessor.LLMYesNoQuestionAnswer
-  - Annotate:
+  - Filter:
       SelectedFields:
         - ACARSProcessor.ACARSDramaTailNumberLink
         - ACARSProcessor.AircraftDistanceMi
-        - ACARSProcessor.FrequencyMhz
+        - ACARSProcessor.FrequencyMHz
         - ACARSProcessor.From
         - ACARSProcessor.ImageLink
         - ACARSProcessor.MessageText
@@ -161,9 +162,9 @@ Steps:
         # each message will be one color or the other - which colors are not
         # guaranteed, but right now it's orangeish and yellow.
         EmbedColorFacetFields: [ACARSProcessor.From]
-        # # Uncomment this to have the message differently colored in a
-        # # generally neutral to critical color scheme based on the
-        # # number the LLM came up with earlier
+        # Uncomment this to have the message differently colored in a
+        # generally neutral to critical color scheme based on the
+        # number rating the LLM came up with earlier
         # EmbedColorGradientField: ACARSProcessor.LLMProcessedNumber
         URL: "${acars_discord_webhook}"
         FormatText: true
