@@ -40,7 +40,6 @@
 - ACARSMessage.StationID
 - ACARSMessage.Timestamp
 - ACARSProcessor.ACARSDramaTailNumberLink
-- ACARSProcessor.Channel
 - ACARSProcessor.FlightNumber
 - ACARSProcessor.FrequencyHz
 - ACARSProcessor.FrequencyMHz

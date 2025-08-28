@@ -141,10 +141,13 @@ to being overloaded.
 
 #### Templating for Receivers
 
-All receivers support templating, which means you provide a string with some
-value references and they'll replace those references with the information from
-your messages. To use, make sure the field named like `GoTemplate` is filled
-(such as `PostGoTemplate` for Mastodon) like this:
+Discord, Mastodon and Webhook receivers support templating, which means you
+provide a string with some value references and they'll replace those references
+with the information from your messages.
+
+Refer to [this page](https://pkg.go.dev/text/template#section-documentation) for
+what you can do with Go templating. For example, for Mastodon you could set
+`PostGoTemplate` like this:
 
 ```
   PostGoTemplate: |
@@ -152,10 +155,10 @@ your messages. To use, make sure the field named like `GoTemplate` is filled
     Step: {{ index . ".ACARSProcessor.StepNumber" }}
 ```
 
-Make sure to annotate before this step and selecting all of the fields you want
-to use in previous steps, otherwise the value will be `<no value>` when it's
-sent off, **and there is no checking that the values are present before calling
-the receiver**.
+Make sure to annotate before this step and select all of the fields you want to
+use in previous steps, otherwise the value will be `<no value>` when it's sent
+off, **and there is no checking that the values are present before calling the
+receiver**.
 
 > [!NOTE]
 >
