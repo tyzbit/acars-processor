@@ -61,8 +61,8 @@ type TJSONAircraft struct {
 	AircraftDescription        string   `json:"desc,omitempty"`
 	AircraftOwnerOperator      string   `json:"ownOp,omitempty"`
 	AircraftManufactureYear    string   `json:"year,omitempty"`
-	AltimeterBarometerFeet     int64    `json:"alt_baro,omitempty"`
-	AltimeterBarometerRateFeet float64  `json:"baro_rate,omitempty"`
+	AltimeterBarometerFeet     int64    `json:"alt_baro,omitempty" ap:"AircraftBarometerAltitudeFeet"`
+	AltimeterBarometerRateFeet float64  `json:"baro_rate,omitempty" ap:"AircraftBarometerAltitudeRateFeet"`
 	Squawk                     string   `json:"squawk,omitempty"`
 	Emergency                  string   `json:"emergency,omitempty"`
 	NavQNH                     float64  `json:"nav_qnh,omitempty"`
@@ -212,6 +212,12 @@ func (a Tar1090Annotator) Annotate(m APMessage) (APMessage, error) {
 		AircraftDistanceKm:           km,
 		AircraftDistanceMi:           mi,
 	}
-	m = MergeAPMessages(FormatAsAPMessage(c, a.Name()), m)
-	return m, nil
+	// Create AP Messages from the API response and the calculated type above
+	// then merge them.
+	acinfo := FormatAsAPMessage(aircraftInfo, a.Name())
+	calc := FormatAsAPMessage(c, a.Name())
+	ac := MergeAPMessages(acinfo, calc)
+
+	// Merge with the main AP Message and return
+	return MergeAPMessages(m, ac), nil
 }
