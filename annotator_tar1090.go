@@ -182,23 +182,17 @@ func (a Tar1090Annotator) Annotate(m APMessage) (APMessage, error) {
 	}
 
 	aircraft := geodist.Coord{Lat: aircraftInfo.Latitude, Lon: aircraftInfo.Longitude}
+	var mi,km float64
 	if aircraft.Lat == 0.0 && aircraft.Lon == 0.0 {
-		// Make the origin the aircraft so distance is zero, which is more
-		// helpful than if the origin was Null Island.
-		origin = aircraft
-	}
-	mi, km, err := geodist.VincentyDistance(origin, aircraft)
-	if err != nil {
-		return m, fmt.Errorf("error calculating distance: %s", err)
+		// 0 distance but 0,0 geolocation should indicate geolocation failed.
+		mi, km = 0,0
+	} else {
+		mi, km, err = geodist.VincentyDistance(origin, aircraft)
+		if err != nil {
+			return m, fmt.Errorf("error calculating distance: %s", err)
+		}
 	}
 
-	var navmodes string
-	for i, mode := range aircraftInfo.NavModes {
-		if i != 0 {
-			navmodes = mode + ","
-		}
-		navmodes = navmodes + mode
-	}
 	c := TAR1090Calculated{
 		AircraftGeolocation:          fmt.Sprintf("%f,%f", aircraftInfo.Latitude, aircraftInfo.Longitude),
 		AircraftGeolocationLatitude:  aircraft.Lat,
