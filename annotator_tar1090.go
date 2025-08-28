@@ -108,12 +108,6 @@ type TAR1090Calculated struct {
 	AircraftDistanceMi           float64 `ap:"AircraftDistanceMi"`
 }
 
-type MLAT struct {
-}
-
-type TISB struct {
-}
-
 func NormalizeAircraftRegistration(reg string) string {
 	s := []string{
 		".",
