@@ -112,7 +112,7 @@ func (o OllamaFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 		return false, "", fmt.Errorf("model and prompt are required")
 	}
 	// If message is blank, return
-	if regexp.MustCompile(`emptyStringRegex`).MatchString(ms) {
+	if regexp.MustCompile(emptyStringRegex).MatchString(ms) {
 		return true, "message blank", nil
 	}
 	url, err := url.Parse(o.URL)
