@@ -1,9 +1,10 @@
 # acars-processor
 
-A Daemon that processes Sources like ACARS or VDLM2 add messages, while
-Annotators like Ollama or OpenAI add fields to those messages after calculating
-or making an external call. Filters stop the message from being processed
-further and Receivers are external things acars-processor sends messages to.
+A daemon that processes steps you configure. Sources like ACARS or VDLM2 add
+messages, while Annotators like Ollama or OpenAI add fields to those messages
+after calculating or making an external call. Filters stop the message from
+being processed further and Receivers are external things acars-processor sends
+messages to.
 
 You can use any combination of a Filter, Receiver (labeled as Send in your
 config), or Annotator in a step. Annotators will add fields, Filters will
