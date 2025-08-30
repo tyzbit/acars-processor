@@ -98,6 +98,7 @@ func (d DiscordReceiver) Send(m APMessage) error {
 	buff := new(bytes.Buffer)
 	r, _ := regexp.Compile(".*[Tt]ext")
 	l, _ := regexp.Compile(".*[Ll]ink")
+	ts, _ := regexp.Compile(".*[Tt]imestamp")
 	var embeds []DiscordEmbed
 	var title, content string
 	if d.MessageGoTemplate != "" {
@@ -132,10 +133,14 @@ func (d DiscordReceiver) Send(m APMessage) error {
 				linkType = strings.TrimSuffix(linkType, "Link")
 				v = fmt.Sprintf("[%s](%s)", linkType, v)
 			}
-			if ts, _ := regexp.Compile(".*[Tt]imestamp"); ts.Match([]byte(key)) {
-				v = v.(int64)
+			if ts.MatchString(key) {
+				if key == "ACARSMessage.Timestamp" {
+					v = fmt.Sprintf("%0.f", v.(float64))
+				} else {
+					v = fmt.Sprintf("%d", v.(int64))
+				}
 				if d.FormatTimestamps {
-					v = fmt.Sprintf("<t:%d:R>", v)
+					v = fmt.Sprintf("<t:%s:R>", v)
 				}
 			}
 			content = fmt.Sprintf("%s**%s**: %v\n", content, key, v)
@@ -218,7 +223,7 @@ func (d DiscordReceiver) Send(m APMessage) error {
 	// Hardcoded for now because most webhooks will be JSON
 	req.Header.Add("Content-Type", "application/json")
 
-	log.Debug(Aside("%s: calling receiver",d.Name()))
+	log.Debug(Aside("%s: calling receiver", d.Name()))
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
