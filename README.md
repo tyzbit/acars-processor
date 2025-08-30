@@ -198,3 +198,17 @@ accessibility.
 | Aside      | Less important, perhaps verbose info. | Grey          | "++86501,N8867Q,B7378MAX,250608,WN0393...."          |
 | Emphasised | Output or results.                    | Bold & Italic | "Filtering due to excessive use of exclamations!!!!" |
 | Custom     | Special and specific. Discouraged.    | Any           | N/A                                                  |
+
+# Acknowledgements and Thanks
+
+This project enables the use of the following web services. Please consider
+supporting these service providers!
+
+- FlightAware (photos and flight tracking)
+- Planespotters.net (photos)
+- ACARSDrama
+- ADS-B Exchange
+- Discord
+- New Relic
+- OpenAI
+- Ollama Turbo
