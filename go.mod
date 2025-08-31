@@ -10,6 +10,7 @@ require (
 	github.com/ghodss/yaml v1.0.0
 	github.com/invopop/jsonschema v0.13.0
 	github.com/jftuga/geodist v1.0.0
+	github.com/mattn/go-mastodon v0.0.10
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.8.1
 	github.com/ollama/ollama v0.11.6
@@ -62,7 +63,6 @@ require (
 	github.com/mailru/easyjson v0.9.0 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-mastodon v0.0.10 // indirect
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mattn/go-sqlite3 v1.14.30 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

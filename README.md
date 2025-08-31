@@ -140,6 +140,21 @@ in a consistent amount of time before increasing it. As self-hosted LLMs like
 Ollama get overloaded, their response time increases which further contributes
 to being overloaded.
 
+#### Ollama Turbo
+
+If using Ollama Turbo, some extra configuration is required. You must generate a
+private key and add it to your Ollama account. An easy way to do that is to run
+`ollama serve` on your machine, which will generate the key at
+`~/.ollama/id_ed25519.pub`. Add this to
+[your account](https://ollama.com/settings/keys). Then, make sure the private
+key is available for ACARS-Processor at `$HOME/.ollama/id_ed25519`. This path is
+hardcoded in the Ollama Go library but you can set `$HOME` to whatever you need
+to, for example the current directory.
+
+With a future update of the Ollama Go library, it should be possible to use only
+an API key but that's not possible as of
+[0.11.8](https://github.com/ollama/ollama/releases)
+
 #### Templating for Receivers
 
 Discord, Mastodon and Webhook receivers support templating, which means you
