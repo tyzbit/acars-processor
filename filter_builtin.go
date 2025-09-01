@@ -59,7 +59,7 @@ type BuiltinFilter struct {
 	// Only process messages that have this tail code.
 	TailCode string `json:",omitempty" default:"N999AP"`
 	// Only process messages that have one of these labels
-	Labels []string `json:",omitempty" default:"[87,85,81]"`
+	Labels []string `json:",omitempty" default:"[H1]"`
 	// Only process messages that have this flight number.
 	FlightNumber string `json:",omitempty" default:"N999AP"`
 	// Only process messages that have ASS Status.

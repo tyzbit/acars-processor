@@ -161,9 +161,9 @@ func ReadACARSHubVDLM2Messages() {
 	}
 }
 
-// Returns if the string is empty or if it only contains nonprintable characters
-func AircraftOrTower(s string) (r string) {
-	if b, _ := regexp.MatchString("\\S+", s); b {
+// Returns Tower if the flightNumber has any text
+func AircraftOrTower(fightNumber string) string {
+	if b, _ := regexp.MatchString("\\S+", fightNumber); b {
 		return "Aircraft"
 	}
 	return "Tower"

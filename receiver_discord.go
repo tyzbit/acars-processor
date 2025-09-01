@@ -153,7 +153,7 @@ func (d DiscordReceiver) Send(m APMessage) error {
 
 		for _, key := range keys {
 			v := fmt.Sprintf("%v", m[key])
-			if ts, _ := regexp.Compile(".*[Tt]ail[Cc]ode"); ts.Match([]byte(key)) {
+			if ts, _ := regexp.Compile(".*[Ff]light[Nn]umber"); ts.Match([]byte(key)) {
 				transmitter = " from " + AircraftOrTower(v)
 			}
 			if ts, _ := regexp.Compile(".*[Tt]humbnail[Ll]ink"); ts.Match([]byte(key)) {
