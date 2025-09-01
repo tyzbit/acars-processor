@@ -96,9 +96,9 @@ func (d DiscordReceiver) Send(m APMessage) error {
 
 	sort.Strings(keys)
 	buff := new(bytes.Buffer)
-	r, _ := regexp.Compile(".*[Tt]ext")
-	l, _ := regexp.Compile(".*[Ll]ink")
-	ts, _ := regexp.Compile(".*[Tt]imestamp")
+	r, _ := regexp.Compile(".*[Tt]ext$")
+	l, _ := regexp.Compile(".*[Ll]ink$")
+	ts, _ := regexp.Compile(".*[Tt]imestamp$")
 	var embeds []DiscordEmbed
 	var title, content string
 	if d.MessageGoTemplate != "" {
@@ -153,13 +153,13 @@ func (d DiscordReceiver) Send(m APMessage) error {
 
 		for _, key := range keys {
 			v := fmt.Sprintf("%v", m[key])
-			if ts, _ := regexp.Compile(".*[Ff]light[Nn]umber"); ts.Match([]byte(key)) {
+			if ts, _ := regexp.Compile(".*[Ff]light[Nn]umber$"); ts.Match([]byte(key)) {
 				transmitter = " from " + AircraftOrTower(v)
 			}
-			if ts, _ := regexp.Compile(".*[Tt]humbnail[Ll]ink"); ts.Match([]byte(key)) {
+			if ts, _ := regexp.Compile(".*[Tt]humbnail[Ll]ink$"); ts.Match([]byte(key)) {
 				thumbnail = v
 			}
-			if ts, _ := regexp.Compile(".*[Ff]rom"); ts.Match([]byte(key)) {
+			if ts, _ := regexp.Compile(".*[Ff]rom$"); ts.Match([]byte(key)) {
 				transmitter = " from " + v
 			}
 			if slices.Contains(d.EmbedColorFacetFields, key) {
