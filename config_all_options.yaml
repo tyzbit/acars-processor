@@ -155,6 +155,11 @@ Steps:
             HasText: true
             # Only process messages that have this tail code.
             TailCode: N999AP
+            # Only process messages that have one of these labels
+            Labels:
+                - 87
+                - 85
+                - 81
             # Only process messages that have this flight number.
             FlightNumber: N999AP
             # Only process messages that have ASS Status.

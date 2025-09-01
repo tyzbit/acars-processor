@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/adrg/strutil"
@@ -57,6 +58,8 @@ type BuiltinFilter struct {
 	HasText *bool `json:",omitempty" default:"false"`
 	// Only process messages that have this tail code.
 	TailCode string `json:",omitempty" default:"N999AP"`
+	// Only process messages that have one of these labels
+	Labels []string `json:",omitempty" default:"[87,85,81]"`
 	// Only process messages that have this flight number.
 	FlightNumber string `json:",omitempty" default:"N999AP"`
 	// Only process messages that have ASS Status.
@@ -296,6 +299,15 @@ var (
 			field := "LLMProcessedNumber"
 			valueBelow := GetAPMessageCommonFieldAsInt(m, field) < f.LLMProcessedNumberBelow
 			return !valueBelow, reason, nil
+		},
+		"Labels": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			field := "Label"
+			label := GetAPMessageCommonFieldAsString(m, field)
+			var match bool
+			if slices.Contains(f.Labels, label) {
+				match = true
+			}
+			return !match, reason, nil
 		},
 	}
 )
