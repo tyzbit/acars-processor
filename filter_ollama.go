@@ -17,10 +17,10 @@ import (
 )
 
 var (
-	OllamaFilterFirstInstructions = `You are an AI that is an expert at cal 
-	reasoning. you will be provided criteria and then a communication message. 
-	you will use your skills and any examples provided to evaluate determine 
-	if the message positively matches the provided criteria. 
+	OllamaFilterFirstInstructions = `You are an AI that is an expert at 
+	reasoning about text content. You will be provided criteria and then a 
+	communication message. You will use your reasoning and any examples provided
+	to determine if the message positively matches the provided criteria.
 
 	Here's the criteria:
 	`
@@ -31,8 +31,8 @@ var (
 	If the message definitely does not match the criteria, 
 	return 'false' in the 'message_matches_criteria' field. 
 	
-	Provide a very short, high-level explanation as to the reasoning
-	for your decision in the "reasoning" field.
+	Provide a very short, high-level explanation with 
+	the reasoning for your decision in the "reasoning" field.
 	`
 	OllamaFilterTimeout             = 120
 	OllamaFilterMaxPredictionTokens = 512
@@ -107,12 +107,12 @@ type OllamaFilterResult struct {
 
 // Return true if a message passes a filter, false otherwise
 func (o OllamaFilterer) Filter(m APMessage) (filterThisMessage bool, reason string, err error) {
-	ms := GetAPMessageCommonFieldAsString(m, "MessageText")
+	messageText := GetAPMessageCommonFieldAsString(m, "MessageText")
 	if o.Model == "" || o.UserPrompt == "" {
 		return false, "", fmt.Errorf("model and prompt are required")
 	}
 	// If message is blank, return
-	if regexp.MustCompile(emptyStringRegex).MatchString(ms) {
+	if regexp.MustCompile(emptyStringRegex).MatchString(messageText) {
 		return true, "message blank", nil
 	}
 	url, err := url.Parse(o.URL)
@@ -166,7 +166,7 @@ func (o OllamaFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 		Format:  requestedFormatJson,
 		System:  systemPrompt,
 		Stream:  &stream,
-		Prompt:  `Here is the message to evaluate:\n` + ms,
+		Prompt:  messageText,
 		Options: opts,
 	}
 
@@ -191,13 +191,13 @@ func (o OllamaFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 			return err
 		}
 		ofr := OllamaFilterResult{
-			ACARSMessage: ms,
+			ACARSMessage: messageText,
 			OllamaFilterRequest: OllamaFilterRequest{
 				Model:                               o.Model,
 				OllamaSystemPromptFirstInstructions: OllamaFilterFirstInstructions,
 				OllamaUserPrompt:                    o.UserPrompt,
 				OllamaSystemPromptFinalInstructions: OllamaFilterFinalInstructions,
-				ACARSMessage:                        ms,
+				ACARSMessage:                        messageText,
 			},
 			OllamaFilterResponse: r,
 		}
@@ -208,7 +208,7 @@ func (o OllamaFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(OllamaFilterTimeout)*time.Second)
 	defer cancel()
 	log.Debug(Aside("%s: considering message ending in \"", o.Name()),
-		Note(Last20Characters(ms)),
+		Note(Last20Characters(messageText)),
 		Aside("\", model "),
 		Note(o.Model))
 	err = retry.Do(func() error {
