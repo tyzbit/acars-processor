@@ -16,8 +16,9 @@ import (
 var (
 	OpenAISystemPrompt = `You are an AI that is an expert at 
 	reasoning about text content. You will be provided criteria and then a 
-	communication message. You will use your reasoning and any examples provided
-	to determine if the message positively matches the provided criteria.
+	communication message. You will use your reasoning and any examples or rules
+	provided to determine if the message positively matches the provided
+	criteria.
 
 	Here's the criteria:
 	`
