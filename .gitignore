@@ -1,4 +1,5 @@
 .env
+acars-processor
 config.yaml
 __debug*
 .DS_Store

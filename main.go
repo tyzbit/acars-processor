@@ -17,10 +17,11 @@ var (
 )
 
 func main() {
-	var generateSchema bool
+	var generateSchema, interactive bool
 	// flags declaration using flag package
 	flag.StringVar(&configFilePath, "c", configFilePath, "Config file path.")
 	flag.BoolVar(&generateSchema, "s", false, "Generate schema.json, then exit.")
+	flag.BoolVar(&interactive, "i", false, "Interactive - read from STDIN only.")
 	flag.Parse()
 
 	// Generate schema only and then exit
@@ -41,7 +42,11 @@ func main() {
 		log.Fatal(Attention("unable to initialize database: %s", err))
 	}
 
-	go SubscribeToACARSHub()
+	if interactive {
+		go SubscribeToStandardIn()
+	} else {
+		go SubscribeToACARSHub()
+	}
 
 	// Listen for signals from the OS
 	sc := make(chan os.Signal, 1)
