@@ -26,7 +26,7 @@ type VDLM2Message struct {
 	gorm.Model
 	ProcessingStartedAt  time.Time
 	ProcessingFinishedAt time.Time
-	Processed            bool
+	Processed            bool `gorm:"index"`
 	// The rest of the struct is the actual message from ACARSHub
 	VDL2 struct {
 		App struct {

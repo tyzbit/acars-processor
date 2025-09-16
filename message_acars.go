@@ -23,7 +23,7 @@ type ACARSMessage struct {
 	gorm.Model
 	ProcessingStartedAt  time.Time
 	ProcessingFinishedAt time.Time
-	Processed            bool
+	Processed            bool `gorm:"index"`
 
 	// The rest of the struct is the actual message from ACARSHub
 	FrequencyMHz float64 `json:"freq" ap:"FrequencyMHz"`
