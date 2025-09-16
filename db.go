@@ -78,7 +78,7 @@ func LoadSavedMessages() error {
 	}
 
 	if config.ACARSProcessorSettings.Database.Enabled {
-		db.Not(ACARSMessage{Processed: true}).Find(&am)
+		db.Where("processed = ?", false).Find(&am)
 		for _, a := range am {
 			APMessageQueue <- APMessageQeueueItem{
 				// Prepare() fills calculated fields
@@ -96,7 +96,7 @@ func LoadSavedMessages() error {
 	}
 
 	if config.ACARSProcessorSettings.Database.Enabled {
-		db.Not(VDLM2Message{Processed: true}).Find(&vm)
+		db.Where("processed = ?", false).Find(&vm)
 		for _, v := range vm {
 			APMessageQueue <- APMessageQeueueItem{
 				VDLM2Message: v,
