@@ -405,7 +405,7 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 func LongestDictionaryWordPhraseLength(messageText string) (wc int64, reason string) {
 	var consecutiveWordSlice, maxConsecutiveWordSlice []string
 	// Split on space and comma as those are both used in real messages.
-	wordSlice := strings.FieldsFunc(messageText, SplitOnCommonMessageDelimiters)
+	wordSlice := strings.FieldsFunc(messageText, SplitOnCommonWordSeparators)
 	for idx, word := range wordSlice {
 		var found bool
 		for _, dictWord := range words.Words {
@@ -434,8 +434,8 @@ func LongestDictionaryWordPhraseLength(messageText string) (wc int64, reason str
 	return wc, reason
 }
 
-func SplitOnCommonMessageDelimiters(r rune) bool {
-	return r == ' ' || r == ','
+func SplitOnCommonWordSeparators(r rune) bool {
+	return r == ' ' || r == ',' || r == '.'
 }
 
 // NonZeroFields returns all struct field names that are non-zero.
