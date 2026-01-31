@@ -12,7 +12,7 @@ prevent messages from reaching further steps and Receivers will take the
 resulting message and Send it somewhere external to ACARS-Processor. See
 [Filters](#available-filters), [Annotators](#available-annotators), and
 [Receivers](#available-receivers) for more information on what's available. You
-can also use `SelectedFields` at the top level in any Filter step to limit what
+can also use `SelectedFields` at the top level in any step to limit what
 fields are provided to subsequent steps, and you may also have a separate Filter
 step with only `SelectedFields` if you wish with remove fields between other
 steps
