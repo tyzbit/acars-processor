@@ -14,6 +14,7 @@ var (
 	config         = Config{}
 	db             = new(gorm.DB)
 	configFilePath = "config.yaml"
+	CompiledRegexes = PrecompiledRegex{}
 )
 
 func main() {
