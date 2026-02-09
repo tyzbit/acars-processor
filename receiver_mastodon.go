@@ -73,9 +73,6 @@ func (mr MastodonReceiver) Send(m APMessage) error {
 		return err
 	}
 	status = string(br)
-	if err != nil {
-		return fmt.Errorf("error executing template, err: %v", err)
-	}
 	toot := mastodon.Toot{
 		Status:     status,
 		Visibility: mr.Visibility,

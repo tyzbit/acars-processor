@@ -112,8 +112,8 @@ func (o OpenAIFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 	// one in the middle of thinking
 	if len(matches) == 0 {
 		return o.FilterOnFailure, "",
-			fmt.Errorf("did not find a json object in response, message: %s, content: %s",
-				chatCompletion.Choices[0].Message, Content)
+			fmt.Errorf("did not find a json object in response, message: %s, content: %+v",
+				m, chatCompletion.Choices[0].Message)
 	}
 	start, end := matches[len(matches)-1][0], matches[len(matches)-1][1]
 	content := chatCompletion.Choices[0].Message.Content[start:end]
