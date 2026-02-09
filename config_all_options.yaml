@@ -205,6 +205,16 @@ Steps:
                 Terms:
                     - LAV
                     - COFFEE
+            # Require all of these regex strings to match or else filter the message. If the regex does not compile, the app will not run.
+            RequireAllRegexMatches:
+                - .*LAV.*
+                - .*COFFEE.*
+            # Require at least a certain number of these regexes to match or else filter the message. If the regex does not compile, the app will not run.
+            RequireRegexMatches:
+                Count: 1
+                Terms:
+                    - .*LAV.*
+                    - .*COFFEE.*
             # The number output from a previous LLM step must be greater than this.
             LLMProcessedNumberAbove: 1
             # The number output from a previous LLM step must be less than this.

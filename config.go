@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/fatih/color"
@@ -39,6 +40,40 @@ func LoadConfig() {
 	// Marshal the YAML config into the config struct
 	if err := yaml.Unmarshal([]byte(envEvalYaml), &config); err != nil {
 		log.Fatalf("unable to load config from %s, err: %s", configFilePath, err)
+	}
+	
+	// This regex must not match any possible message
+	// We need to add the regex so the number of terms line up when processing
+	MatchNothingRegex := regexp.MustCompile(`\b\B`) // https://stackoverflow.com/a/2930280
+
+	// Since the regexes will stay the same, compile them once rather than every time a regex step is called
+	for _, step := range config.Steps {
+		for _, term := range step.Filter.Builtin.RequireRegexMatches.Terms {
+				for rexstr := range CompiledRegexes {
+					if rexstr == term {
+						goto skip
+					}
+				}
+				exp, err := regexp.Compile(term)
+				if err != nil {
+					log.Panic(Attention("unable to compile regex string '%s', err: %s", term, err))
+					exp = MatchNothingRegex
+				}
+				CompiledRegexes[term] = exp
+		}
+
+	skip:
+		for _, term := range step.Filter.Builtin.RequireAllRegexMatches {
+				if CompiledRegexes[term] != nil {
+					continue
+				}
+				exp, err := regexp.Compile(term)
+				if err != nil {
+					log.Panic(Attention("unable to compile regex string '%s', err: %s", term, err))
+					exp = MatchNothingRegex
+				}
+				CompiledRegexes[term] = exp
+		}
 	}
 }
 
@@ -221,3 +256,5 @@ type OllamaOptionsConfig struct {
 	// Value for this particular option, any value is allowed.
 	Value any `jsonschema:"required,default=0.1" default:"0.1"`
 }
+
+type PrecompiledRegex map[string]*regexp.Regexp

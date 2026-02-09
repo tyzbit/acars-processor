@@ -105,6 +105,13 @@ type BuiltinFilter struct {
 		Count int      `jsonschema:"example=1" default:"1"`
 		Terms []string `jsonschema:"example=[LAV,COFFEE]" default:"[LAV,COFFEE]"`
 	}
+	// Require all of these regex strings to match or else filter the message. If the regex does not compile, the app will not run.
+	RequireAllRegexMatches []string `jsonschema:"example=[.*LAV.*,.*COFFEE.*]" default:"[.*LAV.*,.*COFFEE.*]"`
+	// Require at least a certain number of these regexes to match or else filter the message. If the regex does not compile, the app will not run.
+	RequireRegexMatches struct {
+		Count int      `jsonschema:"example=1" default:"1"`
+		Terms []string `jsonschema:"example=[.*LAV.*,.*COFFEE.*]" default:"[.*LAV.*,.*COFFEE.*]"`
+	}
 	// The number output from a previous LLM step must be greater than this.
 	LLMProcessedNumberAbove int `jsonschema:"example=1" default:"1"`
 	// The number output from a previous LLM step must be less than this.
@@ -309,6 +316,18 @@ var (
 			}
 			return !match, reason, nil
 		},
+		"RequireRegexMatches": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			field := "MessageText"
+			mt := GetAPMessageCommonFieldAsString(m, field)
+			requiredTermsPresent := RequireNRegexMatches(f.RequireRegexMatches.Terms, mt, f.RequireRegexMatches.Count)
+			return !requiredTermsPresent, reason, nil
+		},
+		"RequireAllRegexMatches": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
+			field := "MessageText"
+			mt := GetAPMessageCommonFieldAsString(m, field)
+			requiredTermsPresent := RequireAllRegexMatches(f.RequireAllRegexMatches, mt)
+			return !requiredTermsPresent, reason, nil
+		},
 	}
 )
 
@@ -343,6 +362,44 @@ func RequireNTerms(sl []string, m string, count int) (present bool) {
 		}
 		if termsFound >= count {
 			present = true
+			break
+		}
+	}
+	return present
+}
+
+// N regexes from the string slice must be present in string. If so, return true
+func RequireNRegexMatches(sl []string, m string, count int) (present bool) {
+	termsFound := 0
+	regexesMatched := []string{}
+	for _, compiledRegex := range sl {
+		crex := CompiledRegexes[compiledRegex]
+		if crex == nil {
+			log.Fatal(Attention("error getting compiled regex for %s, we have: %+v", compiledRegex, CompiledRegexes))
+		}
+		if crex.MatchString(m) {
+			termsFound += 1
+			regexesMatched = append(regexesMatched, Note(crex.String()))
+		}
+		if termsFound >= count {
+			present = true
+			log.Debug(Aside("regexes that matched: %s", strings.Join(regexesMatched, ",")))
+			break
+		}
+	}
+	return present
+}
+
+// All regexes from the string slice must be present in string. If so, return true
+func RequireAllRegexMatches(sl []string, m string) (present bool) {
+	present = true
+	for _, compiledRegex := range sl {
+		crex := CompiledRegexes[compiledRegex]
+		if crex == nil {
+			log.Fatal(Attention("error getting compiled regex for %s, we have: %+v", compiledRegex, CompiledRegexes))
+		}
+		if !crex.MatchString(m) {
+			present = false
 			break
 		}
 	}
