@@ -48,6 +48,8 @@ type OpenAIFilterer struct {
 	SystemPrompt string `default:"Answer like a pirate"`
 	// How long to wait until giving up on any request to OpenAI.
 	Timeout int `default:"5"`
+	// URL to the OpenAI-compatible API endpoint (include protocol and port).
+	URL string `jsonschema:"required,example=http://llama-server:8080/v1" default:"https://api.openai.com/v1/"`
 }
 
 func (o OpenAIFilterer) Name() string {
@@ -71,9 +73,18 @@ func (o OpenAIFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 	if regexp.MustCompile(emptyStringRegex).MatchString(ms) {
 		return true, "message blank", nil
 	}
-	client := openai.NewClient(
-		option.WithAPIKey(o.APIKey),
-	)
+	baseURL := o.URL
+	if baseURL == "" {
+		baseURL = "https://api.openai.com/v1/"
+	}
+
+	opts := []option.RequestOption{}
+	if o.APIKey != "" {
+		opts = append(opts, option.WithAPIKey(o.APIKey))
+	}
+	opts = append(opts, option.WithBaseURL(baseURL))
+
+	client := openai.NewClient(opts...)
 	if o.SystemPrompt != "" {
 		OpenAISystemPrompt = o.SystemPrompt
 	}
