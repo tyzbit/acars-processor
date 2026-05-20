@@ -98,7 +98,7 @@ func (a OpenAIAnnotator) Annotate(m APMessage) (APMessage, error) {
 
 	baseURL := a.URL
 	if baseURL == "" {
-		baseURL = "http://localhost:8080/v1"
+		baseURL = "https://api.openai.com/v1/"
 	}
 
 	opts := []option.RequestOption{}
