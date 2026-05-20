@@ -18,6 +18,7 @@ func (as AnnotateStep) Annotate(m APMessage) APMessage {
 	annotators := []Annotator{
 		as.ADSB,
 		as.Ollama,
+		as.OpenAI,
 		as.Tar1090,
 	}
 	for _, a := range annotators {
