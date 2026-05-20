@@ -213,6 +213,8 @@ type AnnotateStep struct {
 	Tar1090 Tar1090Annotator
 	// Use Ollama (which can be self-hosted) to annotate messages, such as to answer custom questions about the message ("Is this message about coffee makers?").
 	Ollama OllamaAnnotator
+	// Use OpenAI-compatible API (which can be self-hosted) to annotate messages, such as to answer custom questions about the message ("Is this message about coffee makers?").
+	OpenAI OpenAIAnnotator
 	// 	// Look up geolocation, including distance from a reference point to aircraft, from ADSB-Exchange
 	ADSB ADSBExchangeAnnotator
 }
