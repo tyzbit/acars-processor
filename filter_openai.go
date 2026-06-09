@@ -101,9 +101,7 @@ func (o OpenAIFilterer) Filter(m APMessage) (filterThisMessage bool, reason stri
 	chatCompletion, err := client.Chat.Completions.New(context.TODO(),
 		openai.ChatCompletionNewParams{
 			Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-				openai.SystemMessage(OpenAISystemPrompt),
-				openai.SystemMessage(o.UserPrompt),
-				openai.SystemMessage(OpenAIFinalInstructions),
+				openai.SystemMessage(OpenAISystemPrompt + o.UserPrompt + OpenAIFinalInstructions),
 				openai.UserMessage(ms),
 			}),
 			Model: openai.F(openAIModel),
