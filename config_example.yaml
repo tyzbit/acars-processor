@@ -53,108 +53,7 @@ Steps:
         # miles of the reference geolocation.
         FilterOnFailure: true
         BelowDistanceMi: 100.0
-  - Filter:
-      Ollama:
-        Model: &ollamamodel qwen3:30b-a3b
-        URL: &ollamaurl http://ollama:11434
-        # If Ollama doesn't respond, the message stops.
-        FilterOnFailure: true
-        MaxRetryAttempts: 1
-        MaxRetryDelaySeconds: 5
-        Timeout: 30
-        Options: &ollamaopts [
-            { Name: num_predict, Value: 150 }, # Maximum number of tokens (words, kinda) to generate
-            { Name: temperature, Value: 0.4 }, # Creativity (0.0-2.0)
-            { Name: top_p, Value: 0.2 }, # Answer diversity with top_k (0.0-1.0)
-            { Name: top_k, Value: 20 }, # Answer diversity (ex 0-100)
-            { Name: frequency_penalty, Value: 1.1 }, # Penalize repeated tokens (0-2.0)
-            { Name: num_gpu, Value: 40 }, # Number of layers to offload to GPU
-          ]
-        # If you use a paid LLM service, using more tokens might cost more money
-        # so definitely tweak the prompt for your needs.
-        UserPrompt: |
-          You are reviewing messages from both humans and programatically
-          generated messages and must choose to forward only the messages from
-          humans.
 
-          DO NOT forward if the message matches ANY of these rules:
-          - Is uniformly structured with tables or extra spaces for formatting.
-          - Contains multiple segments with /M, /N, /P, /Q, /R, /S, /T, /V with
-            no prose.
-          - Starts with or is dominated by automated terms such as FLR/, FDR/, 
-            FPN/, POSRPT, POSN, CFDS, ACMS, AIDS, ATSU, MDC/EXCEEDANCE REPORT,
-            ACARS AUTO, ENGINE TREND, ECAM 1/2, ECAM only lines, ATA, LRU, P/N,
-            NOTAMS, SYSTEM PARAMETERS, ARQ, PREFLIGHT BRIEF, TAXI, CAROUSEL,
-            FILENAME
-          - Informational notices with no narrative, such as ARRIVAL GATE
-            INFORMATION notices, ATIS INFO notices, CREW/PAX CONNECTION notices
-            and messages that end in YOU HAVE INFO.
-          - Almost entirely numerical data in a long sequence.
-
-          DO forward if the message matches ANY of these rules:
-          - Contains natural-language sentences or human prose which may 
-            contain technical terms, acronyms but will always include a
-            human-meaningful question or statement intended for another person.
-            Human messages might have misspellings or abbreviations like you
-            might see in cell phone text messages. The sentences commonly have
-            commas or periods separating them.
-          - Greetings/sign-offs, for example: HI, HELLO, BONJOUR,
-            GOOD MORNING/EVENING, THANK YOU/THANKS/THX, BRGRDS, CHEERS,
-            COPY/COPY THAT
-          - A clear sentence/clause like WILL/IS/ARE/HAVE/NEED/CAN/PLEASE/
-            QUESTION MARK followed by a verb, for example: PLEASE SEND WX.
-          - Has /Q/ which is shorthand for asking a question in this messages.
-          - Operational prose about passengers,crew,med,medical,booking,
-            rebooking/ramp-gate or other situations with a narrative.
-          - Lists a desk number.
-          - Talks about LAV/SEAT
-
-          Based on these rules, should this message be forwarded?
-
-  - Annotate:
-      Ollama:
-        Model: qwen3:30b-a3b
-        URL: http://ollama-service:11434
-        MaxRetryAttempts: 1
-        MaxRetryDelaySeconds: 5
-        Timeout: 30
-        Options: [
-            { Name: num_predict, Value: 150 }, # Maximum number of tokens (words, kinda) to generate
-            { Name: temperature, Value: 0.4 }, # Creativity (0.0-2.0)
-            { Name: top_p, Value: 0.2 }, # Answer diversity with top_k (0.0-1.0)
-            { Name: top_k, Value: 20 }, # Answer diversity (ex 0-100)
-            { Name: frequency_penalty, Value: 1.1 }, # Penalize repeated tokens (0-2.0)
-            { Name: num_gpu, Value: 40 }, # Number of layers to offload to GPU
-          ]
-        # The rating and the Yes/No question responses will get forwarded on
-        # in their own fields
-        UserPrompt:
-          Rate this message on a scale of 1-100 for how angry it reads. Is the
-          result greater than 50?
-        # This is for demonstrative purposes for the fields that this annotator
-        # adds, you can remove it to get all of them. Check default_fields.md
-        # for all your options.
-        SelectedFields:
-          - ACARSProcessor.LLMModelFeedbackText
-          - ACARSProcessor.LLMProcessedNumber
-          - ACARSProcessor.LLMProcessedText
-          - ACARSProcessor.LLMYesNoQuestionAnswer
-  - Filter:
-      SelectedFields:
-        - ACARSProcessor.ACARSDramaTailNumberLink
-        - ACARSProcessor.AircraftDistanceMi
-        - ACARSProcessor.FrequencyMHz
-        - ACARSProcessor.From
-        - ACARSProcessor.ImageLink
-        - ACARSProcessor.MessageText
-        - ACARSProcessor.PhotosLink
-        - ACARSProcessor.LLMProcessedNumber
-        - ACARSProcessor.SignalLeveldBm
-        - ACARSProcessor.ThumbnailLink
-        - ACARSProcessor.TailCode
-        - ACARSProcessor.TrackingLink
-        - ACARSProcessor.TranslateLink
-        - ACARSProcessor.UnixTimestamp
   - Send:
       Discord:
         Embed: true
@@ -164,8 +63,8 @@ Steps:
         EmbedColorFacetFields: [ACARSProcessor.From]
         # Uncomment this to have the message differently colored in a
         # generally neutral to critical color scheme based on the
-        # number rating the LLM came up with earlier
-        # EmbedColorGradientField: ACARSProcessor.LLMProcessedNumber
+        # field from a previous annotator
+        # EmbedColorGradientField: ACARSProcessor.SignalLeveldBm
         URL: "${acars_discord_webhook}"
         FormatText: true
         FormatTimestamps: true

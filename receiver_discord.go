@@ -33,7 +33,7 @@ type DiscordReceiver struct {
 	// Pick one or more fields that deterministically determines the embed color
 	EmbedColorFacetFields []string `default:"[acarsAircraftTailCode]"`
 	// Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
-	EmbedColorGradientField string `default:"ollamaProcessedNumber"`
+	EmbedColorGradientField string `default:"ACARSMessage.SignaldBm"`
 	// An array of colors that corresponds with EmbedColorGradientField values
 	EmbedColorGradientSteps []hue.Color `default:"{{R:0,G:100,B:0}}"`
 	// Surround fields with message content with backticks so they are monospaced and stand out.
@@ -168,8 +168,7 @@ func (d DiscordReceiver) Send(m APMessage) error {
 			if key == d.EmbedColorGradientField {
 				var value int
 				var err error
-				// The value might be string because LLMs are fuzzybad, cast it
-				// to an int
+				// The value might be string cast it to an int
 				if _, ok := m[key].(int); !ok {
 					value, err = strconv.Atoi(m[key].(string))
 					if err != nil {

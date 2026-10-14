@@ -13,8 +13,6 @@ import (
 func (f FilterStep) Filter(m APMessage) (name string, filtered bool, errs error) {
 	filters := []Filterer{
 		f.Builtin,
-		f.Ollama,
-		f.OpenAI,
 	}
 	for _, filter := range filters {
 		if !filter.Configured() {

@@ -106,10 +106,5 @@ func LoadSavedMessages() error {
 		log.Info(Content("Loaded %d VDLM2 messages from the db", len(vm)))
 	}
 
-	// Ollama filter
-	if err := db.AutoMigrate(OllamaFilterResult{}); err != nil {
-		log.Fatal(Attention("Unable to automigrate Ollama filter type: %s", err))
-	}
-
 	return nil
 }

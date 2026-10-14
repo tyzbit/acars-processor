@@ -13,8 +13,6 @@ require (
 	github.com/mattn/go-mastodon v0.0.10
 	github.com/mcuadros/go-defaults v1.2.0
 	github.com/newrelic/newrelic-telemetry-sdk-go v0.8.1
-	github.com/ollama/ollama v0.11.6
-	github.com/openai/openai-go v0.1.0-alpha.62
 	github.com/sirupsen/logrus v1.9.3
 	github.com/tidwall/words v0.0.0-20181116223016-6463671b7759
 	gomodules.xyz/envsubst v0.2.0

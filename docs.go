@@ -35,7 +35,6 @@ var (
 	exampleConfigPath = "config_all_options.yaml"
 	Annotators = []Annotator{
 		AnnotateStep{}.ADSB,
-		AnnotateStep{}.Ollama,
 		AnnotateStep{}.Tar1090,
 	}
 )
@@ -53,16 +52,6 @@ func GenerateDocs() (updated bool) {
 		Name:  "APIKey",
 		Value: "1234abcdef",
 	}}
-	// We need to do this to set an example value since Options is a slice.
-	defaultConfig.Steps[0].Annotate.Ollama.Options = []OllamaOptionsConfig{{
-		Name:  "num_predict",
-		Value: 512,
-	}}
-	// We need to do this to set an example value since Options is a slice.
-	defaultConfig.Steps[0].Filter.Ollama.Options = []OllamaOptionsConfig{{
-		Name:  "num_predict",
-		Value: 512,
-	}}
 	defaultConfig.Steps[0].Send.Discord.EmbedColorGradientSteps = []hue.Color{
 		{R: 0, G: 255, B: 0},
 		{R: 255, G: 255, B: 0},
@@ -76,10 +65,8 @@ func GenerateDocs() (updated bool) {
 
 	// You can also select them on Annotators
 	a := &defaultConfig.Steps[0].Annotate.ADSB
-	o := &defaultConfig.Steps[0].Annotate.Ollama
 	t := &defaultConfig.Steps[0].Annotate.Tar1090
 	a.SelectedFields = a.GetDefaultFields()
-	o.SelectedFields = o.GetDefaultFields()
 	t.SelectedFields = t.GetDefaultFields()
 
 	defaults.SetDefaults(&defaultConfig)

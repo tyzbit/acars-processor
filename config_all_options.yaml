@@ -215,54 +215,6 @@ Steps:
                 Terms:
                     - .*LAV.*
                     - .*COFFEE.*
-            # The number output from a previous LLM step must be greater than this.
-            LLMProcessedNumberAbove: 1
-            # The number output from a previous LLM step must be less than this.
-            LLMProcessedNumberBelow: 80
-        # Use Ollama (which can be self-hosted) to choose to filter messages based on plain-text criteria.
-        Ollama:
-            # Whether to filter messages where Ollama itself fails. Recommended if your ollama instance sometimes returns errors.
-            FilterOnFailure: false
-            # Inverse logic (for example, Inverse: true, HasText: true means messages with text are FILTERED)
-            Invert: false
-            # Model to use (you need to pull this in Ollama to use it).
-            Model: llama3.2
-            # URL to the Ollama instance to use (include protocol and port). Use
-            # 'ollama.com' if you're using Ollama Turbo and also set APIKey.
-            URL: http://ollama-service:11434
-            # API key to include in requests.
-            APIKey: your api key here
-            # Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
-            SystemPrompt: Answer like a pirate
-            # Instructions for Ollama for processing messages. More detail produces better results.
-            UserPrompt: Tell the LLM how to handle the message
-            # Maximum number of retries to make against the Ollama URL.
-            MaxRetryAttempts: 5
-            # How long to wait before retrying the Ollama API.
-            MaxRetryDelaySeconds: 5
-            # How long to wait until giving up on any request to Ollama.
-            Timeout: 5
-            # Options to pass to the model
-            Options:
-                - # Option name, specific to the model you are using.
-                  Name: num_predict
-                  # Value for this particular option, any value is allowed.
-                  Value: 512
-        # Use OpenAI to choose to filter messages based on plain-text criteria.
-        OpenAI:
-            # Whether to filter messages where the OpenAI filter itself fails. Recommended if your ollama instance sometimes returns errors.
-            FilterOnFailure: true
-            # Inverse logic (for example, Invert: true, HasText: true means messages with text are FILTERED)
-            Invert: false
-            APIKey: example_key
-            # Model to use.
-            Model: gpt-4o
-            # Instructions for OpenAI model to use when filtering messages. More detail is better.
-            UserPrompt: Does this message talk about coffee makers or lavatories (shorthand LAV is sometimes used)?
-            # Override the built-in system prompt to instruct the model on how to behave for requests (not usually necessary).
-            SystemPrompt: Answer like a pirate
-            # How long to wait until giving up on any request to OpenAI.
-            Timeout: 5
         # Remove all but these fields for this filter step. You can have a filter step that only selects fields.
         SelectedFields: []
       # Add annotations from one or more annotators in this step
@@ -287,41 +239,6 @@ Steps:
                 - Tar1090.AircraftGeolocationLongitude
                 - Tar1090.Messages
                 - Tar1090.Now
-        # Use Ollama (which can be self-hosted) to annotate messages, such as to answer custom questions about the message ("Is this message about coffee makers?").
-        Ollama:
-            # Model to use (you need to pull this in Ollama to use it).
-            Model: llama3.2
-            # URL to the Ollama instance to use (include protocol and port). Use
-            # 'ollama.com' if you're using Ollama Turbo and also set APIKey.
-            URL: http://ollama-service:11434
-            # API key to include in requests.
-            APIKey: your api key here
-            # Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
-            SystemPrompt: Answer like a pirate
-            # Instructions for Ollama for processing messages. More detail produces better results.
-            UserPrompt: Tell the LLM how to handle the message
-            # Maximum number of retries to make against the Ollama URL.
-            MaxRetryAttempts: 5
-            # How long to wait before retrying the Ollama API.
-            MaxRetryDelaySeconds: 5
-            # How long to wait until giving up on any request to Ollama.
-            Timeout: 5
-            # Options to pass to the model
-            Options:
-                - # Option name, specific to the model you are using.
-                  Name: num_predict
-                  # Value for this particular option, any value is allowed.
-                  Value: 512
-            # Only provide these fields to future steps.
-            SelectedFields:
-                - ACARSProcessor.LLMModelFeedbackText
-                - ACARSProcessor.LLMProcessedNumber
-                - ACARSProcessor.LLMProcessedText
-                - ACARSProcessor.LLMYesNoQuestionAnswer
-                - OllamaAnnotator.ModelFeedbackText
-                - OllamaAnnotator.ProcessedNumber
-                - OllamaAnnotator.ProcessedText
-                - OllamaAnnotator.YesNoQuestionAnswer
         # Look up geolocation, including distance from a reference point to aircraft, from ADSB-Exchange
         ADSB:
             # APIKey provided by signing up at ADSB-Exchange.
@@ -357,7 +274,7 @@ Steps:
             EmbedColorFacetFields:
                 - acarsAircraftTailCode
             # Pick one or more fields that determines the embed color according to this field, which should be an integer between 1 and 100
-            EmbedColorGradientField: ollamaProcessedNumber
+            EmbedColorGradientField: ACARSMessage.SignaldBm
             # An array of colors that corresponds with EmbedColorGradientField values
             EmbedColorGradientSteps:
                 - R: 0

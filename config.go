@@ -200,10 +200,6 @@ type ProcessingStep struct {
 type FilterStep struct {
 	// Built-in filters
 	Builtin BuiltinFilter
-	// Use Ollama (which can be self-hosted) to choose to filter messages based on plain-text criteria.
-	Ollama OllamaFilterer
-	// Use OpenAI to choose to filter messages based on plain-text criteria.
-	OpenAI OpenAIFilterer
 	// Remove all but these fields for this filter step. You can have a filter step that only selects fields.
 	SelectedFields []string
 }
@@ -211,10 +207,6 @@ type FilterStep struct {
 type AnnotateStep struct {
 	// Look up geolocation, including distance from a reference point to aircraft, from a tar1090 instance (which can be self-hosted)
 	Tar1090 Tar1090Annotator
-	// Use Ollama (which can be self-hosted) to annotate messages, such as to answer custom questions about the message ("Is this message about coffee makers?").
-	Ollama OllamaAnnotator
-	// Use OpenAI-compatible API (which can be self-hosted) to annotate messages, such as to answer custom questions about the message ("Is this message about coffee makers?").
-	OpenAI OpenAIAnnotator
 	// 	// Look up geolocation, including distance from a reference point to aircraft, from ADSB-Exchange
 	ADSB ADSBExchangeAnnotator
 }
@@ -228,35 +220,6 @@ type ReceiverStep struct {
 	NewRelic NewRelicReceiver
 	// Generic webhook receiver. Please read README for how to use custom payloads.
 	Webhook WebHookReceiver
-}
-
-type OllamaCommonConfig struct {
-	// Model to use (you need to pull this in Ollama to use it).
-	Model string `jsonschema:"required,default=llama3.2" default:"llama3.2"`
-	// URL to the Ollama instance to use (include protocol and port). Use
-	// 'ollama.com' if you're using Ollama Turbo and also set APIKey.
-	URL string `jsonschema:"required,example=http://ollama-service:11434" default:"http://ollama-service:11434"`
-	// API key to include in requests.
-	APIKey string `jsonschema:",omitempty,example=1234d54321e" default:"your api key here"`
-	// Override the system prompt (not usually necessary). This instructs Ollama how to behave with user prompts (ex: pretend you are a pirate. all answers must end in "arrr!"). This might make other options less effective.
-	SystemPrompt string `default:"Answer like a pirate"`
-	// Instructions for Ollama for processing messages. More detail produces better results.
-	UserPrompt string `jsonschema:"required,example=Is there prose in this message?"  default:"Tell the LLM how to handle the message"`
-	// Maximum number of retries to make against the Ollama URL.
-	MaxRetryAttempts int `default:"5"`
-	// How long to wait before retrying the Ollama API.
-	MaxRetryDelaySeconds int `default:"5"`
-	// How long to wait until giving up on any request to Ollama.
-	Timeout int `default:"5"`
-	// Options to pass to the model
-	Options []OllamaOptionsConfig // The default for this is set in schema.go
-}
-
-type OllamaOptionsConfig struct {
-	// Option name, specific to the model you are using.
-	Name string `jsonschema:"required,default=example_value" default:"example_value"`
-	// Value for this particular option, any value is allowed.
-	Value any `jsonschema:"required,default=0.1" default:"0.1"`
 }
 
 type PrecompiledRegex map[string]*regexp.Regexp

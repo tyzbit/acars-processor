@@ -139,17 +139,6 @@
 - ADSBExchangeAnnotator.ServerProcessingTime
 - ADSBExchangeAnnotator.TotalAircraftResults
 
-### OllamaAnnotator
-
-- ACARSProcessor.LLMModelFeedbackText
-- ACARSProcessor.LLMProcessedNumber
-- ACARSProcessor.LLMProcessedText
-- ACARSProcessor.LLMYesNoQuestionAnswer
-- OllamaAnnotator.ModelFeedbackText
-- OllamaAnnotator.ProcessedNumber
-- OllamaAnnotator.ProcessedText
-- OllamaAnnotator.YesNoQuestionAnswer
-
 ### Tar1090Annotator
 
 - ACARSProcessor.AircraftDistanceKm

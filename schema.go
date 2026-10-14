@@ -47,7 +47,7 @@ func (vc VDLM2ConnectionConfig) JSONSchemaExtend(j *jsonschema.Schema) {
 func (t Tar1090Annotator) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(Attention("couldn't get selectedfields for ollama annotator config type"))
+		log.Error(Attention("couldn't get selectedfields for tar1090 annotator config type"))
 		return
 	}
 	f := t.GetDefaultFields()
@@ -58,21 +58,10 @@ func (t Tar1090Annotator) JSONSchemaExtend(j *jsonschema.Schema) {
 func (a ADSBExchangeAnnotator) JSONSchemaExtend(j *jsonschema.Schema) {
 	s, ok := j.Properties.Get("SelectedFields")
 	if !ok {
-		log.Error(Attention("couldn't get selectedfields for ollama annotator config type"))
+		log.Error(Attention("couldn't get selectedfields for adsb annotator config type"))
 		return
 	}
 	f := a.GetDefaultFields()
-	s.Examples = append(s.Examples, f)
-	j.Properties.Set("SelectedFields", s)
-}
-
-func (o OllamaAnnotator) JSONSchemaExtend(j *jsonschema.Schema) {
-	s, ok := j.Properties.Get("SelectedFields")
-	if !ok {
-		log.Error(Attention("couldn't get selectedfields for ollama annotator config type"))
-		return
-	}
-	f := o.GetDefaultFields()
 	s.Examples = append(s.Examples, f)
 	j.Properties.Set("SelectedFields", s)
 }
