@@ -6,54 +6,61 @@ import (
 	"github.com/fatih/color"
 )
 
+var (
+	resetColor = color.New(color.Reset).Sprint("")
+	fgGreen    = color.New(color.FgGreen)
+	fgMagenta  = color.New(color.FgMagenta)
+	fgCyan     = color.New(color.FgCyan)
+	fgYellow   = color.New(color.FgYellow)
+	darkGrey   = color.RGB(90, 90, 90)
+	bio        = color.New(color.Bold, color.Italic)
+)
+
 // Render n strings using c color, returning a string with color escape sequences
-func ColorSprintf(c color.Color, n ...any) (rs string) {
+func ColorSprintf(c *color.Color, n ...any) (rs string) {
 	if config.ACARSProcessorSettings.ColorOutput {
 		c.EnableColor()
 	}
 	if len(n) == 1 {
 		// Simple message
-		return c.Sprint(n[0].(string)) + color.New(color.Reset).Sprint("")
+		return c.Sprint(n[0].(string)) + resetColor
 	} else {
 		// Message with formatting
-		return c.Sprint(fmt.Sprintf(n[0].(string), n[1:]...)) +
-			color.New(color.Reset).Sprint("")
+		return c.Sprint(fmt.Sprintf(n[0].(string), n[1:]...)) + resetColor
 	}
 }
 
 // green
 func Success(s ...any) string {
-	return ColorSprintf(*color.New(color.FgGreen), s...)
+	return ColorSprintf(fgGreen, s...)
 }
 
 // magenta
 func Content(s ...any) string {
-	return ColorSprintf(*color.New(color.FgMagenta), s...)
+	return ColorSprintf(fgMagenta, s...)
 }
 
 // cyan
 func Note(s ...any) string {
-	return ColorSprintf(*color.New(color.FgCyan), s...)
+	return ColorSprintf(fgCyan, s...)
 }
 
 // yellow
 func Attention(s ...any) string {
-	return ColorSprintf(*color.New(color.FgYellow), s...)
+	return ColorSprintf(fgYellow, s...)
 }
 
 // grey
 func Aside(s ...any) string {
-	darkGrey := *color.RGB(90, 90, 90)
 	return ColorSprintf(darkGrey, s...)
 }
 
 // bold+italic
 func Emphasised(s ...any) string {
-	bio := color.New(color.Bold, color.Italic)
-	return ColorSprintf(*bio, s...)
+	return ColorSprintf(bio, s...)
 }
 
 // Custom
 func Custom(c *color.Color, s ...any) string {
-	return ColorSprintf(*c, s...)
+	return ColorSprintf(c, s...)
 }

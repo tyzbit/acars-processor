@@ -5,3 +5,5 @@ __debug*
 .DS_Store
 .vscode/launch.json
 messages.db*
+heap*
+profile*
