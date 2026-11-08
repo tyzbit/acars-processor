@@ -17,7 +17,7 @@ var (
 )
 
 // Render n strings using c color, returning a string with color escape sequences
-func ColorSprintf(c *color.Color, n ...any) (rs string) {
+func ColorSprintf(c color.Color, n ...any) (rs string) {
 	if config.ACARSProcessorSettings.ColorOutput {
 		c.EnableColor()
 	}
@@ -32,35 +32,35 @@ func ColorSprintf(c *color.Color, n ...any) (rs string) {
 
 // green
 func Success(s ...any) string {
-	return ColorSprintf(fgGreen, s...)
+	return ColorSprintf(*fgGreen, s...)
 }
 
 // magenta
 func Content(s ...any) string {
-	return ColorSprintf(fgMagenta, s...)
+	return ColorSprintf(*fgMagenta, s...)
 }
 
 // cyan
 func Note(s ...any) string {
-	return ColorSprintf(fgCyan, s...)
+	return ColorSprintf(*fgCyan, s...)
 }
 
 // yellow
 func Attention(s ...any) string {
-	return ColorSprintf(fgYellow, s...)
+	return ColorSprintf(*fgYellow, s...)
 }
 
 // grey
 func Aside(s ...any) string {
-	return ColorSprintf(darkGrey, s...)
+	return ColorSprintf(*darkGrey, s...)
 }
 
 // bold+italic
 func Emphasised(s ...any) string {
-	return ColorSprintf(bio, s...)
+	return ColorSprintf(*bio, s...)
 }
 
 // Custom
 func Custom(c *color.Color, s ...any) string {
-	return ColorSprintf(c, s...)
+	return ColorSprintf(*c, s...)
 }

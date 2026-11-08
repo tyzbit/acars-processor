@@ -8,16 +8,24 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
+
+	"net/http"
+	_ "net/http/pprof"
 )
 
 var (
-	config         = Config{}
-	db             = new(gorm.DB)
-	configFilePath = "config.yaml"
+	config          = Config{}
+	db              = new(gorm.DB)
+	configFilePath  = "config.yaml"
 	CompiledRegexes = PrecompiledRegex{}
 )
 
 func main() {
+	if config.ACARSProcessorSettings.EnableProfiling {
+		go func() {
+			log.Println(http.ListenAndServe("localhost:6060", nil))
+		}()
+	}
 	var generateSchema, interactive bool
 	// flags declaration using flag package
 	flag.StringVar(&configFilePath, "c", configFilePath, "Config file path.")
