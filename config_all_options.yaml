@@ -263,6 +263,8 @@ Steps:
             SystemPrompt: Answer like a pirate
             # How long to wait until giving up on any request to OpenAI.
             Timeout: 5
+            # URL to the OpenAI-compatible API endpoint (include protocol and port).
+            URL: https://api.openai.com/v1/
         # Remove all but these fields for this filter step. You can have a filter step that only selects fields.
         SelectedFields: []
       # Add annotations from one or more annotators in this step
@@ -322,6 +324,23 @@ Steps:
                 - OllamaAnnotator.ProcessedNumber
                 - OllamaAnnotator.ProcessedText
                 - OllamaAnnotator.YesNoQuestionAnswer
+        # Use OpenAI-compatible API (which can be self-hosted) to annotate messages, such as to answer custom questions about the message ("Is this message about coffee makers?").
+        OpenAI:
+            # Only provide these fields to future steps.
+            SelectedFields: []
+            # Whether to filter messages where the OpenAI annotator itself fails. Recommended if your OpenAI instance sometimes returns errors.
+            FilterOnFailure: true
+            APIKey:
+            # Model to use.
+            Model: gpt-4o
+            # URL to the OpenAI-compatible API endpoint (include protocol and port).
+            URL: http://localhost:8080/v1
+            # Override the built-in system prompt to instruct the model on how to behave for requests (not usually necessary).
+            SystemPrompt: Answer like a pirate
+            # Instructions for OpenAI model to use when annotating messages. More detail is better.
+            UserPrompt: Tell the LLM how to handle the message
+            # How long to wait until giving up on any request to OpenAI.
+            Timeout: 60
         # Look up geolocation, including distance from a reference point to aircraft, from ADSB-Exchange
         ADSB:
             # APIKey provided by signing up at ADSB-Exchange.

@@ -6,3 +6,5 @@ __debug*
 .vscode/launch.json
 messages.db*
 .ollama
+heap*
+profile*
