@@ -21,11 +21,6 @@ var (
 )
 
 func main() {
-	if config.ACARSProcessorSettings.EnableProfiling {
-		go func() {
-			log.Println(http.ListenAndServe("localhost:6060", nil))
-		}()
-	}
 	var generateSchema, interactive bool
 	// flags declaration using flag package
 	flag.StringVar(&configFilePath, "c", configFilePath, "Config file path.")
@@ -47,6 +42,12 @@ func main() {
 
 	LoadConfig()
 	ConfigureLogging()
+	if config.ACARSProcessorSettings.EnableProfiling {
+		log.Info(Content("Enabling debug profiling"))
+		go func() {
+			log.Println(http.ListenAndServe("localhost:6060", nil))
+		}()
+	}
 	if err := LoadSavedMessages(); err != nil {
 		log.Fatal(Attention("unable to initialize database: %s", err))
 	}

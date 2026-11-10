@@ -413,17 +413,13 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 		Limit(defaultMaxLookbehind).
 		Find(&vm)
 	for _, acm := range am {
-		acmapm := FormatAsAPMessage(acm, "")
-		acmts := GetAPMessageCommonFieldAsString(acmapm, field)
-		if acmts != "" {
-			msgs = append(msgs, acmts)
+		if acm.MessageText != "" {
+			msgs = append(msgs, acm.MessageText)
 		}
 	}
 	for _, acm := range vm {
-		acmapm := FormatAsAPMessage(acm, "")
-		acmts := GetAPMessageCommonFieldAsString(acmapm, field)
-		if acmts != "" {
-			msgs = append(msgs, acmts)
+		if acm.VDL2.AVLC.ACARS.MessageText != "" {
+			msgs = append(msgs, acm.VDL2.AVLC.ACARS.MessageText)
 		}
 	}
 	for _, mcmp := range msgs {
