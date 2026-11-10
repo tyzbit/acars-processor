@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"regexp"
 	"slices"
 	"strings"
 
@@ -162,7 +161,7 @@ var (
 	BuiltinFilterFunctions = map[string]func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error){
 		"HasText": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			mt := GetAPMessageCommonFieldAsString(m, "MessageText")
-			empty, _ := regexp.MatchString(emptyStringRegex, mt)
+			empty := strings.TrimSpace(mt) == ""
 			return empty, reason, nil
 		},
 		"TailCode": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
@@ -210,13 +209,13 @@ var (
 		},
 		"FromTower": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			fnum := GetAPMessageCommonFieldAsString(m, "FlightNumber")
-			flightNumberEmpty, _ := regexp.MatchString(emptyStringRegex, fnum)
+			flightNumberEmpty := strings.TrimSpace(fnum) == ""
 			FromTower := *f.FromTower == flightNumberEmpty
 			return !FromTower, reason, nil
 		},
 		"FromAircraft": func(f BuiltinFilter, m APMessage) (filter bool, reason string, err error) {
 			fnum := GetAPMessageCommonFieldAsString(m, "FlightNumber")
-			flightNumberNotEmpty, _ := regexp.MatchString(nonEmptyStringRegex, fnum)
+			flightNumberNotEmpty := strings.TrimSpace(fnum) == ""
 			FromAircraft := *f.FromAircraft == flightNumberNotEmpty
 			return !FromAircraft, reason, nil
 		},

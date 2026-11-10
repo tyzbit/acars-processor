@@ -8,11 +8,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	emptyStringRegex    = `^\s*$`
-	nonEmptyStringRegex = `\S`
-)
-
 var formatFilterAction = map[bool]string{
 	true:  Custom(color.New(color.FgYellow), "filtered"),
 	false: Custom(color.New(color.FgCyan), "finished"),

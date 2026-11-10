@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -162,9 +161,9 @@ func ReadACARSHubVDLM2Messages() {
 }
 
 // Returns Tower if the flightNumber has any text
-func AircraftOrTower(fightNumber string) string {
-	if b, _ := regexp.MatchString("\\S+", fightNumber); b {
-		return "Aircraft"
+func AircraftOrTower(flightNumber string) string {
+	if strings.TrimSpace(flightNumber) == "" {
+		return "Tower"
 	}
-	return "Tower"
+	return "Aircraft"
 }
