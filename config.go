@@ -83,7 +83,7 @@ type APMessage map[string]any
 
 // Main configuration for acars-processor. Have fun!
 type Config struct {
-	// These control acars-processor itself
+	// These control acars-processor itself.
 	ACARSProcessorSettings ACARSProcessorSettings `jsonschema:"required"`
 	// Actions to take on messages in the order they should be taken.
 	Steps []ProcessingStep
@@ -98,6 +98,8 @@ type ACARSProcessorSettings struct {
 	LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
 	// Port to listen on for profiling (example: http://localhost:6060/debug/pprof/heap)
 	ProfilingPort int `json:",omitempty" jsonschema:"default=0" default:"6060"`
+	// How many messages to queue. If your steps take a long time, recommend no less than 1000. Works out to about 1KB memory used per message (this may become outdated).
+	MessageQueueSize int `json:",omitempty" jsonschema:"default=1000" default:"1000"`
 	// Whether to refrain from printing timestamps in logs.
 	LogHideTimestamps bool `json:",omitempty" jsonschema:"default=false" default:"false"`
 	// ACARSHub connection settings.

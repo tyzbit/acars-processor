@@ -2,7 +2,7 @@
 # This file (and schema.json) are automatically generated 
 # from the code by running ./acars-processor -s
 
-# These control acars-processor itself
+# These control acars-processor itself.
 ACARSProcessorSettings:
     # Force whether or not color output is used.
     ColorOutput: true
@@ -20,6 +20,8 @@ ACARSProcessorSettings:
     LogLevel: info
     # Port to listen on for profiling (example: http://localhost:6060/debug/pprof/heap)
     ProfilingPort: 6060
+    # How many messages to queue. If your steps take a long time, recommend no less than 1000. Works out to about 1KB memory used per message (this may become outdated).
+    MessageQueueSize: 1000
     # Whether to refrain from printing timestamps in logs.
     LogHideTimestamps: false
     # ACARSHub connection settings.
