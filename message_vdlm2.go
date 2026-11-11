@@ -60,7 +60,7 @@ type VDLM2Message struct {
 				Mode                  string `json:"mode"  ap:"Mode"`
 				Label                 string `json:"label"  ap:"Label"`
 				BlockID               string `json:"blk_id"`
-				Acknowledge           string `json:"ack" gorm:"type:string"`
+				Acknowledge           any    `json:"ack" gorm:"type:string"`
 				FlightNumber          string `json:"flight" ap:"FlightNumber"`
 				MessageNumber         string `json:"msg_num"`
 				MessageNumberSequence string `json:"msg_num_seq"`

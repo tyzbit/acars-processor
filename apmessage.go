@@ -3,8 +3,6 @@ package main
 import (
 	"fmt"
 	"reflect"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var ACARSProcessorPrefix = "ACARSProcessor."
@@ -99,7 +97,7 @@ func squashValueIntoMapStringAny(prefix string, v reflect.Value) APMessage {
 		m = MergeAPMessages(m, APMessage{prefix: v.Bool()})
 
 	default:
-		log.Debug(Aside("Unhandled type! Type was %s: %+v", v.Type().Name()), v)
+		m = MergeAPMessages(m, APMessage{prefix: fmt.Sprintf("%s", v)})
 	}
 	return m
 }
