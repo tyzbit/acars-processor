@@ -55,7 +55,7 @@ func InitMariaDB() (err error) {
 	return err
 }
 
-func LoadSavedMessages() error {
+func LoadSavedMessages(interactive bool) error {
 	switch config.ACARSProcessorSettings.Database.Type {
 	case "mariadb":
 		if err := InitMariaDB(); err != nil {
@@ -70,6 +70,8 @@ func LoadSavedMessages() error {
 	if config.ACARSProcessorSettings.Database.Enabled && config.ACARSProcessorSettings.Database.Type != "" {
 		log.Info(Content("%s database initialized", config.ACARSProcessorSettings.Database.Type))
 	}
+
+	APMessageQueue := make(chan APMessageQeueueItem, config.ACARSProcessorSettings.MessageQueueSize)
 
 	// ACARS
 	am := []ACARSMessage{}
@@ -104,6 +106,12 @@ func LoadSavedMessages() error {
 			}
 		}
 		log.Info(Content("Loaded %d VDLM2 messages from the db", len(vm)))
+	}
+
+	if interactive {
+		go SubscribeToStandardIn(APMessageQueue)
+	} else {
+		go SubscribeToACARSHub(APMessageQueue)
 	}
 
 	return nil

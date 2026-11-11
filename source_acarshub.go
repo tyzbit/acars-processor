@@ -12,10 +12,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	APMessageQueue = make(chan APMessageQeueueItem, 10000)
-)
-
 type APMessageQeueueItem struct {
 	ACARSMessage
 	VDLM2Message
@@ -41,14 +37,14 @@ func (vc VDLM2ConnectionConfig) GetDefaultFields() (s []string) {
 }
 
 // Connects to ACARS and starts listening to messages
-func SubscribeToACARSHub() {
+func SubscribeToACARSHub(APMessageQueue chan APMessageQeueueItem) {
 	launched := false
 	if config.ACARSProcessorSettings.ACARSHub.ACARS.Host != "" && config.ACARSProcessorSettings.ACARSHub.ACARS.Port != 0 {
-		go ReadACARSHubACARSMessages()
+		go ReadACARSHubACARSMessages(APMessageQueue)
 		launched = true
 	}
 	if config.ACARSProcessorSettings.ACARSHub.VDLM2.Host != "" && config.ACARSProcessorSettings.ACARSHub.VDLM2.Port != 0 {
-		go ReadACARSHubVDLM2Messages()
+		go ReadACARSHubVDLM2Messages(APMessageQueue)
 		launched = true
 	}
 	go HandleAPMessageQueue(APMessageQueue)
@@ -59,7 +55,7 @@ func SubscribeToACARSHub() {
 	}
 }
 
-func ReadACARSHubACARSMessages() {
+func ReadACARSHubACARSMessages(APMessageQueue chan APMessageQeueueItem) {
 	address := fmt.Sprintf("%s:%d", config.ACARSProcessorSettings.ACARSHub.ACARS.Host, config.ACARSProcessorSettings.ACARSHub.ACARS.Port)
 	for {
 		log.Debug(Aside("connecting to "), Note(config.ACARSProcessorSettings.ACARSHub.ACARS.Host), Aside(" on acars json port "), Note(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.ACARS.Port)))
@@ -110,7 +106,7 @@ func ReadACARSHubACARSMessages() {
 	}
 }
 
-func ReadACARSHubVDLM2Messages() {
+func ReadACARSHubVDLM2Messages(APMessageQueue chan APMessageQeueueItem) {
 	address := fmt.Sprintf("%s:%d", config.ACARSProcessorSettings.ACARSHub.VDLM2.Host, config.ACARSProcessorSettings.ACARSHub.VDLM2.Port)
 	for {
 		log.Debug(Aside("connecting to "), Note(config.ACARSProcessorSettings.ACARSHub.VDLM2.Host), Aside(" on vdlm2 json port "), Note(fmt.Sprint(config.ACARSProcessorSettings.ACARSHub.VDLM2.Port)))

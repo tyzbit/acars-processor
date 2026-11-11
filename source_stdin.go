@@ -10,18 +10,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var (
-	STDINAPMessageQueue = make(chan APMessageQeueueItem, 10000)
-)
-
 // Connects to ACARS and starts listening to messages
-func SubscribeToStandardIn() {
-	go ReadSTDINAMessages()
+func SubscribeToStandardIn(STDINAPMessageQueue chan APMessageQeueueItem) {
+	go ReadSTDINAMessages(STDINAPMessageQueue)
 	go HandleAPMessageQueue(STDINAPMessageQueue)
 	log.Debug(Aside("launched stdin subscriber"))
 }
 
-func ReadSTDINAMessages() {
+func ReadSTDINAMessages(STDINAPMessageQueue chan APMessageQeueueItem ) {
 	for {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {

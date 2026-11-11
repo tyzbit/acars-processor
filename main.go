@@ -50,14 +50,8 @@ func main() {
 			log.Println(http.ListenAndServe(addr, nil))
 		}()
 	}
-	if err := LoadSavedMessages(); err != nil {
+	if err := LoadSavedMessages(interactive); err != nil {
 		log.Fatal(Attention("unable to initialize database: %s", err))
-	}
-
-	if interactive {
-		go SubscribeToStandardIn()
-	} else {
-		go SubscribeToACARSHub()
 	}
 
 	// Listen for signals from the OS
