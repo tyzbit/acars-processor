@@ -1,4 +1,4 @@
-FROM golang:1.24-alpine as build
+FROM golang:1.25-alpine as build
 
 LABEL org.opencontainers.image.source="https://github.com/tyzbit/acars-processor"
 
