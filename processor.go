@@ -8,10 +8,17 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var formatFilterAction = map[bool]string{
-	true:  Custom(color.New(color.FgYellow), "filtered"),
-	false: Custom(color.New(color.FgCyan), "finished"),
-}
+var (
+	formatFilterAction = map[bool]string{
+		true:  Custom(color.New(color.FgYellow), "filtered"),
+		false: Custom(color.New(color.FgCyan), "finished"),
+	}
+	EmptyFilter = FilterStep{}
+	EmptyAnnotator = AnnotateStep{}
+	EmptyReceiver = ReceiverStep{}
+	EmptyACARSMessage = ACARSMessage{}
+	EmptyVDLM2Message = VDLM2Message{}
+)
 
 // Reads ACARS-Processor messages, filters annotates and
 // sends off to configured receivers
@@ -34,7 +41,7 @@ func HandleAPMessageQueue(apm chan APMessageQeueueItem) {
 			for stepNum, s := range config.Steps {
 				// Make it human-friendly
 				stepNum++
-				if !reflect.DeepEqual(s.Filter, FilterStep{}) {
+				if !reflect.DeepEqual(s.Filter, EmptyFilter) {
 					name, filter, err = s.Filter.Filter(message.APMessage)
 					if err != nil {
 						// The filters take FilterOnFailure into account, so we
@@ -46,10 +53,10 @@ func HandleAPMessageQueue(apm chan APMessageQeueueItem) {
 						break
 					}
 				}
-				if !reflect.DeepEqual(s.Annotate, AnnotateStep{}) {
+				if !reflect.DeepEqual(s.Annotate, EmptyAnnotator) {
 					message.APMessage = s.Annotate.Annotate(message.APMessage)
 				}
-				if !reflect.DeepEqual(s.Send, ReceiverStep{}) {
+				if !reflect.DeepEqual(s.Send, EmptyReceiver) {
 					err := s.Send.Send(message.APMessage)
 					if err != nil {
 						log.Warn(Attention("error sending to receivers in step number %d: %s", stepNum, err))
@@ -84,12 +91,12 @@ func HandleAPMessageQueue(apm chan APMessageQeueueItem) {
 				Note("%.2f seconds", time.Since(start).Seconds()),
 				Content(" to process and was ingested "),
 				Note("%.2f seconds ago", time.Since(msgts).Seconds()))
-			if !(reflect.DeepEqual(message.ACARSMessage, ACARSMessage{})) {
+			if !(reflect.DeepEqual(message.ACARSMessage, EmptyACARSMessage)) {
 				message.ACARSMessage.ProcessingFinishedAt = time.Now()
 				message.ACARSMessage.Processed = true
 				db.Updates(&message.ACARSMessage)
 			}
-			if !(reflect.DeepEqual(message.VDLM2Message, VDLM2Message{})) {
+			if !(reflect.DeepEqual(message.VDLM2Message, EmptyVDLM2Message)) {
 				message.VDLM2Message.ProcessingFinishedAt = time.Now()
 				message.VDLM2Message.Processed = true
 				db.Updates(&message.VDLM2Message)
