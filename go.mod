@@ -1,6 +1,6 @@
 module github.com/tyzbit/acars-processor
 
-go 1.24.5
+go 1.25.14
 
 require (
 	codeberg.org/tyzbit/huenique v0.2.0

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -42,10 +43,11 @@ func main() {
 
 	LoadConfig()
 	ConfigureLogging()
-	if config.ACARSProcessorSettings.EnableProfiling {
-		log.Info(Content("Enabling debug profiling"))
+	if config.ACARSProcessorSettings.ProfilingPort != 0 {
+		addr := fmt.Sprintf("localhost:%d", config.ACARSProcessorSettings.ProfilingPort)
+		log.Info(Content("Enabling debug profiling on http://%s", addr))
 		go func() {
-			log.Println(http.ListenAndServe("localhost:6060", nil))
+			log.Println(http.ListenAndServe(addr, nil))
 		}()
 	}
 	if err := LoadSavedMessages(); err != nil {

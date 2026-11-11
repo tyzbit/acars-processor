@@ -13,6 +13,12 @@ import (
 
 const ACARSCustomEventType = "CustomACARS"
 
+var (
+	// Allow reusing the same harvester and config across calls
+	harvester = new(telemetry.Harvester)
+	harvesterConfig = func(*telemetry.Config){}
+)
+
 type NewRelicReceiver struct {
 	Module
 	Receiver
@@ -32,10 +38,10 @@ func (n NewRelicReceiver) Send(a APMessage) (err error) {
 	if n.APIKey == "" {
 		return fmt.Errorf("New Relic API key not specified: %w", err)
 	}
+
+	harvesterConfig = telemetry.ConfigAPIKey(n.APIKey)
 	// Create a new harvester for sending telemetry data.
-	harvester, err := telemetry.NewHarvester(
-		telemetry.ConfigAPIKey(n.APIKey),
-	)
+	harvester, err = telemetry.NewHarvester(harvesterConfig)
 	if err != nil {
 		return fmt.Errorf("Error creating harvester: %w", err)
 	}

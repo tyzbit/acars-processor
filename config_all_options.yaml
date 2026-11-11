@@ -18,8 +18,8 @@ ACARSProcessorSettings:
         SQLiteDatabasePath: ./messages.db
     # Set logging verbosity.
     LogLevel: info
-    # Enable profiling (example: http://localhost:6060/debug/pprof/heap)
-    EnableProfiling: false
+    # Port to listen on for profiling (example: http://localhost:6060/debug/pprof/heap)
+    ProfilingPort: 6060
     # Whether to refrain from printing timestamps in logs.
     LogHideTimestamps: false
     # ACARSHub connection settings.

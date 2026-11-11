@@ -96,8 +96,8 @@ type ACARSProcessorSettings struct {
 	Database ACARSProcessorDatabaseConfig `json:",omitempty"`
 	// Set logging verbosity.
 	LogLevel string `json:",omitempty" jsonschema:"default=info" default:"info"`
-	// Enable profiling (example: http://localhost:6060/debug/pprof/heap)
-	EnableProfiling bool `json:",omitempty" jsonschema:"default=false" default:"false"`
+	// Port to listen on for profiling (example: http://localhost:6060/debug/pprof/heap)
+	ProfilingPort int `json:",omitempty" jsonschema:"default=0" default:"6060"`
 	// Whether to refrain from printing timestamps in logs.
 	LogHideTimestamps bool `json:",omitempty" jsonschema:"default=false" default:"false"`
 	// ACARSHub connection settings.
