@@ -11,10 +11,17 @@ import (
 	"github.com/adrg/strutil/metrics"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/words"
+	"gorm.io/gorm/clause"
 )
 
 type StringMetric interface {
 	Compare(a, b string) float64
+}
+
+// Used to just grab the message text from a
+// ACARS or VDLM2 message
+type MessageText struct {
+	MessageText string
 }
 
 const (
@@ -404,28 +411,24 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 	if d.PreviousMessageSimilarity.MaximumLookBehind != 0 {
 		defaultMaxLookbehind = d.PreviousMessageSimilarity.MaximumLookBehind
 	}
-	am, vm, msgs := []ACARSMessage{}, []VDLM2Message{}, []string{}
-	db.Where(ACARSMessage{Processed: true}).
-		Limit(defaultMaxLookbehind).
+	// Nice way to grab just the "MessageText" field in the next query
+	var am, vm, msgs []MessageText
+	db.Model(ACARSMessage{}).
+		Where(struct{ Processed bool }{Processed: true}).
+		Order(clause.Column{Name: "updated_at"}).
+		Limit(defaultMaxLookbehind / 2).
 		Find(&am)
-	db.Where(VDLM2Message{Processed: true}).
-		Limit(defaultMaxLookbehind).
+	db.Model(VDLM2Message{}).
+		Where(VDLM2Message{Processed: true}).
+		Order(clause.Column{Name: "updated_at"}).
+		Limit(defaultMaxLookbehind / 2).
 		Find(&vm)
-	for _, acm := range am {
-		if acm.MessageText != "" {
-			msgs = append(msgs, acm.MessageText)
-		}
-	}
-	for _, acm := range vm {
-		if acm.VDL2.AVLC.ACARS.MessageText != "" {
-			msgs = append(msgs, acm.VDL2.AVLC.ACARS.MessageText)
-		}
-	}
+	msgs = append(am, vm...)
 	for _, mcmp := range msgs {
-		similarity := strutil.Similarity(mt, mcmp, metrics.NewHamming())
+		similarity := strutil.Similarity(mt, mcmp.MessageText, metrics.NewHamming())
 		if similarity >= d.PreviousMessageSimilarity.Similarity {
 			pctSimilar := int(similarity * 100)
-			if len(mt) > len(mcmp) && d.PreviousMessageSimilarity.DontFilterIfLonger {
+			if len(mt) > len(mcmp.MessageText) && d.PreviousMessageSimilarity.DontFilterIfLonger {
 				log.Debug(Aside("%s: message is greater than %d%% similarity(%.2f%%) but not filtering due to DontFilterIfLonger",
 					d.Name(), pctSimilar, d.PreviousMessageSimilarity.Similarity*100))
 			} else {
