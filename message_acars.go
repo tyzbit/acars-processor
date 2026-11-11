@@ -44,8 +44,8 @@ type ACARSMessage struct {
 	Mode             string `json:"mode" ap:"Mode"`
 	Label            string `json:"label" ap:"Label"`
 	BlockID          string `json:"block_id"`
-	Acknowledge      any    `json:"ack" gorm:"type:string"` // Can be bool or string
-	AircraftTailCode string `json:"tail" ap:"TailCode"`     // Can be string or float
+	Acknowledge      string `json:"ack"`                // Can be bool or string
+	AircraftTailCode string `json:"tail" ap:"TailCode"` // Can be string or float
 	MessageText      string `json:"text" ap:"MessageText"`
 	MessageNumber    string `json:"msgno"`
 	FlightNumber     string `json:"flight" ap:"FlightNumber"`

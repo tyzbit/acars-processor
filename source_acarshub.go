@@ -69,6 +69,7 @@ func ReadACARSHubACARSMessages() {
 			time.Sleep(time.Second * 1)
 			continue
 		}
+		defer s.Close()
 		log.Info(Success("connected to acarshub acars json port successfully"))
 		readJson := json.NewDecoder(io.Reader(s))
 		log.Debug(Aside("handling acars json messages"))
@@ -105,7 +106,6 @@ func ReadACARSHubACARSMessages() {
 		}
 
 		log.Warn(Attention("acars handler exited, reconnecting"))
-		s.Close()
 		time.Sleep(time.Second * 1)
 	}
 }
@@ -120,6 +120,7 @@ func ReadACARSHubVDLM2Messages() {
 			time.Sleep(time.Second * 1)
 			break
 		}
+		defer s.Close()
 		log.Info(Success("connected to acarshub vdlm2 json port successfully"))
 		readJson := json.NewDecoder(io.Reader(s))
 		log.Debug(Aside("handling vdlm2 json messages"))
@@ -155,7 +156,6 @@ func ReadACARSHubVDLM2Messages() {
 		}
 
 		log.Warn(Attention("vdlm2 handler exited, reconnecting"))
-		s.Close()
 		time.Sleep(time.Second * 1)
 	}
 }

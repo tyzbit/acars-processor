@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"maps"
 	"reflect"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var ACARSProcessorPrefix = "ACARSProcessor."
@@ -14,18 +15,17 @@ func FormatAsAPMessage(s any, prefix string) APMessage {
 	if prefix == "" {
 		prefix = reflect.TypeOf(s).Name()
 	}
-	result := make(map[string]any)
-	squashValueIntoMapStringAny(prefix, reflect.ValueOf(s), result)
-	return result
+	return squashValueIntoMapStringAny(prefix, reflect.ValueOf(s))
 }
 
 // reflectValue recursively processes a value (struct, map, etc.) and populates
 // the map with string keys and any value
-func squashValueIntoMapStringAny(prefix string, v reflect.Value, m map[string]any) {
+func squashValueIntoMapStringAny(prefix string, v reflect.Value) APMessage {
+	m := APMessage{}
 	// Dereference pointers
 	if v.Kind() == reflect.Ptr {
 		if v.IsNil() {
-			return
+			return m
 		}
 		v = v.Elem()
 	}
@@ -48,16 +48,11 @@ func squashValueIntoMapStringAny(prefix string, v reflect.Value, m map[string]an
 			newPrefix += tagName
 
 			fieldVal := v.Field(i)
-			squashValueIntoMapStringAny(newPrefix, fieldVal, m)
+			m = MergeAPMessages(m, squashValueIntoMapStringAny(newPrefix, fieldVal))
 
 			// If acars tag exists, also add an entry with that key
 			if acarsTag, ok := field.Tag.Lookup("ap"); ok && acarsTag != "" {
-				// Use the raw field value
-				if fieldVal.Kind() == reflect.Ptr && fieldVal.IsNil() {
-					m[ACARSProcessorPrefix+acarsTag] = nil
-				} else {
-					m[ACARSProcessorPrefix+acarsTag] = fieldVal.Interface()
-				}
+				m = MergeAPMessages(m, squashValueIntoMapStringAny(ACARSProcessorPrefix+acarsTag, fieldVal))
 			}
 		}
 
@@ -70,7 +65,7 @@ func squashValueIntoMapStringAny(prefix string, v reflect.Value, m map[string]an
 				newPrefix += "."
 			}
 			newPrefix += keyStr
-			squashValueIntoMapStringAny(newPrefix, v.MapIndex(key), m)
+			m = MergeAPMessages(m, squashValueIntoMapStringAny(newPrefix, v.MapIndex(key)))
 		}
 
 	case reflect.Slice, reflect.Array:
@@ -82,23 +77,38 @@ func squashValueIntoMapStringAny(prefix string, v reflect.Value, m map[string]an
 			}
 			// Append index numbers to the field names
 			newPrefix += fmt.Sprintf("[%d]", i)
-			squashValueIntoMapStringAny(newPrefix, v.Index(i), m)
+			m = MergeAPMessages(m, squashValueIntoMapStringAny(newPrefix, v.Index(i)))
 		}
 
+	case reflect.Int:
+		m = MergeAPMessages(m, APMessage{prefix: v.Int()})
+
+	case reflect.Int64:
+		m = MergeAPMessages(m, APMessage{prefix: v.Int()})
+
+	case reflect.Uint:
+		m = MergeAPMessages(m, APMessage{prefix: v.Uint()})
+
+	case reflect.String:
+		m = MergeAPMessages(m, APMessage{prefix: v.String()})
+
+	case reflect.Float64:
+		m = MergeAPMessages(m, APMessage{prefix: v.Float()})
+
+	case reflect.Bool:
+		m = MergeAPMessages(m, APMessage{prefix: v.Bool()})
+
 	default:
-		// Add primitive types directly
-		m[prefix] = v.Interface()
+		log.Debug(Aside("Unhandled type! Type was %s: %+v", v.Type().Name()), v)
 	}
+	return m
 }
 
-
-func MergeAPMessages(m1, m2 map[string]any) APMessage {
-	// Create a new map to avoid modifying the original maps.
-	merged := make(map[string]any, len(m1)+len(m2))
-	maps.Copy(merged, m1)
-	// If keys overlap, m2's values will overwrite m1's.
-	maps.Copy(merged, m2)
-	return merged
+func MergeAPMessages(m1, m2 APMessage) APMessage {
+	for k, v := range m2 {
+		m1[k] = v
+	}
+	return m1
 }
 
 // Callers should know if the type is not what's assumed, zero
