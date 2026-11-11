@@ -7,7 +7,6 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/adrg/strutil"
 	"github.com/adrg/strutil/metrics"
 	log "github.com/sirupsen/logrus"
 	"github.com/tidwall/words"
@@ -424,9 +423,8 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 		Limit(defaultMaxLookbehind / 2).
 		Find(&vm)
 	msgs = append(am, vm...)
-	hamm := metrics.NewHamming()
 	for _, mcmp := range msgs {
-		similarity := strutil.Similarity(mt, mcmp.MessageText, hamm)
+		similarity := metrics.NewHamming().Compare(mt, mcmp.MessageText)
 		if similarity >= d.PreviousMessageSimilarity.Similarity {
 			pctSimilar := int(similarity * 100)
 			if len(mt) > len(mcmp.MessageText) && d.PreviousMessageSimilarity.DontFilterIfLonger {
