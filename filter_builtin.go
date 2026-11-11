@@ -410,7 +410,7 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 	if d.PreviousMessageSimilarity.MaximumLookBehind != 0 {
 		defaultMaxLookbehind = d.PreviousMessageSimilarity.MaximumLookBehind
 	}
-	// Nice way to grab just the "MessageText" field in the next query
+	// Nice way to grab just the "MessageText" field in the next queries
 	var am, vm, msgs []MessageText
 	db.Model(ACARSMessage{}).
 		Where(struct{ Processed bool }{Processed: true}).
