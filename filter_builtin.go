@@ -29,6 +29,7 @@ const (
 
 var (
 	defaultMaxLookbehind = 1000
+	hamming              = metrics.NewHamming()
 	freetextTerms        = []string{
 		"BINGO",
 		"CHOP",
@@ -424,7 +425,7 @@ func (d BuiltinFilter) FilterSimilarAPMessage(m APMessage) (filter bool, reason 
 		Find(&vm)
 	msgs = append(am, vm...)
 	for _, mcmp := range msgs {
-		similarity := metrics.NewHamming().Compare(mt, mcmp.MessageText)
+		similarity := hamming.Compare(mt, mcmp.MessageText)
 		if similarity >= d.PreviousMessageSimilarity.Similarity {
 			pctSimilar := int(similarity * 100)
 			if len(mt) > len(mcmp.MessageText) && d.PreviousMessageSimilarity.DontFilterIfLonger {
