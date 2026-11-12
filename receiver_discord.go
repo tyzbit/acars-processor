@@ -95,7 +95,7 @@ func (d DiscordReceiver) Send(m APMessage) error {
 	}
 
 	sort.Strings(keys)
-	buff := new(bytes.Buffer)
+	buff := bytes.Buffer{}
 	r, _ := regexp.Compile(".*[Tt]ext$")
 	l, _ := regexp.Compile(".*[Ll]ink$")
 	ts, _ := regexp.Compile(".*[Tt]imestamp$")
@@ -210,11 +210,11 @@ func (d DiscordReceiver) Send(m APMessage) error {
 		Embeds: embeds,
 	}
 
-	err := json.NewEncoder(buff).Encode(message)
+	err := json.NewEncoder(&buff).Encode(message)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", d.URL, buff)
+	req, err := http.NewRequest("POST", d.URL, &buff)
 	if err != nil {
 		return err
 	}

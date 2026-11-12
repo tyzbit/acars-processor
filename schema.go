@@ -67,10 +67,9 @@ func (a ADSBExchangeAnnotator) JSONSchemaExtend(j *jsonschema.Schema) {
 }
 
 func GenerateSchema() (schemaUpdated bool) {
-
 	log.Info(Content("Generating %s", schemaFilePath))
 	// Add comments to the schema from the code
-	r := new(jsonschema.Reflector)
+	r := jsonschema.Reflector{}
 	err := r.AddGoComments("main", "./", jsonschema.WithFullComment())
 	if err != nil {
 		log.Fatal(Attention("unable to add comments to schema, %s", err))
